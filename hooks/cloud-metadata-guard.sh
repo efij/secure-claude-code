@@ -7,7 +7,15 @@ PATTERN_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/cloud
 
 [ -f "$PATTERN_FILE" ] || exit 0
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$PATTERN_FILE" >/dev/null 2>&1; then
+set +e
+printf '%s\n' "$INPUT" | grep -Eif "$PATTERN_FILE" >/dev/null 2>&1
+pattern_status=$?
+set -e
+if [ "$pattern_status" -eq 2 ]; then
+  printf '%s\n' '[secure-claude-code] error: invalid cloud metadata rule pattern' >&2
+  exit 1
+fi
+if [ "$pattern_status" -ne 0 ]; then
   exit 0
 fi
 
