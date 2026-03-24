@@ -8,6 +8,16 @@ PATTERN_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/cloud
 
 [ -f "$PATTERN_FILE" ] || exit 0
 
+case "$INPUT" in
+  *169.254.169.254*|*metadata.google.internal*|*169.254.170.2*|*/latest/meta-data/*|*/metadata/instance*|*Metadata:true*|*computeMetadata/v1*)
+    matched="true"
+    ;;
+  *)
+    matched="false"
+    ;;
+esac
+
+if [ "$matched" != "true" ]; then
 CLEAN_PATTERN_FILE="$(shield_prepare_pattern_file "$PATTERN_FILE")" || exit 1
 trap 'rm -f "$CLEAN_PATTERN_FILE"' EXIT
 
@@ -21,6 +31,7 @@ if [ "$pattern_status" -eq 2 ]; then
 fi
 if [ "$pattern_status" -ne 0 ]; then
   exit 0
+fi
 fi
 
 shield_audit "cloud-metadata-guard" "block" "cloud metadata service access detected" "$INPUT"
