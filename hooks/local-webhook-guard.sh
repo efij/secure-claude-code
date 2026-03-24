@@ -13,7 +13,14 @@ trap 'shield_cleanup_pattern_files' EXIT
 
 [ -f "$WEBHOOK_FILE" ] || exit 0
 
-if ! shield_match_pattern_file "$INPUT" "$WEBHOOK_FILE"; then
+webhook_match="false"
+case "$INPUT" in
+  *discord.com/api/webhooks*|*hooks.slack.com/services*|*webhook.office.com*|*outlook.office.com/webhook*|*chat.googleapis.com/v1/spaces/*|*api.telegram.org/bot*)
+    webhook_match="true"
+    ;;
+esac
+
+if [ "$webhook_match" != "true" ] && ! shield_match_pattern_file "$INPUT" "$WEBHOOK_FILE"; then
   exit 0
 fi
 
