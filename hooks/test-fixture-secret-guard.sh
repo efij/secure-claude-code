@@ -6,12 +6,17 @@ CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
 FILES_FILE="$CONFIG_HOME/test-fixture-files.regex"
 TOKEN_FILE="$CONFIG_HOME/live-token-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
+. "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 
 [ -f "$FILES_FILE" ] || exit 0
 [ -f "$TOKEN_FILE" ] || exit 0
 
+CLEAN_FILES_FILE="$(shield_prepare_pattern_file "$FILES_FILE")" || exit 1
+CLEAN_TOKEN_FILE="$(shield_prepare_pattern_file "$TOKEN_FILE")" || exit 1
+trap 'rm -f "$CLEAN_FILES_FILE" "$CLEAN_TOKEN_FILE"' EXIT
+
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$FILES_FILE" >/dev/null 2>&1
+printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_FILES_FILE" >/dev/null 2>&1
 files_status=$?
 set -e
 if [ "$files_status" -eq 2 ]; then
@@ -23,7 +28,7 @@ if [ "$files_status" -ne 0 ]; then
 fi
 
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$TOKEN_FILE" >/dev/null 2>&1
+printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_TOKEN_FILE" >/dev/null 2>&1
 token_status=$?
 set -e
 if [ "$token_status" -eq 2 ]; then

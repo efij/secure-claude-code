@@ -4,11 +4,15 @@ set -euo pipefail
 INPUT="${1:-}"
 PATTERN_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/cloud-metadata-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
+. "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 
 [ -f "$PATTERN_FILE" ] || exit 0
 
+CLEAN_PATTERN_FILE="$(shield_prepare_pattern_file "$PATTERN_FILE")" || exit 1
+trap 'rm -f "$CLEAN_PATTERN_FILE"' EXIT
+
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$PATTERN_FILE" >/dev/null 2>&1
+printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_PATTERN_FILE" >/dev/null 2>&1
 pattern_status=$?
 set -e
 if [ "$pattern_status" -eq 2 ]; then
