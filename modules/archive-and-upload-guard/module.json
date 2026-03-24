@@ -1,0 +1,18 @@
+{
+  "id": "archive-and-upload-guard",
+  "name": "Archive And Upload Guard Pack",
+  "description": "Blocks archive-and-transfer command chains that package sensitive or high-value material for outbound upload.",
+  "category": "network",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/archive-and-upload-guard.sh \"$TOOL_INPUT\""
+  }
+}

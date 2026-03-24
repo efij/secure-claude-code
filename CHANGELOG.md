@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- added `mcp-permission-guard` to block wildcard or high-risk MCP and tool permission grants in MCP control files
+- added `archive-and-upload-guard` to block archive-then-transfer chains that package secret or high-value material
+- added `config-tamper-guard` to block bypass-style weakening of Claude, MCP, and CI control files
+- added new plain-text policy files for MCP control files, risky permission patterns, archive-sensitive sources, security control files, and tamper phrases
+- expanded validation and smoke coverage for the new guard packs
+
 ## 0.2.0
 
 - added bootstrap installers for shell and PowerShell so the project can be installed directly from a release or repository URL

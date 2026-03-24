@@ -80,8 +80,11 @@ Or run from PowerShell when `bash` is on `PATH`:
 ## Protection Packs
 
 - `abuse-chain-defense`
+- `archive-and-upload-guard`
 - `block-dangerous-commands`
 - `block-unsafe-git`
+- `config-tamper-guard`
+- `mcp-permission-guard`
 - `network-exfiltration`
 - `post-edit-quality-reminder`
 - `pre-push-scan`
@@ -131,11 +134,18 @@ Use `doctor --fix` to repair a broken or missing install from the current checko
 
 - blocks suspicious `scp`, `rsync`, `curl`, `wget`, `aws s3 cp`, `gsutil cp`, and `nc` patterns when sensitive material is involved
 - blocks `curl | bash`, `wget | sh`, and a small set of high-confidence dangerous shell behaviors
+- blocks archive-then-upload chains when they package secret, repo-control, or dump material
+
+### MCP and tool-permission abuse
+
+- blocks risky MCP or tool control-file changes that grant wildcard permissions or always-on shell, network, write, or secret access
+- keeps this logic in plain-text regex config so teams can tune the risk patterns without changing code
 
 ### Claude control-file abuse
 
 - blocks remote writes into `CLAUDE.md`, `.claude/settings.json`, `.claude/hooks`, `.claude/rules`, and related control files
 - blocks obvious rule-override language when it is being written into control files
+- blocks changes to security control files when they introduce bypass-style or wildcard-permission patterns
 
 ### Test and quality tampering
 

@@ -1,0 +1,4 @@
+(^|[[:space:]])(\.env($|[[:space:]])|\.aws/|\.ssh/|\.kube/config)
+(^|[[:space:]])(\.git($|/)|terraform/|config/|secrets?/|credentials?/)
+(^|[[:space:]])([^[:space:]]+\.(sql|sqlite3?|db|dump|bak|backup|pem|p12|pfx|key))([[:space:]]|$)
+(^|[[:space:]])(id_rsa|id_ed25519)([[:space:]]|$)

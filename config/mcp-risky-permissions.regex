@@ -1,0 +1,15 @@
+"(permissions|tools|allow|scopes)"[[:space:]]*:[[:space:]]*\[[^]]*"\*"
+"(allowAllTools|allow_all|dangerouslySkipPermissions|dangerously_allow_all)"[[:space:]]*:[[:space:]]*true
+"(network|shell|bash|exec|execute|subprocess|command)"[[:space:]]*:[[:space:]]*true
+"(fileWrite|write|filesystem-write|filesystem_write|secrets|credential|credentials|env)"[[:space:]]*:[[:space:]]*true
+permissions[^[:cntrl:]]*\*
+tools[^[:cntrl:]]*\*
+allow[^[:cntrl:]]*\*
+network[^[:cntrl:]]*true
+shell[^[:cntrl:]]*true
+exec[^[:cntrl:]]*true
+write[^[:cntrl:]]*true
+secrets?[^[:cntrl:]]*true
+write-all
+allow[[:space:]]+all
+all[[:space:]]+tools

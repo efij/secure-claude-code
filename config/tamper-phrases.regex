@@ -1,0 +1,11 @@
+disable[[:space:]]+(the[[:space:]]+)?hooks?
+remove[[:space:]]+(the[[:space:]]+)?hooks?
+disable[[:space:]]+(the[[:space:]]+)?rules?
+ignore[[:space:]]+(the[[:space:]]+)?rules
+skip[[:space:]]+security
+disable[[:space:]]+security
+write-all
+pull_request_target
+persist-credentials[[:space:]]*:[[:space:]]*true
+allow[[:space:]]+all
+"\*"

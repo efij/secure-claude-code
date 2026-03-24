@@ -1,0 +1,12 @@
+(^|/)CLAUDE\.md$
+(^|/)AGENTS\.md$
+(^|/)\.claude/settings\.json$
+(^|/)\.claude/rules/
+(^|/)\.claude/hooks/
+(^|/)\.cursor/rules/
+(^|/)\.cursor/mcp\.json$
+(^|/)\.mcp\.json$
+(^|/)mcp(-config)?\.json$
+(^|/)\.github/workflows/
+(^|/)\.github/actions/
+(^|/)\.github/copilot-instructions\.md$

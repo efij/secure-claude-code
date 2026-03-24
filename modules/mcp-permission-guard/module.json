@@ -1,0 +1,18 @@
+{
+  "id": "mcp-permission-guard",
+  "name": "MCP Permission Guard Pack",
+  "description": "Blocks broad or high-risk MCP and tool permission grants in MCP control files.",
+  "category": "mcp",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/mcp-permission-guard.sh \"$TOOL_INPUT\""
+  }
+}

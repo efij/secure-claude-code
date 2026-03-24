@@ -8,8 +8,11 @@ Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude 
 - push-time secrets and live connection strings
 - direct reads of local secret material
 - suspicious outbound transfer commands involving sensitive material
+- archive-and-upload chains involving sensitive or high-value material
+- risky MCP and tool permission grants in MCP control files
 - remote-content writes into Claude control files
 - rule-override and jailbreak-style text written into control files
+- tampering with Claude, MCP, or CI control files through bypass-style edits
 - test deletion and obvious quality-check suppression patterns
 
 ## Out Of Scope

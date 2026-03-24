@@ -264,7 +264,7 @@ install_profile() {
 
   find "$INSTALL_HOME/hooks" -type f -name '*.sh' -exec chmod +x {} +
 
-  for config_name in protected-branches.txt protected-paths.regex secret-allowlist.regex secret-paths.regex test-paths.regex control-files.regex; do
+  for config_name in protected-branches.txt protected-paths.regex secret-allowlist.regex secret-paths.regex test-paths.regex control-files.regex mcp-control-files.regex mcp-risky-permissions.regex archive-sensitive-sources.regex security-control-files.regex tamper-phrases.regex; do
     if [ ! -f "$INSTALL_HOME/config/$config_name" ]; then
       cp "$ROOT_DIR/config/$config_name" "$INSTALL_HOME/config/$config_name"
     fi
@@ -383,6 +383,36 @@ validate_install() {
     check_pass "control file config present"
   else
     check_warn "control file config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/mcp-control-files.regex" ]; then
+    check_pass "mcp control config present"
+  else
+    check_warn "mcp control config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/mcp-risky-permissions.regex" ]; then
+    check_pass "mcp permission config present"
+  else
+    check_warn "mcp permission config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/archive-sensitive-sources.regex" ]; then
+    check_pass "archive source config present"
+  else
+    check_warn "archive source config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/security-control-files.regex" ]; then
+    check_pass "security control config present"
+  else
+    check_warn "security control config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/tamper-phrases.regex" ]; then
+    check_pass "tamper phrase config present"
+  else
+    check_warn "tamper phrase config missing"
   fi
 
   if [ -f "$INSTALL_HOME/hooks/lib/audit.sh" ]; then

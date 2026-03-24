@@ -3,8 +3,11 @@ block-unsafe-git
 pre-push-scan
 protect-secrets-read
 abuse-chain-defense
+mcp-permission-guard
 network-exfiltration
+archive-and-upload-guard
 block-dangerous-commands
 protect-sensitive-files
+config-tamper-guard
 protect-tests
 post-edit-quality-reminder
