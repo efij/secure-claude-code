@@ -9,7 +9,14 @@ trap 'shield_cleanup_pattern_files' EXIT
 
 [ -f "$PATTERN_FILE" ] || exit 0
 
-if ! shield_match_pattern_file "$INPUT" "$PATTERN_FILE"; then
+socket_match="false"
+case "$INPUT" in
+  */var/run/docker.sock*|*/run/docker.sock*|*/run/containerd/containerd.sock*|*/var/run/containerd/containerd.sock*|*/var/run/crio/crio.sock*|*/run/crio/crio.sock*|*/run/podman/podman.sock*|*docker_engine*)
+    socket_match="true"
+    ;;
+esac
+
+if [ "$socket_match" != "true" ] && ! shield_match_pattern_file "$INPUT" "$PATTERN_FILE"; then
   exit 0
 fi
 
