@@ -145,6 +145,9 @@ Implemented now:
 Full implemented + future guard registry:
 - [GUARDS.md](GUARDS.md)
 
+Deep dive for every implemented signature:
+- [SIGNATURES.md](SIGNATURES.md)
+
 ## Why It Feels Like YARA
 
 - each module is a focused signature pack
@@ -202,6 +205,7 @@ CI runs the smoke suite on Linux, macOS, and Windows.
 ## Docs
 
 - [GUARDS.md](GUARDS.md)
+- [SIGNATURES.md](SIGNATURES.md)
 - [SECURITY.md](SECURITY.md)
 - [SECURITY_MODEL.md](SECURITY_MODEL.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)

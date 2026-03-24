@@ -7,6 +7,8 @@ Secure Claude Code is organized like a local YARA-style rule engine:
 - plain-text regex and config files keep tuning simple
 - hooks stay small and composable instead of becoming one giant script
 
+For the plain-English deep dive on every implemented signature, see [SIGNATURES.md](SIGNATURES.md).
+
 ## Implemented Guards
 
 - `abuse-chain-defense`: remote instruction writes, rule-override text, and secret-plus-transfer chains
