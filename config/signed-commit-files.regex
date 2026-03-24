@@ -1,0 +1,3 @@
+(^|/)\.gitconfig([[:space:]]|$)
+(^|/)\.git/config([[:space:]]|$)
+git[[:space:]]+config

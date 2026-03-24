@@ -1,0 +1,8 @@
+/var/run/docker\.sock
+/run/docker\.sock
+/run/containerd/containerd\.sock
+/var/run/containerd/containerd\.sock
+/var/run/crio/crio\.sock
+/run/crio/crio\.sock
+/run/podman/podman\.sock
+//\./pipe/docker_engine

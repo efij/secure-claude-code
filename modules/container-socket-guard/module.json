@@ -1,0 +1,18 @@
+{
+  "id": "container-socket-guard",
+  "name": "Container Socket Guard Pack",
+  "description": "Blocks direct access to Docker, containerd, CRI-O, and Podman sockets.",
+  "category": "runtime",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/container-socket-guard.sh \"$TOOL_INPUT\""
+  }
+}

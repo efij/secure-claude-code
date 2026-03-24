@@ -1,0 +1,4 @@
+(^|/)(SHA256SUMS|checksums?(\.txt)?)([[:space:]]|$)
+(^|/).*\.(sha256|sha512|sig|asc)([[:space:]]|$)
+(^|/)dist/
+(^|/).*(sbom\.json|intoto\.jsonl?)([[:space:]]|$)

@@ -1,0 +1,18 @@
+{
+  "id": "devcontainer-trust-guard",
+  "name": "Devcontainer Trust Guard Pack",
+  "description": "Blocks devcontainer and Codespaces-style config changes that weaken isolation or add remote setup execution.",
+  "category": "runtime",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/devcontainer-trust-guard.sh \"$TOOL_INPUT\""
+  }
+}

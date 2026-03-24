@@ -1,0 +1,8 @@
+privileged:[[:space:]]*true
+runArgs[^[:cntrl:]]+--privileged
+docker\.sock
+workspaceMount[^[:cntrl:]]+docker\.sock
+mounts[^[:cntrl:]]+docker\.sock
+remoteUser[[:space:]]*:[[:space:]]*"root"
+post(Create|Start|Attach)Command[^[:cntrl:]]+(curl|wget|Invoke-WebRequest|DownloadString)
+initializeCommand[^[:cntrl:]]+(curl|wget|Invoke-WebRequest|DownloadString)

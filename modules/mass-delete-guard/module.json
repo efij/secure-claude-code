@@ -1,0 +1,18 @@
+{
+  "id": "mass-delete-guard",
+  "name": "Mass Delete Guard Pack",
+  "description": "Blocks broad destructive delete patterns outside common generated-file cleanup directories.",
+  "category": "integrity",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/mass-delete-guard.sh \"$TOOL_INPUT\""
+  }
+}

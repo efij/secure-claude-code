@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0
+
+- added `local-webhook-guard`
+- added `dns-exfiltration-guard`
+- added `browser-cookie-guard`
+- added `container-socket-guard`
+- added `signed-commit-bypass-guard`
+- added `artifact-poisoning-guard`
+- added `mass-delete-guard`
+- added `kube-secret-guard`
+- added `registry-target-guard`
+- added `devcontainer-trust-guard`
+- added a full plain-English signature deep dive in `SIGNATURES.md`
+- simplified the public install story around the bootstrap installer and main CLI entrypoint
+- expanded smoke coverage for the new guard pack set
+- promoted Secure Claude Code to `1.0.0`
+
 ## 0.9.0
 
 - added `repo-mass-harvest-guard`

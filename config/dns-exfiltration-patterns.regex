@@ -1,0 +1,10 @@
+base64
+base32
+xxd[[:space:]]+-p
+openssl[[:space:]]+enc
+\$\((cat|printenv|env)
+[A-Za-z0-9+/=_-]{24,}\.[A-Za-z]{2,}
+secret
+token
+credential
+\.env

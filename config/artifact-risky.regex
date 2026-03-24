@@ -1,0 +1,7 @@
+(>|>>|tee|Set-Content|Add-Content|Out-File)
+sed[[:space:]]+-i
+perl[[:space:]]+-pi
+echo[[:space:]]
+cat[[:space:]].*>
+python[[:space:]]+-c
+node[[:space:]]+-e

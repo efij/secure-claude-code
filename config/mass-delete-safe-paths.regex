@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+coverage
+\.next
+target
+tmp
+\.cache
+\.turbo
+__pycache__
+vendor/bundle

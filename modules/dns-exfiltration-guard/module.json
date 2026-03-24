@@ -1,0 +1,18 @@
+{
+  "id": "dns-exfiltration-guard",
+  "name": "DNS Exfiltration Guard Pack",
+  "description": "Blocks DNS queries and lookups that carry encoded or sensitive material out of the workspace.",
+  "category": "exfiltration",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/dns-exfiltration-guard.sh \"$TOOL_INPUT\""
+  }
+}

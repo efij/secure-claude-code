@@ -1,0 +1,6 @@
+rm[[:space:]]+-rf
+rm[[:space:]]+-r
+git[[:space:]]+rm([[:space:]]+-r)?
+find[[:space:]].*-delete
+del[[:space:]]+/s
+Remove-Item[[:space:]].*-Recurse

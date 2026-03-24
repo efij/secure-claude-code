@@ -16,14 +16,22 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `binary-payload-guard`: downloaded or decoded executable payload staging
 - `block-dangerous-commands`: high-confidence dangerous shell patterns
 - `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
+- `browser-cookie-guard`: browser cookie, login, and session-store access
 - `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
 - `clipboard-exfiltration-guard`: clipboard-based secret movement
 - `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
+- `container-socket-guard`: direct access to Docker, containerd, CRI-O, and Podman sockets
 - `credential-export-guard`: export of live credential material into files, clipboard, or transfers
 - `dangerous-migration-guard`: destructive schema and data-loss migration patterns
+- `devcontainer-trust-guard`: risky devcontainer isolation weakening and remote setup injection
 - `dependency-script-guard`: install-time and build-time dependency script abuse
+- `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
+- `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
+- `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
+- `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
+- `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
 - `post-edit-quality-reminder`: post-edit lint/test reminders
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
@@ -33,7 +41,9 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `protect-tests`: test weakening and quality suppression patterns
 - `remote-script-dropper-guard`: remote content dropped into executable or script paths
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
+- `registry-target-guard`: publish and login flows that target unexpected registries
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
+- `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
 - `token-paste-guard`: live API token and private-key paste detection
 - `tool-origin-guard`: risky MCP or tool origins in config files
@@ -43,18 +53,9 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 
 - `mcp-tool-impersonation-guard`: block tool names that spoof trusted providers
 - `mcp-secret-scope-guard`: block MCP configs that request secret scope outside declared need
-- `local-webhook-guard`: block Discord, Slack, and similar webhook exfil paths
-- `dns-exfiltration-guard`: block encoded data movement through DNS tooling
-- `browser-cookie-guard`: block reads of browser cookie and session stores
 - `cloud-credential-assume-guard`: block risky cloud role assumption and impersonation flows
-- `container-socket-guard`: block Docker, containerd, and kube socket access
-- `signed-commit-bypass-guard`: block commit-signing and verification bypass changes
-- `artifact-poisoning-guard`: block mismatched release artifact and checksum changes
 - `secret-diff-guard`: block secrets at edit time before they ever reach pre-push
-- `mass-delete-guard`: block broad destructive deletes outside approved cleanup paths
 - `log-poisoning-guard`: block secret writes and forged entries in logs or reports
-- `devcontainer-trust-guard`: block risky devcontainer and Codespaces trust changes
-- `registry-target-guard`: block publishes to unexpected registries and artifact endpoints
 - `oauth-device-flow-guard`: block abusive device-code and delegated auth flows
 
 ## FFU Pipeline B
@@ -63,8 +64,6 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `mcp-install-source-allowlist`: allow only reviewed MCP install sources
 - `local-tunnel-guard`: block ngrok, serveo, and localtunnel exposure paths
 - `browser-profile-export-guard`: block copying full browser profiles or profile archives
-- `cloud-metadata-guard`: block access to cloud instance metadata endpoints
-- `kube-secret-guard`: block direct reads and dumps of Kubernetes secrets
 - `terraform-destroy-guard`: block destructive Terraform and OpenTofu flows
 - `git-history-rewrite-guard`: block broad reflog cleanup and repo-history destruction
 - `release-key-guard`: block release-signing and package-signing key export

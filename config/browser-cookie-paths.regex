@@ -1,0 +1,13 @@
+Google/Chrome/.*/Cookies
+Google/Chrome/.*/Login Data
+Chromium/.*/Cookies
+Chromium/.*/Login Data
+Microsoft/Edge/.*/Cookies
+Microsoft/Edge/.*/Login Data
+Firefox/Profiles/.*/cookies\.sqlite
+Firefox/Profiles/.*/logins\.json
+Safari/.*/Cookies\.binarycookies
+Safari/.*/SafariTabs\.db
+AppData\\Local\\Google\\Chrome\\User Data\\.*\\Cookies
+AppData\\Local\\Microsoft\\Edge\\User Data\\.*\\Cookies
+AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\.*\\cookies\.sqlite

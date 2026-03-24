@@ -46,7 +46,7 @@ It is less relevant if:
 ## Why It Feels Different
 
 - local-first: no cloud dashboard needed for core protection
-- simple install: curl, PowerShell, or local checkout
+- simple install: one primary bootstrap path, plus compatibility wrappers if you want them
 - modular guards: each pack focuses on one attack family
 - readable rules: plain-text regex and small hook files
 - friendly defaults: `balanced` is made for everyday use
@@ -65,6 +65,8 @@ It is less relevant if:
 - test weakening, test deletion, and secrets in fixtures
 
 ## Fast Install
+
+Most users only need one install path: the bootstrap installer.
 
 ### macOS / Linux
 
@@ -85,6 +87,8 @@ git clone https://github.com/efij/secure-claude-code.git
 cd secure-claude-code
 bash install.sh
 ```
+
+Compatibility wrappers such as `install.sh`, `update.sh`, and `uninstall.sh` still exist, but they are only thin shortcuts to the main CLI.
 
 ## Core Commands
 
@@ -117,13 +121,20 @@ Implemented now:
 - `ci-secret-release-guard`
 - `clipboard-exfiltration-guard`
 - `cloud-metadata-guard`
+- `container-socket-guard`
 - `config-tamper-guard`
 - `credential-export-guard`
 - `dangerous-migration-guard`
+- `devcontainer-trust-guard`
 - `dependency-script-guard`
+- `dns-exfiltration-guard`
 - `git-hook-persistence-guard`
+- `kube-secret-guard`
+- `local-webhook-guard`
 - `mcp-permission-guard`
+- `mass-delete-guard`
 - `network-exfiltration`
+- `artifact-poisoning-guard`
 - `package-publish-guard`
 - `post-edit-quality-reminder`
 - `pre-push-scan`
@@ -135,12 +146,14 @@ Implemented now:
 - `repo-mass-harvest-guard`
 - `sandbox-escape-guard`
 - `sandbox-policy-tamper-guard`
+- `signed-commit-bypass-guard`
 - `ssh-agent-abuse-guard`
 - `test-fixture-secret-guard`
 - `token-paste-guard`
 - `tool-origin-guard`
 - `tunnel-beacon-guard`
 - `workspace-boundary-guard`
+- `registry-target-guard`
 
 Full implemented + future guard registry:
 - [GUARDS.md](GUARDS.md)

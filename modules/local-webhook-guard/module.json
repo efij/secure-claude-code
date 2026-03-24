@@ -1,0 +1,18 @@
+{
+  "id": "local-webhook-guard",
+  "name": "Local Webhook Guard Pack",
+  "description": "Blocks webhook-style outbound sinks when they are used to move secrets, archives, or repo material.",
+  "category": "exfiltration",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/local-webhook-guard.sh \"$TOOL_INPUT\""
+  }
+}

@@ -1,0 +1,7 @@
+commit\.gpgsign[[:space:]]+false
+tag\.gpgsign[[:space:]]+false
+push\.gpgSign[[:space:]]+false
+gpg\.format[[:space:]]+none
+--no-gpg-sign
+commit\.gpgsign[[:space:]]*=[[:space:]]*false
+tag\.gpgsign[[:space:]]*=[[:space:]]*false
