@@ -14,6 +14,15 @@ assert_contains() {
   fi
 }
 
+assert_not_contains() {
+  local haystack="${1:-}"
+  local needle="${2:-}"
+  if [[ "$haystack" == *"$needle"* ]]; then
+    printf 'assertion failed: expected output to not contain: %s\n' "$needle" >&2
+    exit 1
+  fi
+}
+
 run_capture() {
   local allow_fail="${1:-false}"
   shift
@@ -51,6 +60,10 @@ assert_contains "$doctor_output" 'protect-secrets-read'
 assert_contains "$doctor_output" 'network-exfiltration'
 assert_contains "$doctor_output" 'abuse-chain-defense'
 
+repair_output="$(run_capture false env HOME="$TMP_BASE/repair-home" CLAUDE_HOME="$TMP_BASE/repair-home/.claude" SECURE_CLAUDE_CODE_HOME="$TMP_BASE/repair-home/.secure-claude-code" ./bin/secure-claude-code doctor --fix minimal)"
+assert_contains "$repair_output" 'Repair mode: reinstalling profile minimal'
+assert_contains "$repair_output" 'Health score: 100/100'
+
 secret_block="$(run_capture true env SECURE_CLAUDE_CODE_HOME="$ROOT_DIR" bash hooks/protect-secrets-read.sh 'cat .env' || true)"
 assert_contains "$secret_block" 'blocked sensitive secret-file access'
 
@@ -83,5 +96,23 @@ audit_output="$(run_capture true env HOME="$TMP_BASE/home" CLAUDE_HOME="$TMP_BAS
 log_json="$(run_capture false env HOME="$TMP_BASE/home" CLAUDE_HOME="$TMP_BASE/home/.claude" SECURE_CLAUDE_CODE_HOME="$TMP_BASE/home/.secure-claude-code" ./bin/secure-claude-code logs 5 --json)"
 assert_contains "$log_json" '"module":"block-dangerous-commands"'
 assert_contains "$log_json" '"decision":"block"'
+
+log_filtered="$(run_capture false env HOME="$TMP_BASE/home" CLAUDE_HOME="$TMP_BASE/home/.claude" SECURE_CLAUDE_CODE_HOME="$TMP_BASE/home/.secure-claude-code" ./bin/secure-claude-code logs 10 --json --module block-dangerous-commands --decision block --since-hours 1)"
+assert_contains "$log_filtered" '"module":"block-dangerous-commands"'
+assert_not_contains "$log_filtered" '"module":"protect-tests"'
+
+bootstrap_archive="$TMP_BASE/secure-claude-code-local.tar.gz"
+(
+  cd "$ROOT_DIR"
+  tar -czf "$bootstrap_archive" \
+    --exclude='./dist' \
+    --exclude='./tmp' \
+    --exclude='./state' \
+    --exclude='./.git' \
+    .
+)
+bootstrap_output="$(run_capture false env HOME="$TMP_BASE/bootstrap-home" CLAUDE_HOME="$TMP_BASE/bootstrap-home/.claude" SECURE_CLAUDE_CODE_HOME="$TMP_BASE/bootstrap-home/.secure-claude-code" bash scripts/bootstrap.sh --archive-file "$bootstrap_archive" --profile minimal)"
+assert_contains "$bootstrap_output" 'Installing Secure Claude Code with profile minimal'
+assert_contains "$bootstrap_output" 'Secure Claude Code installed.'
 
 printf 'smoke tests passed\n'

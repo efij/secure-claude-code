@@ -419,8 +419,21 @@ validate_install() {
 }
 
 doctor_install() {
+  local fix_mode="${1:-false}"
+  local requested_profile="${2:-}"
   local profile="unknown"
   profile="$(current_profile)"
+
+  if [ "$fix_mode" = "true" ]; then
+    local target_profile="${requested_profile:-$profile}"
+    if [ "$target_profile" = "unknown" ] || [ -z "$target_profile" ]; then
+      target_profile="balanced"
+    fi
+    assert_profile_exists "$target_profile"
+    info "Repair mode: reinstalling profile $target_profile"
+    install_profile "$target_profile"
+    return 0
+  fi
 
   info "Install home: $INSTALL_HOME"
   info "Claude settings: $CLAUDE_HOME/settings.json"
@@ -449,6 +462,8 @@ for line in profile_file.read_text().splitlines():
 PY
   else
     info "  no active profile found"
+    info ""
+    info "Repair with: bin/secure-claude-code doctor --fix balanced"
   fi
 }
 
@@ -486,30 +501,87 @@ PY
 }
 
 show_logs() {
-  local count="${1:-20}"
-  local mode="${2:-pretty}"
+  local count="20"
+  local mode="pretty"
+  local module_filter=""
+  local decision_filter=""
+  local since_hours=""
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --json)
+        mode="json"
+        ;;
+      --module)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --module"
+        module_filter="$1"
+        ;;
+      --decision)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --decision"
+        decision_filter="$1"
+        ;;
+      --since-hours)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --since-hours"
+        since_hours="$1"
+        ;;
+      ''|*[!0-9.]*)
+        fail "unknown logs option: $1"
+        ;;
+      *)
+        count="$1"
+        ;;
+    esac
+    shift
+  done
 
   [ -f "$AUDIT_FILE" ] || fail "audit log not found at $AUDIT_FILE"
   require_python
 
-  python3 - "$AUDIT_FILE" "$count" "$mode" <<'PY'
+  python3 - "$AUDIT_FILE" "$count" "$mode" "$module_filter" "$decision_filter" "$since_hours" <<'PY'
 import json
 import pathlib
 import sys
+from datetime import datetime, timedelta, timezone
 
 path = pathlib.Path(sys.argv[1])
 count = int(sys.argv[2])
 mode = sys.argv[3]
+module_filter = sys.argv[4]
+decision_filter = sys.argv[5]
+since_hours = sys.argv[6]
 
-lines = [line for line in path.read_text().splitlines() if line.strip()]
-selected = lines[-count:]
+events = []
+cutoff = None
+
+if since_hours:
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=float(since_hours))
+
+for line in path.read_text().splitlines():
+    if not line.strip():
+        continue
+    event = json.loads(line)
+    if module_filter and event.get("module") != module_filter:
+        continue
+    if decision_filter and event.get("decision") != decision_filter:
+        continue
+    if cutoff is not None:
+        event_ts = datetime.fromisoformat(event["ts"])
+        if event_ts.tzinfo is None:
+            event_ts = event_ts.replace(tzinfo=timezone.utc)
+        if event_ts < cutoff:
+            continue
+    events.append(event)
+
+selected = events[-count:]
 
 if mode == "json":
-    for line in selected:
-        print(line)
+    for event in selected:
+        print(json.dumps(event, separators=(",", ":")))
 else:
-    for line in selected:
-        event = json.loads(line)
+    for event in selected:
         print(
             f"{event['ts']} {event['decision'].upper():5} "
             f"{event['module']}: {event['reason']}"
@@ -547,8 +619,8 @@ Usage:
   bin/secure-claude-code update [profile]
   bin/secure-claude-code uninstall [--keep-home]
   bin/secure-claude-code validate
-  bin/secure-claude-code doctor
-  bin/secure-claude-code logs [count] [--json]
+  bin/secure-claude-code doctor [--fix] [profile]
+  bin/secure-claude-code logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
   bin/secure-claude-code list profiles
   bin/secure-claude-code list modules
   bin/secure-claude-code list protections
@@ -580,18 +652,15 @@ case "$command" in
     validate_install
     ;;
   doctor)
-    doctor_install
+    if [ "${2:-}" = "--fix" ]; then
+      doctor_install true "${3:-}"
+    else
+      doctor_install false "${2:-}"
+    fi
     ;;
   logs)
-    if [ "${3:-}" = "--json" ] || [ "${2:-}" = "--json" ]; then
-      if [ "${2:-}" = "--json" ]; then
-        show_logs 20 json
-      else
-        show_logs "${2:-20}" json
-      fi
-    else
-      show_logs "${2:-20}" pretty
-    fi
+    shift
+    show_logs "$@"
     ;;
   list)
     case "${2:-}" in

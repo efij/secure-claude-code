@@ -18,8 +18,17 @@ mkdir -p "$STAGE_DIR" "$DIST_DIR"
 rsync -a \
   --exclude '.git' \
   --exclude '.github' \
+  --exclude '.codex' \
+  --exclude '.claude' \
+  --exclude '.cursor' \
+  --exclude '.idea' \
+  --exclude '.mcp' \
+  --exclude '.mcp*' \
+  --exclude '.vscode' \
   --exclude 'dist' \
   --exclude '.DS_Store' \
+  --exclude 'state' \
+  --exclude 'tmp' \
   "$ROOT_DIR"/ "$STAGE_DIR"/
 
 (
@@ -73,4 +82,3 @@ $SHA256_ZIP  secure-claude-code-$VERSION.zip
 EOF
 
 printf 'release assets created in %s\n' "$DIST_DIR"
-

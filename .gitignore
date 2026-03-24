@@ -1,5 +1,15 @@
 .DS_Store
 *.log
+*.bak
+*.orig
+*.rej
 dist/
 tmp/
-
+state/
+.codex/
+.claude/
+.cursor/
+.idea/
+.mcp/
+.mcp*/
+.vscode/

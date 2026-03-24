@@ -1,40 +1,40 @@
 # Contributing
 
-Secure Claude Code is meant to feel like antivirus for Claude Code: small install, obvious value, low noise.
+Secure Claude Code is designed around small, reviewable protection packs instead of a single growing script.
 
-## Product Rules
+## Contribution Principles
 
-- local-first beats cloud-first
-- high-confidence blocks beat noisy heuristics
-- safe install beats clever install
-- plain-text config beats hidden magic
-- one focused protection pack beats one giant script
+- prefer high-confidence protections over noisy heuristics
+- keep install, update, and uninstall boring and reliable
+- keep configuration editable in plain text when possible
+- design packs so they can be enabled or disabled cleanly by profile
+- favor narrow, explainable behavior over broad magic
 
-## Add A New Protection Pack
+## Adding A Protection Pack
 
-1. Create `modules/<pack-id>/module.json`
-2. Add the hook script in `hooks/<pack-id>.sh`
-3. Add any plain-text defaults in `config/` if needed
-4. Add the pack to one or more profiles in `profiles/*.txt`
-5. Update `README.md` and `ROADMAP.md` if the pack changes product positioning
-6. If the change affects onboarding, update the PowerShell wrappers or platform docs too
+1. Create `modules/<pack-id>/module.json`.
+2. Add the hook implementation in `hooks/`.
+3. Add any default config in `config/` when tuning should stay user-editable.
+4. Add the pack to one or more profiles in `profiles/*.txt`.
+5. Update `README.md` if the pack changes default coverage or install guidance.
+6. Update `ROADMAP.md` if the pack closes or changes a planned area.
 
-## Pack Checklist
+## Pack Quality Bar
 
-- the pack solves one clear risk
-- the block or warning is understandable in one glance
-- the message explains `reason` and `next`
-- the config can be tuned without editing the hook when possible
-- the behavior is safe to reinstall and easy to remove
-- the pack keeps macOS, Linux, and Windows users in mind
+- the pack addresses one clear risk
+- the message is understandable at a glance
+- the output explains `reason` and `next`
+- the behavior is safe to reinstall
+- the behavior is easy to remove
+- the design works for macOS, Linux, and shell-based Windows paths
 
-## Pack Template
+## Example Manifest
 
 ```json
 {
   "id": "protect-tests",
   "name": "Test Integrity Pack",
-  "description": "Warns or blocks when tests are removed or disabled.",
+  "description": "Warns or blocks when tests are removed or weakened.",
   "category": "quality",
   "kind": "warn",
   "default_profiles": ["strict"],
@@ -53,12 +53,11 @@ Secure Claude Code is meant to feel like antivirus for Claude Code: small instal
 
 ## Validation
 
-Before opening a PR, run:
+Run before opening a PR:
 
 ```bash
 bash -n bin/shield bin/secure-claude-code install.sh uninstall.sh update.sh scripts/*.sh hooks/*.sh
 ./bin/secure-claude-code list protections
 ./bin/secure-claude-code generate-config balanced
+bash tests/smoke.sh
 ```
-
-If you add install behavior, also do a temp-home smoke test.

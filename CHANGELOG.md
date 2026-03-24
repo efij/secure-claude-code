@@ -1,10 +1,19 @@
 # Changelog
 
+## 0.2.0
+
+- added bootstrap installers for shell and PowerShell so the project can be installed directly from a release or repository URL
+- added `doctor --fix` to repair or reinstall a missing or broken local install
+- expanded `logs` with filtering by module, decision, and recent time window for faster local audit triage
+- aligned wrapper scripts around `bin/secure-claude-code`
+- hardened release packaging to exclude local editor, agent, temp, and audit-state directories
+- refreshed README and install guidance for bootstrap, package-manager paths, and repair workflows
+
 ## 0.1.0
 
-- initial public release
-- profile-based Claude Code hardening
-- local-first protection packs for git safety, secrets, exfiltration, abuse chains, sensitive files, and test integrity
-- JSONL local audit logging and CLI log viewing
-- Homebrew and Scoop packaging support via generated release assets
-
+- initial public release of Secure Claude Code
+- profile-based Claude Code hardening with `minimal`, `balanced`, and `strict`
+- protection packs for git safety, push-time secret scanning, secret-file access, outbound exfiltration, Claude control-file abuse, sensitive file edits, and test integrity
+- local JSONL audit logging and CLI log viewing
+- generated Homebrew formula and Scoop manifest release assets
+- smoke tests, CI workflow, release workflow, security policy, and security model docs

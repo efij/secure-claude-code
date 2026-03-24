@@ -1,45 +1,35 @@
 # Roadmap
 
-Secure Claude Code should stay small at the core and grow through modular protection packs.
+Secure Claude Code should stay focused: strong local protections, simple installation, and modular growth.
 
-## Current Core
+## Current Scope
 
-- one-command install, update, uninstall
-- profile-based setup: `minimal`, `balanced`, `strict`
-- safe `settings.json` merge with backup and dedupe
-- local-first protections with no required account
-- validation, doctor mode, and health score
-- real-world protection packs for git abuse, secret pushes, secret-file access, outbound exfiltration, sensitive files, and test-integrity warnings
+- profile-based install with `minimal`, `balanced`, and `strict`
+- safe `settings.json` merge and cleanup
+- local JSONL audit logging
+- protection packs for git abuse, secret leakage, sensitive file access, outbound exfiltration, Claude control-file abuse, and test integrity
+- release packaging for tarball, zip, Homebrew formula, and Scoop manifest generation
 
-## Near-Term Packs
+## Next Areas
 
-- `protect-prod-config`: stricter deploy and infra file handling
-- `prompt-injection-redflags`: warn on obviously suspicious retrieval/instruction patterns
-- `test-deletion-guard`: block `git rm` or shell deletes that target test files
-- `safe-branch-workflow`: optional branch auto-suggestion and PR-first workflow hints
-
-## Nice Next Steps
-
-- plugin marketplace packaging
-- Cursor-compatible install target
-- project-local policy overlay files
-- richer health report with per-pack status
+- stricter deploy and infrastructure protections
+- richer per-pack validation output
 - signed release artifacts
-- native Windows hook path without relying on bash-compatible shells
+- first-class package manager distribution after public release
+- native Windows hook execution without relying on Git Bash or WSL
 
 ## Contribution Shape
 
-Secure Claude Code grows by adding new packs, not by making the installer more complex.
-
-Good contributions:
+Strong contributions usually look like:
 
 - one focused protection pack
-- one new profile if it is broadly useful
-- one config file that keeps policy editable without touching code
-- one validator check that helps users trust the install
+- one config file when policy needs to stay editable
+- one validator improvement that increases trust in the install
+- one documentation update that explains user-visible behavior
 
 Avoid:
 
-- cloud-only features as the default path
-- invasive dependencies for a single pack
-- giant “kitchen sink” scripts that mix several concerns
+- cloud-only defaults
+- heavy dependencies for one pack
+- large mixed-purpose scripts
+- features that make uninstall or recovery harder
