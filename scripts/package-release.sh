@@ -6,11 +6,23 @@ VERSION="${2:-$(cat "$ROOT_DIR/VERSION")}"
 REPO="${1:-}"
 DIST_DIR="$ROOT_DIR/dist"
 STAGE_DIR="$DIST_DIR/secure-claude-code-$VERSION"
+PYTHON_BIN="${PYTHON_BIN:-}"
 
 [ -n "$REPO" ] || {
   printf 'usage: scripts/package-release.sh <owner/repo> [version]\n' >&2
   exit 1
 }
+
+if [ -z "$PYTHON_BIN" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
+  elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python)"
+  else
+    printf 'error: python3 or python is required\n' >&2
+    exit 1
+  fi
+fi
 
 rm -rf "$STAGE_DIR"
 mkdir -p "$STAGE_DIR" "$DIST_DIR"
@@ -41,7 +53,7 @@ rsync -a \
 SHA256_TGZ="$(shasum -a 256 "$DIST_DIR/secure-claude-code-$VERSION.tar.gz" | awk '{print $1}')"
 SHA256_ZIP="$(shasum -a 256 "$DIST_DIR/secure-claude-code-$VERSION.zip" | awk '{print $1}')"
 
-python3 - "$ROOT_DIR" "$REPO" "$VERSION" "$SHA256_TGZ" "$SHA256_ZIP" <<'PY'
+"$PYTHON_BIN" - "$ROOT_DIR" "$REPO" "$VERSION" "$SHA256_TGZ" "$SHA256_ZIP" <<'PY'
 from pathlib import Path
 import sys
 

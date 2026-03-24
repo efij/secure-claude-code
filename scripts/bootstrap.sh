@@ -31,6 +31,23 @@ cleanup() {
   fi
 }
 
+make_tempdir() {
+  local base="${TMPDIR:-/tmp}"
+  if tmpdir="$(mktemp -d 2>/dev/null)"; then
+    printf '%s\n' "$tmpdir"
+    return 0
+  fi
+  if tmpdir="$(mktemp -d -t secure-claude-code-bootstrap 2>/dev/null)"; then
+    printf '%s\n' "$tmpdir"
+    return 0
+  fi
+  if tmpdir="$(mktemp -d "$base/secure-claude-code-bootstrap.XXXXXX" 2>/dev/null)"; then
+    printf '%s\n' "$tmpdir"
+    return 0
+  fi
+  fail "could not create temporary directory"
+}
+
 download_file() {
   local url="${1:-}"
   local destination="${2:-}"
@@ -109,7 +126,7 @@ fi
 
 command -v tar >/dev/null 2>&1 || fail "tar is required"
 
-TMP_BASE="$(mktemp -d "${TMPDIR:-/tmp}/secure-claude-code-bootstrap.XXXXXX")"
+TMP_BASE="$(make_tempdir)"
 trap cleanup EXIT
 
 ARCHIVE_PATH="$TMP_BASE/archive.tar.gz"

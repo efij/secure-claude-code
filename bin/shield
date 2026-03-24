@@ -6,6 +6,7 @@ INSTALL_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}"
 CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
 HOOK_COMMAND_PREFIX='~/.secure-claude-code/hooks/'
 AUDIT_FILE="${SECURE_CLAUDE_CODE_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}"
+PYTHON_BIN=""
 
 info() {
   printf '%s\n' "$1"
@@ -17,7 +18,20 @@ fail() {
 }
 
 require_python() {
-  command -v python3 >/dev/null 2>&1 || fail "python3 is required"
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
+    return 0
+  fi
+  if command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python)"
+    return 0
+  fi
+  fail "python3 or python is required"
+}
+
+run_python() {
+  require_python
+  "$PYTHON_BIN" "$@"
 }
 
 profile_path() {
@@ -49,8 +63,6 @@ generate_config() {
   local render_home="${3:-$INSTALL_HOME}"
 
   assert_profile_exists "$profile"
-  require_python
-
   local profile_file
   profile_file="$(profile_path "$profile")"
 
@@ -58,7 +70,7 @@ generate_config() {
     mkdir -p "$(dirname "$output")"
   fi
 
-  python3 - "$ROOT_DIR/modules" "$profile_file" "$output" "$render_home" <<'PY'
+  run_python - "$ROOT_DIR/modules" "$profile_file" "$output" "$render_home" <<'PY'
 import json
 import pathlib
 import sys
@@ -123,9 +135,7 @@ PY
 remove_settings_entries() {
   local settings="${1:-}"
 
-  require_python
-
-  python3 - "$settings" "$HOOK_COMMAND_PREFIX" "$INSTALL_HOME/hooks/" <<'PY'
+  run_python - "$settings" "$HOOK_COMMAND_PREFIX" "$INSTALL_HOME/hooks/" <<'PY'
 import json
 import pathlib
 import shutil
@@ -180,9 +190,7 @@ merge_settings() {
   local generated="${1:-}"
   local settings="${2:-}"
 
-  require_python
-
-  python3 - "$generated" "$settings" <<'PY'
+  run_python - "$generated" "$settings" <<'PY'
 import json
 import pathlib
 import shutil
@@ -246,8 +254,6 @@ install_profile() {
   generated_config="$INSTALL_HOME/generated/settings-hooks.$profile.json"
 
   assert_profile_exists "$profile"
-  require_python
-
   mkdir -p \
     "$INSTALL_HOME/generated" \
     "$INSTALL_HOME/hooks" \
@@ -484,7 +490,7 @@ doctor_install() {
 
   if [ "$profile" != "unknown" ] && [ -f "$(profile_path "$profile")" ]; then
     require_python
-    python3 - "$ROOT_DIR/modules" "$(profile_path "$profile")" <<'PY'
+    run_python - "$ROOT_DIR/modules" "$(profile_path "$profile")" <<'PY'
 import json
 import pathlib
 import sys
@@ -521,7 +527,7 @@ list_profiles() {
 
 list_modules() {
   require_python
-  python3 - "$ROOT_DIR/modules" <<'PY'
+  run_python - "$ROOT_DIR/modules" <<'PY'
 import json
 import pathlib
 import sys
@@ -581,7 +587,7 @@ show_logs() {
   [ -f "$AUDIT_FILE" ] || fail "audit log not found at $AUDIT_FILE"
   require_python
 
-  python3 - "$AUDIT_FILE" "$count" "$mode" "$module_filter" "$decision_filter" "$since_hours" <<'PY'
+  run_python - "$AUDIT_FILE" "$count" "$mode" "$module_filter" "$decision_filter" "$since_hours" <<'PY'
 import json
 import pathlib
 import sys

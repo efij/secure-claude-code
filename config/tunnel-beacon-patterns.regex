@@ -1,0 +1,10 @@
+ngrok
+cloudflared
+localtunnel
+lt[[:space:]]+--port
+serveo
+chisel
+socat
+ssh[[:space:]].*-R
+ssh[[:space:]].*-D
+tailscale[[:space:]]+funnel

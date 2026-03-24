@@ -1,0 +1,6 @@
+(^|/)Dockerfile([[:space:]]|$)
+(^|/)docker-compose\.(ya?ml)([[:space:]]|$)
+(^|/)compose\.(ya?ml)([[:space:]]|$)
+(^|/)\.devcontainer/
+(^|/)devcontainer\.json([[:space:]]|$)
+(^|/)Containerfile([[:space:]]|$)

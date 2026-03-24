@@ -1,0 +1,11 @@
+curl
+wget
+nc[[:space:]]
+scp[[:space:]]
+rsync[[:space:]]
+bash[[:space:]]+-c
+python[[:space:]]+-c
+chmod[[:space:]]+\+x
+pre-push
+pre-commit
+post-checkout

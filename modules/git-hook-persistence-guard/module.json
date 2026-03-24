@@ -1,0 +1,18 @@
+{
+  "id": "git-hook-persistence-guard",
+  "name": "Git Hook Persistence Guard Pack",
+  "description": "Blocks risky execution and network behavior being added to git hook persistence paths.",
+  "category": "git",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/git-hook-persistence-guard.sh \"$TOOL_INPUT\""
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "tunnel-beacon-guard",
+  "name": "Tunnel Beacon Guard Pack",
+  "description": "Blocks reverse tunnels, local exposure tools, and beacon-style remote access setup.",
+  "category": "network",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/tunnel-beacon-guard.sh \"$TOOL_INPUT\""
+  }
+}

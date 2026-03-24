@@ -1,73 +1,89 @@
 # Secure Claude Code
 
-![Local First](https://img.shields.io/badge/local--first-yes-1f883d)
-![No Cloud Required](https://img.shields.io/badge/cloud-required--for--core-no-1f883d)
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows%20(WSL%2FGit%20Bash)-0366d6)
-![License](https://img.shields.io/badge/license-MIT-blue)
+![CI](https://img.shields.io/github/actions/workflow/status/efij/secure-claude-code/ci.yml?branch=main&label=smoke)
+![Release](https://img.shields.io/github/v/release/efij/secure-claude-code)
+![Stars](https://img.shields.io/github/stars/efij/secure-claude-code?style=social)
+![License](https://img.shields.io/github/license/efij/secure-claude-code)
 
-Local guardrails for Claude Code.
+Hard-stop security guardrails for Claude Code.
 
-Secure Claude Code installs a focused set of hook-based protections around Claude Code so risky actions are blocked before they become leaked secrets, damaged git history, or silent quality regressions.
+Secure Claude Code helps stop the dumb, dangerous, or hijacked actions an AI coding agent should not make on your machine or repo.
 
-## Design Model
+It is built for normal Claude Code users too, not only security people.
 
-Think of Secure Claude Code as a local YARA-style guard engine for agent actions:
+If Claude Code can run shell, edit files, use git, call MCP tools, or touch the network, this repo adds a local-first safety layer in front of those actions.
 
-- one module equals one focused signature pack
-- profiles turn packs on without custom code changes
-- plain-text regex and config files act like tunable rule sources
-- hooks stay modular, reviewable, and easy to extend
+## Why People Install It
 
-## What It Protects
+- stop secret leaks before they leave your machine
+- stop bad git actions before history gets wrecked
+- stop risky MCP or tool setup before trust gets widened
+- stop CI, release, and prod mistakes before they go live
+- stop prompt-injection or exfiltration chains before they spread
+
+Works well with Claude Code sandbox mode too: sandboxing contains damage, and Secure Claude Code adds local guard rules on top.
+
+## In One Line
+
+Secure Claude Code works like a modular YARA-style rule pack system for Claude Code actions.
+
+- one guard pack = one attack family
+- profiles turn packs on fast
+- plain-text regex files make tuning easy
+- no dashboard or cloud account required
+
+## Who It Is For
+
+Use it if:
+- you use Claude Code with shell, git, file, or network access
+- you use MCP tools or cowork-style agent workflows
+- you want local-first security without enterprise policy software
+
+It is less relevant if:
+- you only use normal Claude chat
+- Claude never gets tool access
+
+## Why It Feels Different
+
+- local-first: no cloud dashboard needed for core protection
+- simple install: curl, PowerShell, or local checkout
+- modular guards: each pack focuses on one attack family
+- readable rules: plain-text regex and small hook files
+- friendly defaults: `balanced` is made for everyday use
+
+## What It Blocks
 
 - unsafe git actions on protected branches
-- push-time secrets and live connection strings
-- direct reads of local secret material such as `.env`, cloud credentials, SSH keys, and kube config
-- suspicious outbound transfers involving sensitive files or dump material
-- risky MCP and tool-provider permission or origin changes
-- remote script and binary droppers
-- workspace escapes into system paths and deep parent traversal
-- remote-content writes into Claude control files
-- prompt-injection style rule override attempts written into control files
-- test deletion, skip/focus markers, and common quality-check suppression patterns
-- package publish, CI release, prod-target, and destructive migration mistakes
+- secret reads from `.env`, cloud creds, SSH keys, and kube config
+- push-time secrets and connection strings
+- suspicious uploads, archive-and-upload chains, and repo harvest patterns
+- risky MCP permission grants, risky tool origins, and malicious tool/provider setup
+- prompt-injection style control-file abuse
+- sandbox escape patterns and sandbox-policy weakening
+- reverse tunnels, metadata grabs, git-hook persistence, and common sandbox-bypass patterns
+- dependency script abuse, destructive migrations, and prod-target commands
+- test weakening, test deletion, and secrets in fixtures
 
-## Quick Start
+## Fast Install
 
 ### macOS / Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-org/secure-claude-code/main/scripts/bootstrap.sh | bash -s -- --repo your-org/secure-claude-code --ref main --profile balanced
-```
-
-Or install from a local checkout:
-
-```bash
-git clone https://github.com/your-org/secure-claude-code.git
-cd secure-claude-code
-bash install.sh
+curl -fsSL https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.sh | bash -s -- --repo efij/secure-claude-code --ref main --profile balanced
 ```
 
 ### Windows
 
-PowerShell bootstrap:
-
 ```powershell
-irm https://raw.githubusercontent.com/your-org/secure-claude-code/main/scripts/bootstrap.ps1 | iex; Install-SecureClaudeCode -Repo "your-org/secure-claude-code" -Ref "main" -Profile "balanced"
+irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.ps1 | iex; Install-SecureClaudeCode -Repo "efij/secure-claude-code" -Ref "main" -Profile "balanced"
 ```
 
-Git Bash or WSL:
+### Local Checkout
 
 ```bash
-git clone https://github.com/your-org/secure-claude-code.git
+git clone https://github.com/efij/secure-claude-code.git
 cd secure-claude-code
 bash install.sh
-```
-
-Or run from PowerShell when `bash` is on `PATH`:
-
-```powershell
-.\install.ps1
 ```
 
 ## Core Commands
@@ -80,17 +96,18 @@ Or run from PowerShell when `bash` is on `PATH`:
 ./bin/secure-claude-code doctor --fix balanced
 ./bin/secure-claude-code list protections
 ./bin/secure-claude-code logs 20
-./bin/secure-claude-code logs 50 --json --module block-dangerous-commands --decision block --since-hours 24
 ./bin/secure-claude-code uninstall
 ```
 
 ## Profiles
 
-- `minimal`: low-friction baseline
+- `minimal`: light baseline
 - `balanced`: recommended default
-- `strict`: stronger shell and file protections
+- `strict`: more aggressive protection
 
-## Protection Packs
+## Guard Packs
+
+Implemented now:
 
 - `abuse-chain-defense`
 - `archive-and-upload-guard`
@@ -99,10 +116,12 @@ Or run from PowerShell when `bash` is on `PATH`:
 - `block-unsafe-git`
 - `ci-secret-release-guard`
 - `clipboard-exfiltration-guard`
+- `cloud-metadata-guard`
 - `config-tamper-guard`
 - `credential-export-guard`
 - `dangerous-migration-guard`
 - `dependency-script-guard`
+- `git-hook-persistence-guard`
 - `mcp-permission-guard`
 - `network-exfiltration`
 - `package-publish-guard`
@@ -114,85 +133,57 @@ Or run from PowerShell when `bash` is on `PATH`:
 - `protect-tests`
 - `remote-script-dropper-guard`
 - `repo-mass-harvest-guard`
+- `sandbox-escape-guard`
+- `sandbox-policy-tamper-guard`
 - `ssh-agent-abuse-guard`
 - `test-fixture-secret-guard`
 - `token-paste-guard`
 - `tool-origin-guard`
+- `tunnel-beacon-guard`
 - `workspace-boundary-guard`
 
-Each pack is independent, profile-driven, and backed by plain-text config under [`config/`](config/).
+Full implemented + future guard registry:
+- [GUARDS.md](GUARDS.md)
+
+## Why It Feels Like YARA
+
+- each module is a focused signature pack
+- profiles group packs without changing code
+- config files under `config/` act like easy local rule sources
+- hooks stay small and composable
+
+That means it is easy to:
+- add a new guard
+- disable a noisy guard
+- tune patterns without rewriting the whole tool
 
 ## Audit Log
 
 Secure Claude Code writes local JSONL audit events for warnings and blocks.
 
-- default path: `~/.secure-claude-code/state/audit.jsonl`
-- default mode: `alerts`
-- env vars:
-  - `SECURE_CLAUDE_CODE_AUDIT_MODE=alerts|all|off`
-  - `SECURE_CLAUDE_CODE_AUDIT_FILE=/custom/path/audit.jsonl`
-
-Examples:
-
 ```bash
 ./bin/secure-claude-code logs
 ./bin/secure-claude-code logs 50 --json
-./bin/secure-claude-code logs 50 --json --module protect-tests
 ./bin/secure-claude-code logs 50 --decision block --since-hours 24
 ```
 
-Use `doctor --fix` to repair a broken or missing install from the current checkout.
+Defaults:
+- path: `~/.secure-claude-code/state/audit.jsonl`
+- mode: `alerts`
 
-## Real-World Coverage
+Env vars:
+- `SECURE_CLAUDE_CODE_AUDIT_MODE=alerts|all|off`
+- `SECURE_CLAUDE_CODE_AUDIT_FILE=/custom/path/audit.jsonl`
 
-### Git abuse
+## Package and Release Paths
 
-- blocks `--no-verify`
-- blocks `--no-gpg-sign`
-- blocks force-push on protected branches
-- blocks `git reset --hard` on protected branches
+Current best install paths:
+- GitHub release assets
+- bootstrap installer
+- Homebrew formula
+- Scoop manifest
 
-### Secret leakage
-
-- scans for likely secrets before push
-- scans for internal IPs, internal hostnames, and live connection strings
-- blocks direct access to local secret files
-
-### Exfiltration patterns
-
-- blocks suspicious `scp`, `rsync`, `curl`, `wget`, `aws s3 cp`, `gsutil cp`, and `nc` patterns when sensitive material is involved
-- blocks `curl | bash`, `wget | sh`, and a small set of high-confidence dangerous shell behaviors
-- blocks archive-then-upload chains when they package secret, repo-control, or dump material
-- blocks bulk repo harvest and clipboard exfiltration patterns
-- blocks credential export and SSH agent abuse patterns
-
-### MCP and tool-permission abuse
-
-- blocks risky MCP or tool control-file changes that grant wildcard permissions or always-on shell, network, write, or secret access
-- blocks risky tool origins such as temp paths, shell-wrapper commands, and untrusted remote sources in tool configs
-- keeps this logic in plain-text regex config so teams can tune the risk patterns without changing code
-
-### Claude control-file abuse
-
-- blocks remote writes into `CLAUDE.md`, `.claude/settings.json`, `.claude/hooks`, `.claude/rules`, and related control files
-- blocks obvious rule-override language when it is being written into control files
-- blocks changes to security control files when they introduce bypass-style or wildcard-permission patterns
-- blocks CI and release edits that widen trust or secret exposure
-
-### Test and quality tampering
-
-- warns on test edits
-- blocks common test deletion commands
-- warns on `.skip`, `.only`, `xdescribe`, `xit`, `pytest.mark.skip`, and similar markers
-- warns on `eslint-disable`, `noqa`, `nolint`, `@ts-ignore`, and coverage suppression markers
-- blocks live secrets in fixtures, snapshots, and test data
-
-### Supply chain, deploy, and database safety
-
-- blocks risky dependency install hooks and remote fetches in package metadata
-- blocks destructive migration flags, reset flows, and obvious data-loss patterns
-- blocks direct mutating commands against production-like targets
-- warns before package and release publishing commands leave the local review boundary
+GitHub Packages is possible later if you wrap this project as an OCI or npm package, but today the cleanest fit is GitHub Releases plus Homebrew and Scoop.
 
 ## Platform Support
 
@@ -200,73 +191,18 @@ Use `doctor --fix` to repair a broken or missing install from the current checko
 - Linux: supported
 - Windows: supported through Git Bash or WSL
 
-The current hook runtime is shell-based. PowerShell wrappers are included for install, update, and uninstall, but the smooth Windows path today is Git Bash or WSL.
-
-## Package Manager Paths
-
-Homebrew and Scoop manifests are generated as part of the release flow.
-
-After you publish them in your tap or bucket:
-
-```bash
-brew install your-org/tap/secure-claude-code
-```
-
-```powershell
-scoop bucket add secure-claude-code https://github.com/your-org/scoop-secure-claude-code
-scoop install secure-claude-code/secure-claude-code
-```
-
-## Validation
-
-Local verification:
+## Verify
 
 ```bash
 bash tests/smoke.sh
 ```
 
-CI runs the smoke suite on Linux, macOS, and Windows runners via [`ci.yml`](.github/workflows/ci.yml).
-
-## Releases
-
-Build release artifacts and package manifests:
-
-```bash
-bash scripts/package-release.sh your-org/secure-claude-code "$(cat VERSION)"
-```
-
-This produces:
-
-- release tarball
-- release zip
-- SHA256 checksums
-- Homebrew formula
-- Scoop manifest
-
-## Project Layout
-
-```text
-secure-claude-code/
-├── bin/
-├── hooks/
-├── modules/
-├── profiles/
-├── config/
-├── rules/common/
-├── tests/
-├── install.sh
-├── update.sh
-├── uninstall.sh
-├── install.ps1
-├── update.ps1
-├── uninstall.ps1
-└── scripts/package-release.sh
-```
+CI runs the smoke suite on Linux, macOS, and Windows.
 
 ## Docs
 
+- [GUARDS.md](GUARDS.md)
 - [SECURITY.md](SECURITY.md)
 - [SECURITY_MODEL.md](SECURITY_MODEL.md)
-- [GUARDS.md](GUARDS.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [ROADMAP.md](ROADMAP.md)

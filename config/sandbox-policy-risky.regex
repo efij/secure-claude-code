@@ -1,0 +1,13 @@
+--privileged
+cap_add
+SYS_ADMIN
+security_opt
+seccomp=unconfined
+apparmor=unconfined
+pid:[[:space:]]*host
+network_mode:[[:space:]]*host
+privileged:[[:space:]]*true
+/var/run/docker\.sock
+docker\.sock
+userns_mode:[[:space:]]*host
+mounts:[[:space:]]*

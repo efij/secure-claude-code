@@ -1,0 +1,18 @@
+{
+  "id": "sandbox-policy-tamper-guard",
+  "name": "Sandbox Policy Tamper Guard Pack",
+  "description": "Blocks changes that weaken Docker, compose, and devcontainer isolation with privileged flags or host-linked options.",
+  "category": "sandbox",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/sandbox-policy-tamper-guard.sh \"$TOOL_INPUT\""
+  }
+}

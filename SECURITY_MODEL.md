@@ -2,6 +2,8 @@
 
 Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude Code.
 
+It is designed to sit on top of normal safe setup choices such as Claude Code sandbox mode, repo protections, and secret hygiene. It does not replace them.
+
 ## Defended Behaviors
 
 - hook bypasses and unsafe git shortcuts
@@ -11,6 +13,8 @@ Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude 
 - archive-and-upload chains involving sensitive or high-value material
 - risky MCP and tool permission grants in MCP control files
 - risky tool origins, remote droppers, and executable payload staging
+- sandbox escape patterns, sandbox policy weakening, and cloud metadata access
+- tunnel and git-hook persistence patterns that try to bypass normal review boundaries
 - workspace-boundary escapes into system paths
 - CI, publish, and prod-target mutations that widen trust or move outside local review
 - live token pastes, clipboard exfiltration, and SSH agent abuse patterns
@@ -22,17 +26,17 @@ Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude 
 
 ## Out Of Scope
 
-- OS sandboxing
+- OS or container isolation itself
 - Git host protections
-- CI secret scanning
-- endpoint security
+- CI secret scanning outside local hooks
+- endpoint security or EDR
 - least-privilege credential management
 - centralized team policy distribution
 
 ## Assumptions
 
 - Claude Code hook execution is available
-- `bash` and `python3` are available on supported paths
+- `bash` and `python3` or `python` are available on supported paths
 - the local machine and user account are already trusted enough to run Claude Code
 - Windows users run through Git Bash or WSL for the current hook runtime
 

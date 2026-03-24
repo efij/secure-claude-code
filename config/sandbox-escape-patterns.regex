@@ -1,0 +1,15 @@
+docker\.sock
+/var/run/docker\.sock
+--privileged
+--cap-add=SYS_ADMIN
+--pid=host
+--network=host
+--userns=host
+nsenter
+unshare
+mount[[:space:]]
+/proc/
+/sys/
+chroot[[:space:]]
+bwrap
+podman[[:space:]].*--privileged

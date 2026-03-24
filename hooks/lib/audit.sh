@@ -2,6 +2,22 @@
 
 shield_audit_mode="${SECURE_CLAUDE_CODE_AUDIT_MODE:-alerts}"
 shield_audit_file="${SECURE_CLAUDE_CODE_AUDIT_FILE:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/state/audit.jsonl}"
+shield_python_bin=""
+
+shield_python() {
+  if [ -n "${shield_python_bin:-}" ]; then
+    "$shield_python_bin" "$@"
+    return
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    shield_python_bin="$(command -v python3)"
+  elif command -v python >/dev/null 2>&1; then
+    shield_python_bin="$(command -v python)"
+  else
+    return 1
+  fi
+  "$shield_python_bin" "$@"
+}
 
 shield_should_audit() {
   local decision="${1:-}"
@@ -24,11 +40,9 @@ shield_audit() {
   local input="${4:-}"
 
   shield_should_audit "$decision" || return 0
-  command -v python3 >/dev/null 2>&1 || return 0
-
   mkdir -p "$(dirname "$shield_audit_file")"
 
-  python3 - "$shield_audit_file" "$module" "$decision" "$reason" "$input" <<'PY'
+  shield_python - "$shield_audit_file" "$module" "$decision" "$reason" "$input" <<'PY'
 import json
 import os
 import pathlib
