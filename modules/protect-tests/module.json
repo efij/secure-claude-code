@@ -1,0 +1,26 @@
+{
+  "id": "protect-tests",
+  "name": "Test Integrity Pack",
+  "description": "Warns when the agent edits test files or introduces skip and focus markers that can silently reduce coverage.",
+  "category": "quality",
+  "kind": "warn",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "workflow.md",
+    "review-checklist.md"
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "type": "command",
+      "command": "bash ~/.secure-claude-code/hooks/block-test-deletion.sh \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "type": "command",
+      "command": "bash ~/.secure-claude-code/hooks/protect-tests.sh \"$TOOL_INPUT\""
+    }
+  ]
+}

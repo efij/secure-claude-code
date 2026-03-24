@@ -1,0 +1,19 @@
+{
+  "id": "protect-secrets-read",
+  "name": "Secret File Read Guard Pack",
+  "description": "Blocks reads and direct tool access to local secret files like .env, cloud credentials, SSH keys, and kube config.",
+  "category": "files",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Read|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
+  }
+}
+

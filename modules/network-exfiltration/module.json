@@ -1,0 +1,19 @@
+{
+  "id": "network-exfiltration",
+  "name": "Outbound Exfiltration Guard Pack",
+  "description": "Blocks suspicious outbound transfer commands when they reference secret files, key material, or database dumps.",
+  "category": "network",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/network-exfiltration.sh \"$TOOL_INPUT\""
+  }
+}
+

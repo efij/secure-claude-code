@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set version from tag
+        run: |
+          echo "${GITHUB_REF_NAME#v}" > VERSION
+      - name: Build release assets
+        run: bash scripts/package-release.sh "$GITHUB_REPOSITORY" "${GITHUB_REF_NAME#v}"
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/secure-claude-code-*.tar.gz
+            dist/secure-claude-code-*.zip
+            dist/SHA256SUMS
+            dist/secure-claude-code.rb
+            dist/secure-claude-code.json

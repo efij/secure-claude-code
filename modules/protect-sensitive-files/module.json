@@ -1,0 +1,18 @@
+{
+  "id": "protect-sensitive-files",
+  "name": "Sensitive File Guard Pack",
+  "description": "Warns after edits to risky files like package manifests, env files, workflows, and deploy config.",
+  "category": "files",
+  "kind": "warn",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PostToolUse",
+    "matcher": "Write|Edit|MultiEdit",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/protect-sensitive-files.sh \"$TOOL_INPUT\""
+  }
+}

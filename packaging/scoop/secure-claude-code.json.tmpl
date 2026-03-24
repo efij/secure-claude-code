@@ -1,0 +1,18 @@
+{
+  "version": "{{VERSION}}",
+  "description": "Local-first hardening toolkit for Claude Code",
+  "homepage": "https://github.com/{{REPO}}",
+  "license": "MIT",
+  "url": "https://github.com/{{REPO}}/releases/download/v{{VERSION}}/secure-claude-code-{{VERSION}}.zip",
+  "hash": "{{SHA256_ZIP}}",
+  "bin": [
+    "bin\\secure-claude-code"
+  ],
+  "checkver": {
+    "github": "{{REPO}}"
+  },
+  "autoupdate": {
+    "url": "https://github.com/{{REPO}}/releases/download/v$version/secure-claude-code-$version.zip"
+  }
+}
+

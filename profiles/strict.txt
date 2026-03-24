@@ -1,0 +1,10 @@
+# More defensive workflow for shared or sensitive codebases.
+block-unsafe-git
+pre-push-scan
+protect-secrets-read
+abuse-chain-defense
+network-exfiltration
+block-dangerous-commands
+protect-sensitive-files
+protect-tests
+post-edit-quality-reminder

@@ -1,0 +1,613 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INSTALL_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}"
+CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
+HOOK_COMMAND_PREFIX='~/.secure-claude-code/hooks/'
+AUDIT_FILE="${SECURE_CLAUDE_CODE_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}"
+
+info() {
+  printf '%s\n' "$1"
+}
+
+fail() {
+  printf 'error: %s\n' "$1" >&2
+  exit 1
+}
+
+require_python() {
+  command -v python3 >/dev/null 2>&1 || fail "python3 is required"
+}
+
+profile_path() {
+  local profile="${1:-}"
+  printf '%s/profiles/%s.txt\n' "$ROOT_DIR" "$profile"
+}
+
+assert_profile_exists() {
+  local profile="${1:-}"
+  [ -f "$(profile_path "$profile")" ] || fail "unknown profile: $profile"
+}
+
+read_profile_modules() {
+  local profile="${1:-}"
+  grep -Ev '^[[:space:]]*($|#)' "$(profile_path "$profile")"
+}
+
+current_profile() {
+  if [ -f "$INSTALL_HOME/state/profile.txt" ]; then
+    cat "$INSTALL_HOME/state/profile.txt"
+  else
+    printf 'unknown\n'
+  fi
+}
+
+generate_config() {
+  local profile="${1:-}"
+  local output="${2:-}"
+  local render_home="${3:-$INSTALL_HOME}"
+
+  assert_profile_exists "$profile"
+  require_python
+
+  local profile_file
+  profile_file="$(profile_path "$profile")"
+
+  if [ -n "$output" ]; then
+    mkdir -p "$(dirname "$output")"
+  fi
+
+  python3 - "$ROOT_DIR/modules" "$profile_file" "$output" "$render_home" <<'PY'
+import json
+import pathlib
+import sys
+
+modules_dir = pathlib.Path(sys.argv[1])
+profile_file = pathlib.Path(sys.argv[2])
+output_path = sys.argv[3]
+render_home = sys.argv[4]
+
+module_ids = [
+    line.strip()
+    for line in profile_file.read_text().splitlines()
+    if line.strip() and not line.strip().startswith("#")
+]
+
+hooks = {}
+selected = []
+
+for module_id in module_ids:
+    manifest_path = modules_dir / module_id / "module.json"
+    if not manifest_path.exists():
+        raise SystemExit(f"missing module manifest: {manifest_path}")
+
+    manifest = json.loads(manifest_path.read_text())
+    selected.append(
+        {
+            "id": manifest["id"],
+            "name": manifest["name"],
+            "description": manifest["description"],
+            "rules": manifest.get("rules", []),
+        }
+    )
+
+    hook_items = manifest.get("hooks") or [manifest["hook"]]
+    for hook in hook_items:
+        event = hook["event"]
+        hook_payload = {
+            key: value
+            for key, value in hook.items()
+            if key not in {"event", "matcher"} and value is not None
+        }
+        if "command" in hook_payload:
+            hook_payload["command"] = hook_payload["command"].replace(
+                "~/.secure-claude-code", render_home
+            )
+        entry = {
+            "matcher": hook["matcher"],
+            "hooks": [hook_payload],
+        }
+        hooks.setdefault(event, []).append(entry)
+
+payload = {"profile": profile_file.stem, "modules": selected, "hooks": hooks}
+
+rendered = json.dumps(payload, indent=2) + "\n"
+if output_path:
+    pathlib.Path(output_path).write_text(rendered)
+else:
+    sys.stdout.write(rendered)
+PY
+}
+
+remove_settings_entries() {
+  local settings="${1:-}"
+
+  require_python
+
+  python3 - "$settings" "$HOOK_COMMAND_PREFIX" "$INSTALL_HOME/hooks/" <<'PY'
+import json
+import pathlib
+import shutil
+import sys
+from datetime import datetime
+
+settings_path = pathlib.Path(sys.argv[1])
+hook_prefix = sys.argv[2]
+install_hook_dir = sys.argv[3]
+
+if not settings_path.exists():
+    raise SystemExit(0)
+
+existing = json.loads(settings_path.read_text())
+backup_path = settings_path.with_suffix(
+    settings_path.suffix + "." + datetime.now().strftime("%Y%m%d%H%M%S") + ".bak"
+)
+shutil.copy2(settings_path, backup_path)
+
+hooks = existing.get("hooks", {})
+if isinstance(hooks, dict):
+    cleaned = {}
+    for event, entries in hooks.items():
+        if not isinstance(entries, list):
+            continue
+        kept_entries = []
+        for entry in entries:
+            hook_items = entry.get("hooks", [])
+            if not isinstance(hook_items, list):
+                continue
+            kept_hooks = []
+            for hook in hook_items:
+                command = hook.get("command", "")
+                if hook_prefix not in command and install_hook_dir not in command:
+                    kept_hooks.append(hook)
+            if kept_hooks:
+                updated_entry = dict(entry)
+                updated_entry["hooks"] = kept_hooks
+                kept_entries.append(updated_entry)
+        if kept_entries:
+            cleaned[event] = kept_entries
+    if cleaned:
+        existing["hooks"] = cleaned
+    else:
+        existing.pop("hooks", None)
+
+settings_path.write_text(json.dumps(existing, indent=2) + "\n")
+PY
+}
+
+merge_settings() {
+  local generated="${1:-}"
+  local settings="${2:-}"
+
+  require_python
+
+  python3 - "$generated" "$settings" <<'PY'
+import json
+import pathlib
+import shutil
+import sys
+from datetime import datetime
+
+generated_path = pathlib.Path(sys.argv[1])
+settings_path = pathlib.Path(sys.argv[2])
+
+generated = json.loads(generated_path.read_text())
+
+if settings_path.exists():
+    existing = json.loads(settings_path.read_text())
+    backup_path = settings_path.with_suffix(
+        settings_path.suffix + "." + datetime.now().strftime("%Y%m%d%H%M%S") + ".bak"
+    )
+    shutil.copy2(settings_path, backup_path)
+else:
+    existing = {}
+
+hooks = existing.setdefault("hooks", {})
+if not isinstance(hooks, dict):
+    hooks = {}
+    existing["hooks"] = hooks
+
+for event, new_entries in generated.get("hooks", {}).items():
+    current_entries = hooks.setdefault(event, [])
+    if not isinstance(current_entries, list):
+        current_entries = []
+        hooks[event] = current_entries
+
+    for new_entry in new_entries:
+        new_matcher = new_entry.get("matcher")
+        new_hooks = new_entry.get("hooks", [])
+        duplicate = False
+        for current in current_entries:
+          if current.get("matcher") != new_matcher:
+            continue
+          current_hooks = current.get("hooks", [])
+          if current_hooks == new_hooks:
+            duplicate = True
+            break
+        if not duplicate:
+            current_entries.append(new_entry)
+
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+settings_path.write_text(json.dumps(existing, indent=2) + "\n")
+PY
+}
+
+copy_tree() {
+  local source_dir="${1:-}"
+  local target_dir="${2:-}"
+  mkdir -p "$target_dir"
+  cp -R "$source_dir"/. "$target_dir"/
+}
+
+install_profile() {
+  local profile="${1:-balanced}"
+  local generated_config
+  generated_config="$INSTALL_HOME/generated/settings-hooks.$profile.json"
+
+  assert_profile_exists "$profile"
+  require_python
+
+  mkdir -p \
+    "$INSTALL_HOME/generated" \
+    "$INSTALL_HOME/hooks" \
+    "$INSTALL_HOME/modules" \
+    "$INSTALL_HOME/profiles" \
+    "$INSTALL_HOME/rules/common" \
+    "$INSTALL_HOME/config" \
+    "$INSTALL_HOME/state"
+
+  copy_tree "$ROOT_DIR/hooks" "$INSTALL_HOME/hooks"
+  copy_tree "$ROOT_DIR/modules" "$INSTALL_HOME/modules"
+  copy_tree "$ROOT_DIR/profiles" "$INSTALL_HOME/profiles"
+  copy_tree "$ROOT_DIR/rules/common" "$INSTALL_HOME/rules/common"
+
+  find "$INSTALL_HOME/hooks" -type f -name '*.sh' -exec chmod +x {} +
+
+  for config_name in protected-branches.txt protected-paths.regex secret-allowlist.regex secret-paths.regex test-paths.regex control-files.regex; do
+    if [ ! -f "$INSTALL_HOME/config/$config_name" ]; then
+      cp "$ROOT_DIR/config/$config_name" "$INSTALL_HOME/config/$config_name"
+    fi
+  done
+
+  generate_config "$profile" "$generated_config" "$INSTALL_HOME"
+  merge_settings "$generated_config" "$CLAUDE_HOME/settings.json"
+  printf '%s\n' "$profile" >"$INSTALL_HOME/state/profile.txt"
+
+  info ""
+  info "Secure Claude Code installed."
+  info "Profile: $profile"
+  info "Protections: $(read_profile_modules "$profile" | wc -l | tr -d ' ') signatures enabled"
+  info "Install home: $INSTALL_HOME"
+  info "Claude settings: $CLAUDE_HOME/settings.json"
+  info "Generated config: $generated_config"
+  info ""
+  validate_install
+}
+
+validate_install() {
+  local profile="unknown"
+  local pass=0
+  local fail_count=0
+  local warn=0
+  local settings_file="$CLAUDE_HOME/settings.json"
+  local rule_count=0
+  local total_checks=0
+  local health_score=0
+  local posture="offline"
+
+  profile="$(current_profile)"
+
+  check_pass() {
+    printf '  [pass] %s\n' "$1"
+    pass=$((pass + 1))
+  }
+
+  check_fail() {
+    printf '  [fail] %s\n' "$1"
+    fail_count=$((fail_count + 1))
+  }
+
+  check_warn() {
+    printf '  [warn] %s\n' "$1"
+    warn=$((warn + 1))
+  }
+
+  info ""
+  info "Secure Claude Code validation"
+  info "Profile: $profile"
+  info ""
+
+  if [ -d "$INSTALL_HOME/hooks" ] && ls "$INSTALL_HOME/hooks"/*.sh >/dev/null 2>&1; then
+    check_pass "hooks installed in $INSTALL_HOME/hooks"
+  else
+    check_fail "hooks are missing from $INSTALL_HOME/hooks"
+  fi
+
+  if [ -d "$INSTALL_HOME/modules" ] && ls "$INSTALL_HOME/modules"/*/module.json >/dev/null 2>&1; then
+    check_pass "module manifests installed"
+  else
+    check_fail "module manifests missing"
+  fi
+
+  if [ -f "$settings_file" ]; then
+    check_pass "settings.json exists"
+  else
+    check_fail "settings.json missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/generated/settings-hooks.$profile.json" ]; then
+    check_pass "generated config exists for profile $profile"
+  else
+    check_warn "generated profile config missing"
+  fi
+
+  if [ -f "$settings_file" ] && [ "$profile" != "unknown" ] && [ -f "$(profile_path "$profile")" ]; then
+    while IFS= read -r module_id; do
+      if grep -q "$module_id.sh" "$settings_file" 2>/dev/null; then
+        check_pass "$module_id registered in settings"
+      else
+        check_warn "$module_id not found in settings hooks"
+      fi
+    done < <(read_profile_modules "$profile")
+  fi
+
+  if [ -d "$INSTALL_HOME/rules/common" ]; then
+    rule_count="$(find "$INSTALL_HOME/rules/common" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+  fi
+  if [ "${rule_count:-0}" -ge 4 ]; then
+    check_pass "$rule_count rules installed"
+  else
+    check_warn "only $rule_count rules installed"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/protected-paths.regex" ]; then
+    check_pass "protected path config present"
+  else
+    check_warn "protected path config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/secret-paths.regex" ]; then
+    check_pass "secret path config present"
+  else
+    check_warn "secret path config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/test-paths.regex" ]; then
+    check_pass "test path config present"
+  else
+    check_warn "test path config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/config/control-files.regex" ]; then
+    check_pass "control file config present"
+  else
+    check_warn "control file config missing"
+  fi
+
+  if [ -f "$INSTALL_HOME/hooks/lib/audit.sh" ]; then
+    check_pass "audit helper present"
+  else
+    check_warn "audit helper missing"
+  fi
+
+  total_checks=$((pass + fail_count + warn))
+  if [ "$total_checks" -gt 0 ]; then
+    health_score=$((((pass * 100) + (warn * 60)) / total_checks))
+  fi
+
+  if [ "$fail_count" -eq 0 ] && [ "$warn" -eq 0 ]; then
+    posture="hardened"
+  elif [ "$fail_count" -eq 0 ]; then
+    posture="mostly hardened"
+  elif [ "$fail_count" -le 2 ]; then
+    posture="degraded"
+  else
+    posture="exposed"
+  fi
+
+  info ""
+  printf 'Health score: %s/100\n' "$health_score"
+  printf 'Results: %s passed, %s failed, %s warnings\n' "$pass" "$fail_count" "$warn"
+  if [ "$fail_count" -eq 0 ]; then
+    info "Status: $posture"
+    return 0
+  else
+    info "Status: $posture"
+    return 1
+  fi
+}
+
+doctor_install() {
+  local profile="unknown"
+  profile="$(current_profile)"
+
+  info "Install home: $INSTALL_HOME"
+  info "Claude settings: $CLAUDE_HOME/settings.json"
+  info "Active profile: $profile"
+  info ""
+  info "Enabled protections:"
+
+  if [ "$profile" != "unknown" ] && [ -f "$(profile_path "$profile")" ]; then
+    require_python
+    python3 - "$ROOT_DIR/modules" "$(profile_path "$profile")" <<'PY'
+import json
+import pathlib
+import sys
+
+modules_dir = pathlib.Path(sys.argv[1])
+profile_file = pathlib.Path(sys.argv[2])
+
+for line in profile_file.read_text().splitlines():
+    module_id = line.strip()
+    if not module_id or module_id.startswith("#"):
+        continue
+    manifest = json.loads((modules_dir / module_id / "module.json").read_text())
+    category = manifest.get("category", "general")
+    kind = manifest.get("kind", "guard")
+    print(f"  - {manifest['id']} [{category}/{kind}]: {manifest['description']}")
+PY
+  else
+    info "  no active profile found"
+  fi
+}
+
+list_profiles() {
+  info "Profiles:"
+  find "$ROOT_DIR/profiles" -maxdepth 1 -name '*.txt' -print \
+    | sed 's#^.*/##' \
+    | sed 's#\.txt$##' \
+    | sort \
+    | while IFS= read -r profile; do
+        printf '  - %s\n' "$profile"
+      done
+}
+
+list_modules() {
+  require_python
+  python3 - "$ROOT_DIR/modules" <<'PY'
+import json
+import pathlib
+import sys
+
+modules_dir = pathlib.Path(sys.argv[1])
+print("Protections:")
+for manifest_path in sorted(modules_dir.glob("*/module.json")):
+    manifest = json.loads(manifest_path.read_text())
+    category = manifest.get("category", "general")
+    default_profiles = ",".join(manifest.get("default_profiles", []))
+    print(
+        f"  - {manifest['id']} [{category}] ({default_profiles or 'custom'})"
+    )
+    print(
+        f"    {manifest.get('name', manifest['id'])}: {manifest['description']}"
+    )
+PY
+}
+
+show_logs() {
+  local count="${1:-20}"
+  local mode="${2:-pretty}"
+
+  [ -f "$AUDIT_FILE" ] || fail "audit log not found at $AUDIT_FILE"
+  require_python
+
+  python3 - "$AUDIT_FILE" "$count" "$mode" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+count = int(sys.argv[2])
+mode = sys.argv[3]
+
+lines = [line for line in path.read_text().splitlines() if line.strip()]
+selected = lines[-count:]
+
+if mode == "json":
+    for line in selected:
+        print(line)
+else:
+    for line in selected:
+        event = json.loads(line)
+        print(
+            f"{event['ts']} {event['decision'].upper():5} "
+            f"{event['module']}: {event['reason']}"
+        )
+PY
+}
+
+update_install() {
+  local profile="${1:-}"
+  if [ -z "$profile" ]; then
+    profile="$(current_profile)"
+  fi
+  [ "$profile" != "unknown" ] || fail "no installed profile found; run install first"
+  install_profile "$profile"
+}
+
+uninstall_install() {
+  local keep_home="${1:-false}"
+  remove_settings_entries "$CLAUDE_HOME/settings.json"
+
+  if [ "$keep_home" = "true" ]; then
+    info "Secure Claude Code hooks removed from settings."
+    info "Install home kept at $INSTALL_HOME"
+  else
+    rm -rf "$INSTALL_HOME"
+    info "Secure Claude Code hooks removed from settings."
+    info "Install home removed: $INSTALL_HOME"
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+Usage:
+  bin/secure-claude-code install [profile]
+  bin/secure-claude-code update [profile]
+  bin/secure-claude-code uninstall [--keep-home]
+  bin/secure-claude-code validate
+  bin/secure-claude-code doctor
+  bin/secure-claude-code logs [count] [--json]
+  bin/secure-claude-code list profiles
+  bin/secure-claude-code list modules
+  bin/secure-claude-code list protections
+  bin/secure-claude-code generate-config [profile] [output]
+
+Profiles:
+  minimal   Tight baseline for solo hacking
+  balanced  Sensible default for everyday work
+  strict    Stronger command and file protections
+EOF
+}
+
+command="${1:-help}"
+case "$command" in
+  install)
+    install_profile "${2:-balanced}"
+    ;;
+  update)
+    update_install "${2:-}"
+    ;;
+  uninstall)
+    if [ "${2:-}" = "--keep-home" ]; then
+      uninstall_install true
+    else
+      uninstall_install false
+    fi
+    ;;
+  validate)
+    validate_install
+    ;;
+  doctor)
+    doctor_install
+    ;;
+  logs)
+    if [ "${3:-}" = "--json" ] || [ "${2:-}" = "--json" ]; then
+      if [ "${2:-}" = "--json" ]; then
+        show_logs 20 json
+      else
+        show_logs "${2:-20}" json
+      fi
+    else
+      show_logs "${2:-20}" pretty
+    fi
+    ;;
+  list)
+    case "${2:-}" in
+      profiles) list_profiles ;;
+      modules|protections) list_modules ;;
+      *) usage; exit 1 ;;
+    esac
+    ;;
+  generate-config)
+    generate_config "${2:-balanced}" "${3:-}" "${INSTALL_HOME}"
+    ;;
+  help|-h|--help|"")
+    usage
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

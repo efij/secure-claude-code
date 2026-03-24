@@ -1,0 +1,9 @@
+# Strong default for everyday shipping.
+block-unsafe-git
+pre-push-scan
+protect-secrets-read
+abuse-chain-defense
+network-exfiltration
+protect-sensitive-files
+protect-tests
+post-edit-quality-reminder

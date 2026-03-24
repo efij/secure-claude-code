@@ -1,0 +1,9 @@
+(^|/)CLAUDE\.md$
+(^|/)AGENTS\.md$
+(^|/)\.claude/settings\.json$
+(^|/)\.claude/rules/
+(^|/)\.claude/hooks/
+(^|/)\.cursor/rules/
+(^|/)\.github/copilot-instructions\.md$
+(^|/)package\.json$
+

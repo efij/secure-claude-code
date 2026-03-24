@@ -1,0 +1,19 @@
+{
+  "id": "abuse-chain-defense",
+  "name": "Abuse Chain Defense Pack",
+  "description": "Blocks remote-instruction writes, rule-override language in control files, and secret-plus-transfer command chains.",
+  "category": "abuse",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
+  }
+}
+
