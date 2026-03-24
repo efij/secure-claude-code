@@ -1,0 +1,6 @@
+pbcopy
+clip\.exe
+Set-Clipboard
+xclip
+xsel
+wl-copy

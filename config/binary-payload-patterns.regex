@@ -1,0 +1,7 @@
+https?://[^[:space:]]+\.(exe|dll|dmg|pkg|deb|rpm|appimage|msi|bin)
+base64[^[:cntrl:]]+(-d|--decode)
+certutil[[:space:]]+-decode
+openssl[[:space:]]+enc
+chmod[[:space:]]+\+x
+Start-Process
+CreateProcess

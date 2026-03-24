@@ -1,0 +1,3 @@
+([^[:space:]]+\.(sh|bash|zsh|ps1|py|js|ts|exe|dll|dylib|so|dmg|pkg|deb|rpm|appimage))([[:space:]]|$)
+(/usr/local/bin/|/usr/bin/|~/.local/bin/|/tmp/|/var/tmp/)
+([A-Za-z]:\\Users\\[^\\]+\\AppData\\Local\\Temp\\)

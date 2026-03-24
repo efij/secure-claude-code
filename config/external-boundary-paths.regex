@@ -1,0 +1,4 @@
+(^|[[:space:]])(/etc/|/proc/|/sys/|/dev/|/var/run/|/private/etc/|/Library/)
+(^|[[:space:]])([A-Za-z]:\\Windows\\|[A-Za-z]:\\ProgramData\\|[A-Za-z]:\\Program Files\\)
+(\.\./){2,}
+(\.\.\\){2,}

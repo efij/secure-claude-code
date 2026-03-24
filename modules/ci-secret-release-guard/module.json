@@ -1,0 +1,18 @@
+{
+  "id": "ci-secret-release-guard",
+  "name": "CI Secret Release Guard Pack",
+  "description": "Blocks CI and release changes that widen token exposure, trust boundaries, or release permissions.",
+  "category": "config",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/ci-secret-release-guard.sh \"$TOOL_INPUT\""
+  }
+}

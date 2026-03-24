@@ -1,0 +1,5 @@
+\b(prod|production|live|mainnet)\b
+--env[=[:space:]]production
+--profile[=[:space:]]prod
+--context[=[:space:]]prod
+--cluster[=[:space:]]prod

@@ -1,0 +1,18 @@
+{
+  "id": "test-fixture-secret-guard",
+  "name": "Test Fixture Secret Guard Pack",
+  "description": "Blocks live tokens and private keys from being written into tests, fixtures, or snapshots.",
+  "category": "quality",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "review-checklist.md",
+    "context-discipline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/test-fixture-secret-guard.sh \"$TOOL_INPUT\""
+  }
+}

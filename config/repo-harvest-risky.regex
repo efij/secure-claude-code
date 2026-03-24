@@ -1,0 +1,9 @@
+git[[:space:]]+bundle[[:space:]]+create
+git[[:space:]]+archive
+tar[^[:cntrl:]]+\.git
+zip[^[:cntrl:]]+\.git
+cp[[:space:]]+-R[[:space:]]+\.
+rsync[[:space:]]+-a[[:space:]]+\.
+find[[:space:]]+\.[[:space:]]+-type[[:space:]]+f
+rg[[:space:]]+--files
+fd[[:space:]]

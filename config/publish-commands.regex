@@ -1,0 +1,8 @@
+npm[[:space:]]+publish
+pnpm[[:space:]]+publish
+yarn[[:space:]]+npm[[:space:]]+publish
+twine[[:space:]]+upload
+cargo[[:space:]]+publish
+gem[[:space:]]+push
+docker[[:space:]]+push
+gh[[:space:]]+release[[:space:]]+(create|upload)

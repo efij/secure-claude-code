@@ -1,0 +1,18 @@
+{
+  "id": "credential-export-guard",
+  "name": "Credential Export Guard Pack",
+  "description": "Blocks commands that export live credential material into files, clipboard channels, or outbound transfers.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/credential-export-guard.sh \"$TOOL_INPUT\""
+  }
+}

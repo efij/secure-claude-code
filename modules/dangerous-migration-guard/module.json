@@ -1,0 +1,18 @@
+{
+  "id": "dangerous-migration-guard",
+  "name": "Dangerous Migration Guard Pack",
+  "description": "Blocks destructive migration patterns such as data-loss flags, table drops, and reset flows.",
+  "category": "database",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/dangerous-migration-guard.sh \"$TOOL_INPUT\""
+  }
+}

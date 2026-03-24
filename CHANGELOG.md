@@ -1,27 +1,67 @@
 # Changelog
 
+## 0.9.0
+
+- added `repo-mass-harvest-guard`
+- added `binary-payload-guard`
+- added `package-publish-guard`
+- documented the project as a modular signature-pack system with a forward guard pipeline
+
+## 0.8.0
+
+- added `ci-secret-release-guard`
+- added `dependency-script-guard`
+- added `dangerous-migration-guard`
+- added `prod-target-guard`
+
+## 0.7.0
+
+- added `credential-export-guard`
+- added `clipboard-exfiltration-guard`
+- added `ssh-agent-abuse-guard`
+- added `token-paste-guard`
+- added `test-fixture-secret-guard`
+
+## 0.6.0
+
+- added `tool-origin-guard`
+- added `workspace-boundary-guard`
+- added `remote-script-dropper-guard`
+
+## 0.5.0
+
+- added `mcp-permission-guard`
+- added `archive-and-upload-guard`
+- added `config-tamper-guard`
+
+## 0.4.0
+
+- added bootstrap installers for shell and PowerShell
+- added `doctor --fix`
+- added filtered audit log views by module, decision, and time window
+- aligned wrapper scripts around `bin/secure-claude-code`
+- hardened release packaging against local editor, agent, temp, and audit-state leakage
+
 ## 0.3.0
 
-- added `mcp-permission-guard` to block wildcard or high-risk MCP and tool permission grants in MCP control files
-- added `archive-and-upload-guard` to block archive-then-transfer chains that package secret or high-value material
-- added `config-tamper-guard` to block bypass-style weakening of Claude, MCP, and CI control files
-- added new plain-text policy files for MCP control files, risky permission patterns, archive-sensitive sources, security control files, and tamper phrases
-- expanded validation and smoke coverage for the new guard packs
+- added `abuse-chain-defense`
+- added `network-exfiltration`
+- added `block-dangerous-commands`
+- expanded validation and smoke coverage for advanced shell and exfiltration guards
 
 ## 0.2.0
 
-- added bootstrap installers for shell and PowerShell so the project can be installed directly from a release or repository URL
-- added `doctor --fix` to repair or reinstall a missing or broken local install
-- expanded `logs` with filtering by module, decision, and recent time window for faster local audit triage
-- aligned wrapper scripts around `bin/secure-claude-code`
-- hardened release packaging to exclude local editor, agent, temp, and audit-state directories
-- refreshed README and install guidance for bootstrap, package-manager paths, and repair workflows
+- added `protect-secrets-read`
+- added `protect-sensitive-files`
+- added `protect-tests`
+- added `post-edit-quality-reminder`
+- established profile-driven installs with `minimal`, `balanced`, and `strict`
 
 ## 0.1.0
 
 - initial public release of Secure Claude Code
-- profile-based Claude Code hardening with `minimal`, `balanced`, and `strict`
-- protection packs for git safety, push-time secret scanning, secret-file access, outbound exfiltration, Claude control-file abuse, sensitive file edits, and test integrity
-- local JSONL audit logging and CLI log viewing
-- generated Homebrew formula and Scoop manifest release assets
-- smoke tests, CI workflow, release workflow, security policy, and security model docs
+- added `block-unsafe-git`
+- added `pre-push-scan`
+- added local JSONL audit logging
+- added generated Homebrew and Scoop release assets
+- added smoke tests, CI workflow, release workflow, security policy, and security model docs

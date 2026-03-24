@@ -1,0 +1,18 @@
+{
+  "id": "tool-origin-guard",
+  "name": "Tool Origin Guard Pack",
+  "description": "Blocks risky MCP or tool origins such as temp paths, shell-wrapper commands, and untrusted remote sources in tool config files.",
+  "category": "mcp",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/tool-origin-guard.sh \"$TOOL_INPUT\""
+  }
+}

@@ -1,0 +1,3 @@
+(^|/)(test|tests|__tests__|spec|specs|fixtures|__fixtures__|snapshots|__snapshots__)/
+(_test|_spec)\.
+\.(test|spec)\.

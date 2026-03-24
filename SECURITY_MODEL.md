@@ -10,6 +10,11 @@ Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude 
 - suspicious outbound transfer commands involving sensitive material
 - archive-and-upload chains involving sensitive or high-value material
 - risky MCP and tool permission grants in MCP control files
+- risky tool origins, remote droppers, and executable payload staging
+- workspace-boundary escapes into system paths
+- CI, publish, and prod-target mutations that widen trust or move outside local review
+- live token pastes, clipboard exfiltration, and SSH agent abuse patterns
+- dependency install hooks and destructive migration flows
 - remote-content writes into Claude control files
 - rule-override and jailbreak-style text written into control files
 - tampering with Claude, MCP, or CI control files through bypass-style edits

@@ -1,0 +1,13 @@
+ghp_[A-Za-z0-9_]{20,}
+gho_[A-Za-z0-9_]{20,}
+github_pat_[A-Za-z0-9_]{20,}
+sk-[A-Za-z0-9]{20,}
+AKIA[0-9A-Z]{16}
+AIza[0-9A-Za-z\-_]{20,}
+xox[baprs]-[0-9A-Za-z-]{20,}
+ya29\.[0-9A-Za-z\-_]+
+-----BEGIN PRIVATE KEY-----
+-----BEGIN RSA PRIVATE KEY-----
+-----BEGIN EC PRIVATE KEY-----
+-----BEGIN OPENSSH PRIVATE KEY-----
+npm_[A-Za-z0-9]{20,}

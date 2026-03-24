@@ -1,0 +1,12 @@
+http://
+gist\.githubusercontent\.com
+pastebin\.com
+ngrok
+serveo
+localtunnel
+\.trycloudflare\.com
+/tmp/
+Downloads/
+AppData\\Local\\Temp\\
+curl[^[:cntrl:]]+\|[^[:cntrl:]]+bash
+bash -lc

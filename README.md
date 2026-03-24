@@ -9,15 +9,28 @@ Local guardrails for Claude Code.
 
 Secure Claude Code installs a focused set of hook-based protections around Claude Code so risky actions are blocked before they become leaked secrets, damaged git history, or silent quality regressions.
 
+## Design Model
+
+Think of Secure Claude Code as a local YARA-style guard engine for agent actions:
+
+- one module equals one focused signature pack
+- profiles turn packs on without custom code changes
+- plain-text regex and config files act like tunable rule sources
+- hooks stay modular, reviewable, and easy to extend
+
 ## What It Protects
 
 - unsafe git actions on protected branches
 - push-time secrets and live connection strings
 - direct reads of local secret material such as `.env`, cloud credentials, SSH keys, and kube config
 - suspicious outbound transfers involving sensitive files or dump material
+- risky MCP and tool-provider permission or origin changes
+- remote script and binary droppers
+- workspace escapes into system paths and deep parent traversal
 - remote-content writes into Claude control files
 - prompt-injection style rule override attempts written into control files
 - test deletion, skip/focus markers, and common quality-check suppression patterns
+- package publish, CI release, prod-target, and destructive migration mistakes
 
 ## Quick Start
 
@@ -81,16 +94,31 @@ Or run from PowerShell when `bash` is on `PATH`:
 
 - `abuse-chain-defense`
 - `archive-and-upload-guard`
+- `binary-payload-guard`
 - `block-dangerous-commands`
 - `block-unsafe-git`
+- `ci-secret-release-guard`
+- `clipboard-exfiltration-guard`
 - `config-tamper-guard`
+- `credential-export-guard`
+- `dangerous-migration-guard`
+- `dependency-script-guard`
 - `mcp-permission-guard`
 - `network-exfiltration`
+- `package-publish-guard`
 - `post-edit-quality-reminder`
 - `pre-push-scan`
+- `prod-target-guard`
 - `protect-secrets-read`
 - `protect-sensitive-files`
 - `protect-tests`
+- `remote-script-dropper-guard`
+- `repo-mass-harvest-guard`
+- `ssh-agent-abuse-guard`
+- `test-fixture-secret-guard`
+- `token-paste-guard`
+- `tool-origin-guard`
+- `workspace-boundary-guard`
 
 Each pack is independent, profile-driven, and backed by plain-text config under [`config/`](config/).
 
@@ -135,10 +163,13 @@ Use `doctor --fix` to repair a broken or missing install from the current checko
 - blocks suspicious `scp`, `rsync`, `curl`, `wget`, `aws s3 cp`, `gsutil cp`, and `nc` patterns when sensitive material is involved
 - blocks `curl | bash`, `wget | sh`, and a small set of high-confidence dangerous shell behaviors
 - blocks archive-then-upload chains when they package secret, repo-control, or dump material
+- blocks bulk repo harvest and clipboard exfiltration patterns
+- blocks credential export and SSH agent abuse patterns
 
 ### MCP and tool-permission abuse
 
 - blocks risky MCP or tool control-file changes that grant wildcard permissions or always-on shell, network, write, or secret access
+- blocks risky tool origins such as temp paths, shell-wrapper commands, and untrusted remote sources in tool configs
 - keeps this logic in plain-text regex config so teams can tune the risk patterns without changing code
 
 ### Claude control-file abuse
@@ -146,6 +177,7 @@ Use `doctor --fix` to repair a broken or missing install from the current checko
 - blocks remote writes into `CLAUDE.md`, `.claude/settings.json`, `.claude/hooks`, `.claude/rules`, and related control files
 - blocks obvious rule-override language when it is being written into control files
 - blocks changes to security control files when they introduce bypass-style or wildcard-permission patterns
+- blocks CI and release edits that widen trust or secret exposure
 
 ### Test and quality tampering
 
@@ -153,6 +185,14 @@ Use `doctor --fix` to repair a broken or missing install from the current checko
 - blocks common test deletion commands
 - warns on `.skip`, `.only`, `xdescribe`, `xit`, `pytest.mark.skip`, and similar markers
 - warns on `eslint-disable`, `noqa`, `nolint`, `@ts-ignore`, and coverage suppression markers
+- blocks live secrets in fixtures, snapshots, and test data
+
+### Supply chain, deploy, and database safety
+
+- blocks risky dependency install hooks and remote fetches in package metadata
+- blocks destructive migration flags, reset flows, and obvious data-loss patterns
+- blocks direct mutating commands against production-like targets
+- warns before package and release publishing commands leave the local review boundary
 
 ## Platform Support
 
@@ -227,5 +267,6 @@ secure-claude-code/
 
 - [SECURITY.md](SECURITY.md)
 - [SECURITY_MODEL.md](SECURITY_MODEL.md)
+- [GUARDS.md](GUARDS.md)
 - [CONTRIBUTING.md](CONTRIBUTING.md)
 - [ROADMAP.md](ROADMAP.md)

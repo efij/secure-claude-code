@@ -1,0 +1,18 @@
+{
+  "id": "dependency-script-guard",
+  "name": "Dependency Script Guard Pack",
+  "description": "Blocks install-time and build-time dependency script changes that fetch or execute remote code.",
+  "category": "supply-chain",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/dependency-script-guard.sh \"$TOOL_INPUT\""
+  }
+}

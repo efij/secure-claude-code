@@ -1,0 +1,10 @@
+preinstall
+postinstall
+prepare
+install[[:space:]]*=
+build\.rs
+curl[^[:cntrl:]]+\|[^[:cntrl:]]+(bash|sh)
+wget[^[:cntrl:]]+\|[^[:cntrl:]]+(bash|sh)
+Invoke-WebRequest
+DownloadString
+nc[[:space:]]

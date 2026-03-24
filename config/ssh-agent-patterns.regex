@@ -1,0 +1,6 @@
+ssh[[:space:]]+-A
+ForwardAgent=yes
+ssh-add[[:space:]]+-L
+ssh-add[[:space:]]+[^[:space:]]*id_(rsa|ed25519|ecdsa)
+SSH_AUTH_SOCK
+IdentityAgent

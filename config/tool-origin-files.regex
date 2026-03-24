@@ -1,0 +1,5 @@
+(^|/)\.mcp\.json([[:space:]]|$)
+(^|/)mcp(-config)?\.json([[:space:]]|$)
+(^|/)\.cursor/mcp\.json([[:space:]]|$)
+(^|/)\.claude/settings\.json([[:space:]]|$)
+(^|/)package\.json([[:space:]]|$)

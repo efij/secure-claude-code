@@ -1,0 +1,7 @@
+(^|/)package\.json([[:space:]]|$)
+(^|/)package-lock\.json([[:space:]]|$)
+(^|/)pnpm-lock\.yaml([[:space:]]|$)
+(^|/)pyproject\.toml([[:space:]]|$)
+(^|/)setup\.(py|cfg)([[:space:]]|$)
+(^|/)Cargo\.toml([[:space:]]|$)
+(^|/)Gemfile([[:space:]]|$)

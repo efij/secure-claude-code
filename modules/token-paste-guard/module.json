@@ -1,0 +1,18 @@
+{
+  "id": "token-paste-guard",
+  "name": "Token Paste Guard Pack",
+  "description": "Blocks likely live API tokens and private keys from being pasted into tool inputs or file edits.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/token-paste-guard.sh \"$TOOL_INPUT\""
+  }
+}

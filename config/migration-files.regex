@@ -1,0 +1,2 @@
+(^|/)(migrations?|db/migrate|prisma/migrations|schema)\b
+\.(sql|prisma)$

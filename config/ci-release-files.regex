@@ -1,0 +1,4 @@
+(^|/)\.github/workflows/
+(^|/)release\.ya?ml([[:space:]]|$)
+(^|/)release\.sh([[:space:]]|$)
+(^|/)publish\.sh([[:space:]]|$)
