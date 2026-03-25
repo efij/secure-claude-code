@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.7
+
+- split smoke coverage by platform so Windows runners keep install, plugin, and lifecycle validation while macOS and Linux continue running the full direct-hook behavior suite
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.6
 
 - replaced the plugin manifest guard's risky-source matcher with a shell-native cross-platform path and domain check so plugin-manifest blocking behaves consistently on macOS, Linux, and Windows Git Bash
