@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.6
+
+- replaced the plugin manifest guard's risky-source matcher with a shell-native cross-platform path and domain check so plugin-manifest blocking behaves consistently on macOS, Linux, and Windows Git Bash
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.5
 
 - relaxed the MCP marketplace allowlist smoke assertion from “no output at all” to “no block fired” so Windows shell noise no longer causes false CI failures
