@@ -1,0 +1,5 @@
+(^|/)\.vscode/extensions\.json([[:space:]]|$)
+(^|/)\.cursor/extensions\.json([[:space:]]|$)
+(^|/)\.claude-plugin/marketplace\.json([[:space:]]|$)
+(^|/)\.claude-plugin/plugin\.json([[:space:]]|$)
+(^|/)plugins?\.json([[:space:]]|$)

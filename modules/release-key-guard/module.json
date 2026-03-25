@@ -1,0 +1,18 @@
+{
+  "id": "release-key-guard",
+  "name": "Release Key Guard Pack",
+  "description": "Blocks reads and exports of release signing keys and provenance key material.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/release-key-guard.sh \"$TOOL_INPUT\""
+  }
+}

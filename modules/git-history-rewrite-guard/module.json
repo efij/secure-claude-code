@@ -1,0 +1,18 @@
+{
+  "id": "git-history-rewrite-guard",
+  "name": "Git History Rewrite Guard Pack",
+  "description": "Blocks broad git history rewrite and purge flows that can destroy provenance and review context.",
+  "category": "git",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/git-history-rewrite-guard.sh \"$TOOL_INPUT\""
+  }
+}

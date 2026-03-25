@@ -17,6 +17,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `block-dangerous-commands`: high-confidence dangerous shell patterns
 - `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
 - `browser-cookie-guard`: browser cookie, login, and session-store access
+- `browser-profile-export-guard`: copying or archiving full browser profiles with live sessions and saved credentials
 - `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
 - `clipboard-exfiltration-guard`: clipboard-based secret movement
 - `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
@@ -26,13 +27,16 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `devcontainer-trust-guard`: risky devcontainer isolation weakening and remote setup injection
 - `dependency-script-guard`: install-time and build-time dependency script abuse
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
+- `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
+- `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
 - `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
 - `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
+- `plugin-manifest-guard`: risky plugin and extension manifest source edits
 - `post-edit-quality-reminder`: post-edit lint/test reminders
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
 - `prod-target-guard`: direct mutating commands against production-like targets
@@ -42,6 +46,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `remote-script-dropper-guard`: remote content dropped into executable or script paths
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
 - `registry-target-guard`: publish and login flows that target unexpected registries
+- `release-key-guard`: reads and exports of release-signing and provenance key material
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
@@ -60,13 +65,8 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 
 ## FFU Pipeline B
 
-- `plugin-manifest-guard`: block risky extension and plugin manifest edits
-- `mcp-install-source-allowlist`: allow only reviewed MCP install sources
 - `local-tunnel-guard`: block ngrok, serveo, and localtunnel exposure paths
-- `browser-profile-export-guard`: block copying full browser profiles or profile archives
 - `terraform-destroy-guard`: block destructive Terraform and OpenTofu flows
-- `git-history-rewrite-guard`: block broad reflog cleanup and repo-history destruction
-- `release-key-guard`: block release-signing and package-signing key export
 - `sideloaded-extension-guard`: block unreviewed local extension load paths
 - `container-escape-guard`: block host-mount and privileged container escape patterns
 - `oauth-token-exchange-guard`: block token exchange and delegated session minting flows

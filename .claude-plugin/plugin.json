@@ -1,0 +1,19 @@
+{
+  "name": "secure-claude-code",
+  "description": "Local-first security for Claude Code with balanced default hooks for shell, git, MCP, secret, and exfiltration risks.",
+  "version": "1.1.0",
+  "author": {
+    "name": "efij"
+  },
+  "homepage": "https://github.com/efij/secure-claude-code",
+  "repository": "https://github.com/efij/secure-claude-code",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "ai-security",
+    "agent-security",
+    "mcp-security",
+    "devsecops"
+  ]
+}

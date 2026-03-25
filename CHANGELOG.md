@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0
+
+- added Claude Code plugin marketplace support with `.claude-plugin/marketplace.json`, `.claude-plugin/plugin.json`, root plugin skills, and generated `hooks/hooks.json`
+- added `plugin-manifest-guard`
+- added `mcp-install-source-allowlist`
+- added `browser-profile-export-guard`
+- added `git-history-rewrite-guard`
+- added `release-key-guard`
+- documented the new signatures in `SIGNATURES.md`
+- updated the README so the Claude Code plugin flow is now the clean primary install path, with the CLI kept for profile control and repair workflows
+- expanded smoke coverage to validate plugin files, generated plugin hooks, and the new guard pack set
+
 ## 1.0.0
 
 - added `local-webhook-guard`

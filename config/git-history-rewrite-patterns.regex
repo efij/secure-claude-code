@@ -1,0 +1,8 @@
+git[[:space:]]+filter-branch
+git[[:space:]]+filter-repo
+git[[:space:]]+rebase[[:space:]]+-i
+git[[:space:]]+reflog[[:space:]]+expire
+git[[:space:]]+gc[[:space:]]+--prune=now
+git[[:space:]]+replace
+git[[:space:]]+push[[:space:]]+--mirror[[:space:]]+--force
+git[[:space:]]+update-ref[[:space:]]+-d

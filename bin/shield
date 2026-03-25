@@ -132,6 +132,71 @@ else:
 PY
 }
 
+generate_plugin_hooks() {
+  local profile="${1:-balanced}"
+  local output="${2:-$ROOT_DIR/hooks/hooks.json}"
+
+  assert_profile_exists "$profile"
+  mkdir -p "$(dirname "$output")"
+
+  run_python - "$ROOT_DIR/modules" "$(profile_path "$profile")" "$output" <<'PY'
+import json
+import pathlib
+import sys
+
+modules_dir = pathlib.Path(sys.argv[1])
+profile_file = pathlib.Path(sys.argv[2])
+output_path = pathlib.Path(sys.argv[3])
+
+module_ids = [
+    line.strip()
+    for line in profile_file.read_text().splitlines()
+    if line.strip() and not line.strip().startswith("#")
+]
+
+hooks = {}
+
+for module_id in module_ids:
+    manifest_path = modules_dir / module_id / "module.json"
+    if not manifest_path.exists():
+        raise SystemExit(f"missing module manifest: {manifest_path}")
+
+    manifest = json.loads(manifest_path.read_text())
+    hook_items = manifest.get("hooks") or [manifest["hook"]]
+
+    for hook in hook_items:
+        event = hook["event"]
+        hook_payload = {
+            key: value
+            for key, value in hook.items()
+            if key not in {"event", "matcher"} and value is not None
+        }
+        command = hook_payload.get("command")
+        if command:
+            if command.startswith("bash ~/.secure-claude-code/"):
+                script_path, _, remainder = command.partition(' "$')
+                script_path = script_path.replace(
+                    "bash ~/.secure-claude-code/", '${CLAUDE_PLUGIN_ROOT}/'
+                )
+                hook_payload["command"] = (
+                    'SECURE_CLAUDE_CODE_HOME="${CLAUDE_PLUGIN_ROOT}" '
+                    f'bash "{script_path}" "$' + remainder
+                )
+            else:
+                hook_payload["command"] = (
+                    'SECURE_CLAUDE_CODE_HOME="${CLAUDE_PLUGIN_ROOT}" ' + command
+                )
+
+        entry = {
+            "matcher": hook["matcher"],
+            "hooks": [hook_payload],
+        }
+        hooks.setdefault(event, []).append(entry)
+
+output_path.write_text(json.dumps(hooks, indent=2) + "\n")
+PY
+}
+
 remove_settings_entries() {
   local settings="${1:-}"
 
@@ -672,6 +737,7 @@ Usage:
   bin/secure-claude-code list modules
   bin/secure-claude-code list protections
   bin/secure-claude-code generate-config [profile] [output]
+  bin/secure-claude-code generate-plugin-hooks [profile] [output]
 
 Profiles:
   minimal   Tight baseline for solo hacking
@@ -718,6 +784,9 @@ case "$command" in
     ;;
   generate-config)
     generate_config "${2:-balanced}" "${3:-}" "${INSTALL_HOME}"
+    ;;
+  generate-plugin-hooks)
+    generate_plugin_hooks "${2:-balanced}" "${3:-$ROOT_DIR/hooks/hooks.json}"
     ;;
   help|-h|--help|"")
     usage

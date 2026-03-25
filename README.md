@@ -57,7 +57,18 @@ It is much less relevant for plain Claude chat-only usage where no tools, shell,
 
 ## Fast Install
 
-The clean primary install path is the bootstrap installer.
+The cleanest install path now is the Claude Code plugin flow. It gives you the recommended balanced baseline in one install.
+
+### Claude Code Plugin
+
+```text
+/plugin marketplace add efij/secure-claude-code
+/plugin install secure-claude-code@secure-claude-code
+```
+
+Use the plugin path when you want fast setup and low friction.
+
+Use the CLI path when you want profile switching, update, uninstall, doctor repair, or a separate local install home.
 
 ### macOS / Linux
 
@@ -134,7 +145,9 @@ Secure Claude Code focuses on the practical execution surface around Claude Code
 ### MCP and Tools
 
 - risky MCP permission grants
+- risky marketplace or install sources
 - untrusted tool origins
+- risky plugin manifest edits
 - weak local trust boundaries
 
 ### Exfiltration and Agent Abuse
@@ -142,6 +155,7 @@ Secure Claude Code focuses on the practical execution surface around Claude Code
 - prompt-injection style control-file abuse
 - webhook, DNS, clipboard, and upload exfil paths
 - unsafe action chaining across tools and files
+- browser profile export and release-key theft patterns
 
 ## Profiles
 
@@ -203,6 +217,7 @@ If you want the deep dive:
 
 Current clean distribution paths:
 
+- Claude Code plugin marketplace
 - GitHub Releases
 - bootstrap installer
 - Homebrew formula

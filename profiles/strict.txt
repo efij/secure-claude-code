@@ -4,7 +4,9 @@ pre-push-scan
 protect-secrets-read
 abuse-chain-defense
 mcp-permission-guard
+mcp-install-source-allowlist
 tool-origin-guard
+plugin-manifest-guard
 workspace-boundary-guard
 sandbox-escape-guard
 sandbox-policy-tamper-guard
@@ -18,6 +20,7 @@ remote-script-dropper-guard
 credential-export-guard
 clipboard-exfiltration-guard
 browser-cookie-guard
+browser-profile-export-guard
 container-socket-guard
 block-dangerous-commands
 protect-sensitive-files
@@ -30,7 +33,9 @@ prod-target-guard
 kube-secret-guard
 devcontainer-trust-guard
 signed-commit-bypass-guard
+git-history-rewrite-guard
 artifact-poisoning-guard
+release-key-guard
 registry-target-guard
 protect-tests
 test-fixture-secret-guard

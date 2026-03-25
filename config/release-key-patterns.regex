@@ -1,0 +1,10 @@
+\.gnupg/
+cosign\.key
+cosign\.pub
+codesign\.p12
+apple_distribution\.p12
+id_rsa_release
+release\.asc
+release\.gpg
+\.p12
+\.pfx
