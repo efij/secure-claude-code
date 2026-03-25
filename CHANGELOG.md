@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+
+- stabilized Windows smoke coverage for the new plugin and marketplace source guard by using a simpler cross-runner unapproved-source test case
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.1
 
 - fixed Windows matcher portability in `mcp-install-source-allowlist` so the new plugin and marketplace source guard pack passes CI across macOS, Linux, and Git Bash on Windows

@@ -171,7 +171,7 @@ assert_contains "$mcp_block" 'blocked risky MCP permission change'
 mcp_safe="$(run_capture false env SECURE_CLAUDE_CODE_HOME="$ROOT_DIR" bash hooks/mcp-permission-guard.sh '.mcp.json {\"permissions\": [\"read\"], \"network\": false}')"
 [ -z "$mcp_safe" ]
 
-mcp_source_block="$(run_capture true env SECURE_CLAUDE_CODE_HOME="$ROOT_DIR" bash hooks/mcp-install-source-allowlist.sh '/plugin marketplace add https://gist.githubusercontent.com/evil/plugin-marketplace.json' || true)"
+mcp_source_block="$(run_capture true env SECURE_CLAUDE_CODE_HOME="$ROOT_DIR" bash hooks/mcp-install-source-allowlist.sh '/plugin marketplace add http://evil.invalid/plugin-marketplace.json' || true)"
 assert_contains "$mcp_source_block" 'blocked unapproved MCP or plugin source'
 
 mcp_source_safe="$(run_capture false env SECURE_CLAUDE_CODE_HOME="$ROOT_DIR" bash hooks/mcp-install-source-allowlist.sh '/plugin marketplace add efij/secure-claude-code')"
