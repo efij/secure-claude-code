@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.4
+
+- normalized generated-vs-checked-in plugin hook comparisons in smoke tests so Windows CRLF checkouts no longer create false CI failures
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.3
 
 - replaced the marketplace source guard's risky-source matcher with a shell-native cross-platform path and domain check so plugin-source blocking behaves consistently on macOS, Linux, and Windows Git Bash

@@ -64,7 +64,11 @@ bash -n bin/shield bin/secure-claude-code install.sh update.sh uninstall.sh scri
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/secure-claude-code generate-plugin-hooks balanced "$generated_plugin_hooks"
-cmp -s "$generated_plugin_hooks" hooks/hooks.json
+generated_plugin_hooks_norm="$TMP_BASE/generated-plugin-hooks.norm.json"
+checked_in_plugin_hooks_norm="$TMP_BASE/checked-in-plugin-hooks.norm.json"
+tr -d '\r' <"$generated_plugin_hooks" >"$generated_plugin_hooks_norm"
+tr -d '\r' <hooks/hooks.json >"$checked_in_plugin_hooks_norm"
+cmp -s "$generated_plugin_hooks_norm" "$checked_in_plugin_hooks_norm"
 
 plugin_json_check="$TMP_BASE/plugin-json-check.txt"
 python_bin="$(command -v python3 || command -v python)"
