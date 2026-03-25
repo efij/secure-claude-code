@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.5
+
+- relaxed the MCP marketplace allowlist smoke assertion from “no output at all” to “no block fired” so Windows shell noise no longer causes false CI failures
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.4
 
 - normalized generated-vs-checked-in plugin hook comparisons in smoke tests so Windows CRLF checkouts no longer create false CI failures
