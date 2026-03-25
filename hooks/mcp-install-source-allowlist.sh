@@ -9,7 +9,11 @@ ALLOW_FILE="$CONFIG_HOME/mcp-source-allowlist.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
 
-if ! printf '%s' "$INPUT" | grep -Eqi '(mcp|plugin)[^[:cntrl:]]+(install|add|source|marketplace)'; then
+if ! printf '%s' "$INPUT" | grep -Eqi '(mcp|plugin)'; then
+  exit 0
+fi
+
+if ! printf '%s' "$INPUT" | grep -Eqi '(install|add|source|marketplace)'; then
   exit 0
 fi
 

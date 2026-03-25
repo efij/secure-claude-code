@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+
+- fixed Windows matcher portability in `mcp-install-source-allowlist` so the new plugin and marketplace source guard pack passes CI across macOS, Linux, and Git Bash on Windows
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.0
 
 - added Claude Code plugin marketplace support with `.claude-plugin/marketplace.json`, `.claude-plugin/plugin.json`, root plugin skills, and generated `hooks/hooks.json`
