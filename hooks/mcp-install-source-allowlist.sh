@@ -3,7 +3,6 @@ set -euo pipefail
 
 INPUT="${1:-}"
 CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
-RISKY_FILE="$CONFIG_HOME/mcp-source-risky.regex"
 ALLOW_FILE="$CONFIG_HOME/mcp-source-allowlist.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
@@ -17,13 +16,17 @@ if ! printf '%s' "$INPUT" | grep -Eqi '(install|add|source|marketplace)'; then
   exit 0
 fi
 
-if ! shield_match_pattern_file "$INPUT" "$RISKY_FILE"; then
-  exit 0
-fi
-
 if [ -f "$ALLOW_FILE" ] && shield_match_pattern_file "$INPUT" "$ALLOW_FILE"; then
   exit 0
 fi
+
+case "$INPUT" in
+  *http://*|*file://*|*/tmp/*|*Downloads/*|*AppData\\Local\\Temp\\*|*gist.githubusercontent.com*|*raw.githubusercontent.com*)
+    ;;
+  *)
+    exit 0
+    ;;
+esac
 
 shield_audit "mcp-install-source-allowlist" "block" "unapproved MCP or plugin install source detected" "$INPUT"
 printf '%s\n' '[secure-claude-code] blocked unapproved MCP or plugin source' >&2

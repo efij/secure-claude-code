@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3
+
+- replaced the marketplace source guard's risky-source matcher with a shell-native cross-platform path and domain check so plugin-source blocking behaves consistently on macOS, Linux, and Windows Git Bash
+- republished the plugin-enabled release on a clean green build
+
 ## 1.1.2
 
 - stabilized Windows smoke coverage for the new plugin and marketplace source guard by using a simpler cross-runner unapproved-source test case
