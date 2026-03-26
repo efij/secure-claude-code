@@ -25,6 +25,7 @@ Secure Claude Code helps reduce real-world risk around:
 
 - secret leakage
 - prompt injection and exfiltration paths
+- indirect prompt injection hidden in files, web pages, shell output, and MCP responses
 - unsafe shell execution
 - dangerous git and repo actions
 - risky MCP and tool trust boundaries
@@ -37,6 +38,7 @@ It is local-first, practical, and built for real developer environments.
 Secure Claude Code helps you:
 
 - block high-confidence risky actions before they run
+- warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
 - reduce dangerous shell, git, and repo behavior
 - tighten MCP and tool trust boundaries
@@ -156,6 +158,7 @@ Secure Claude Code focuses on the practical execution surface around Claude Code
 ### Exfiltration and Agent Abuse
 
 - prompt-injection style control-file abuse
+- indirect prompt injection scanning across read, web, shell, grep, task, and MCP output
 - webhook, DNS, clipboard, and upload exfil paths
 - unsafe action chaining across tools and files
 - browser profile export and release-key theft patterns
@@ -235,7 +238,7 @@ Contributions are welcome, especially around:
 - new high-signal signatures
 - false-positive reduction
 - MCP and tool abuse detection
-- exfiltration and prompt-injection patterns
+- exfiltration and prompt-injection patterns, especially indirect prompt injection and output smuggling
 - better developer UX without losing security value
 
 Good places to start:

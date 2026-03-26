@@ -1,0 +1,5 @@
+<!--(.|\n){0,240}(ignore|system prompt|developer prompt|jailbreak|bypass|disable hooks)
+(?i)<script[^>]*>(.|\n){0,240}(ignore|override|follow these instructions|developer prompt)
+(?i)(/\*|#|//|<!--).{0,160}(ignore previous|new system prompt|bypass|disable hooks|override guardrails)
+(?i)<meta[^>]+name=["']?(instructions|prompt|system)
+(?i)<textarea[^>]*>(.|\n){0,240}(ignore previous|developer prompt|system prompt)

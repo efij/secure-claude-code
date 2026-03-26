@@ -3,6 +3,7 @@ block-unsafe-git
 pre-push-scan
 protect-secrets-read
 abuse-chain-defense
+indirect-prompt-injection-guard
 mcp-permission-guard
 mcp-install-source-allowlist
 sideloaded-extension-guard

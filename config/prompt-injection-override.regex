@@ -1,0 +1,8 @@
+(?i)\bignore\s+(all\s+)?(previous|prior|above|earlier|preceding)\s+(instructions?|prompts?|rules?|guidelines?|directives?|context)\b
+(?i)\b(forget|disregard|override|replace)\s+(all\s+)?(previous|prior|above|earlier|your)\s+(instructions?|prompts?|rules?|training|guidelines?|context)\b
+(?i)\b(new|updated|revised|real)\s+system\s+prompt\b
+(?i)\b(system|developer)\s+prompt\s*(:|=|override)\b
+(?i)\b(this\s+is\s+)?(your\s+)?new\s+(instructions?|task|objective|mission|directive)\b
+(?i)\bfrom\s+now\s+on[,\s]+(you\s+)?(will|must|should|are)\b
+(?i)\bdo\s+not\s+follow\s+(your\s+)?(previous|original|initial)\s+(instructions?|rules?|guidelines?)\b
+(?i)\b(reset|clear|wipe)\s+(your\s+)?(context|memory|instructions?|state|conversation|history)\b

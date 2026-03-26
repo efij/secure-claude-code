@@ -1,0 +1,5 @@
+(?i)\b(anthropic|openai|system administrator|security team|developer team)\b.{0,80}\b(instructs|authorized|requires|mandates)\b
+(?i)\{\s*"role"\s*:\s*"system"
+(?i)\b(exfiltrate|print|reveal|show|repeat)\b.{0,80}\b(system prompt|developer prompt|hidden rules|internal rules)\b
+(?i)\b(previous conversation|prior assistant message|earlier system message)\b.{0,80}\bsaid\b
+(?i)\b(highest|top|maximum|critical)\s+priority\s*(:|instruction|override)?\b

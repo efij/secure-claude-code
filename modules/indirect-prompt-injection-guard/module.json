@@ -1,0 +1,20 @@
+{
+  "id": "indirect-prompt-injection-guard",
+  "name": "Indirect Prompt Injection Guard Pack",
+  "description": "Warns on hidden instructions, jailbreak text, encoded payloads, and smuggled prompt-injection content found in tool output.",
+  "category": "prompt-injection",
+  "kind": "warn",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hooks": [
+    {
+      "event": "PostToolUse",
+      "matcher": "Read|WebFetch|Bash|Grep|Glob|Task|mcp__.*|mcp_.*",
+      "type": "command",
+      "command": "bash ~/.secure-claude-code/hooks/indirect-prompt-injection-guard.sh \"$TOOL_INPUT\""
+    }
+  ]
+}

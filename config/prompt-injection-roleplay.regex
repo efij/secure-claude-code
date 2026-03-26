@@ -1,0 +1,10 @@
+(?i)\byou\s+are\s+(now\s+)?DAN\b
+(?i)\bDAN\s+(mode|persona|character|version)\b
+(?i)\bdo\s+anything\s+now\b
+(?i)\bjailbreak(ed)?\s+(mode|prompt|version|enabled)\b
+(?i)\b(enable|activate|enter)\s+(jailbreak|unrestricted|god)\s*mode\b
+(?i)\bDEVELOPER\s+MODE\s+(ENABLED|ACTIVATED|ON)\b
+(?i)\bpretend\s+(to\s+be|you\s+are|you['’]?re|that\s+you)\b
+(?i)\bact\s+as\s+(if\s+you\s+(are|were)|an?)\b
+(?i)\b(without|ignore|bypass|disable|remove)\s+(your\s+)?(restrictions?|filters?|safeguards?|limitations?|guardrails?)\b
+(?i)\b(no|without|free\s+from)\s+(rules?|restrictions?|limitations?|boundaries|constraints)\b

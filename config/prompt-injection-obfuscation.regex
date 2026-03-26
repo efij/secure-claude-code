@@ -1,0 +1,5 @@
+(?i)\bdecode\s+(this\s+|the\s+)?(base64|hex(adecimal)?)\b
+(?i)\b(base64|hex)\s*(encoded|string|payload)?\s*[:=]?\s*[A-Za-z0-9+/]{20,}={0,2}\b
+\\x[0-9A-Fa-f]{2}(\\x[0-9A-Fa-f]{2}){4,}
+(?i)\b(frombase64string|rot13|uuencode|uudecode)\b
+(?i)\bexecute\s+(the\s+)?decoded\s+(base64|content|string|payload)\b

@@ -28,6 +28,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `dependency-script-guard`: install-time and build-time dependency script abuse
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
 - `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
+- `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets

@@ -444,6 +444,15 @@
   ],
   "PostToolUse": [
     {
+      "matcher": "Read|WebFetch|Bash|Grep|Glob|Task|mcp__.*|mcp_.*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/indirect-prompt-injection-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
       "matcher": "Write|Edit|MultiEdit",
       "hooks": [
         {

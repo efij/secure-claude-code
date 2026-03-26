@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.0
+
+- added `indirect-prompt-injection-guard`
+- added plain-text prompt-injection signature sets for instruction override, jailbreak text, obfuscation, context manipulation, and instruction smuggling
+- expanded `balanced` and `strict` to scan tool output from files, web fetches, shell output, grep hits, task output, and MCP responses
+- updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new indirect prompt-injection coverage
+- expanded smoke coverage and generated plugin hook output for the new guard pack
+
 ## 1.2.0
 
 - added `plugin-hook-origin-guard`
