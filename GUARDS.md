@@ -36,7 +36,11 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
 - `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
+- `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
+- `plugin-hook-origin-guard`: plugin hook commands that jump outside the plugin trust boundary
 - `plugin-manifest-guard`: risky plugin and extension manifest source edits
+- `plugin-surface-expansion-guard`: suspicious plugin hook coverage expansion onto sensitive lifecycle events or broad mutation-plus-shell combinations
+- `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Secure Claude Code control files
 - `post-edit-quality-reminder`: post-edit lint/test reminders
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
 - `prod-target-guard`: direct mutating commands against production-like targets
@@ -47,6 +51,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
 - `registry-target-guard`: publish and login flows that target unexpected registries
 - `release-key-guard`: reads and exports of release-signing and provenance key material
+- `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
@@ -67,7 +72,6 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 
 - `local-tunnel-guard`: block ngrok, serveo, and localtunnel exposure paths
 - `terraform-destroy-guard`: block destructive Terraform and OpenTofu flows
-- `sideloaded-extension-guard`: block unreviewed local extension load paths
 - `container-escape-guard`: block host-mount and privileged container escape patterns
 - `oauth-token-exchange-guard`: block token exchange and delegated session minting flows
 - `desktop-credential-store-guard`: block reads of macOS Keychain, Windows Credential Manager, and libsecret stores

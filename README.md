@@ -146,8 +146,11 @@ Secure Claude Code focuses on the practical execution surface around Claude Code
 
 - risky MCP permission grants
 - risky marketplace or install sources
+- sideloaded plugin and extension paths
 - untrusted tool origins
 - risky plugin manifest edits
+- malicious plugin hook origins and execution chains
+- plugin trust-boundary tampering
 - weak local trust boundaries
 
 ### Exfiltration and Agent Abuse

@@ -1,0 +1,12 @@
+disable
+remove
+delete
+clear
+write-all
+permissions[^[:cntrl:]]*\*
+rm -rf
+unlink
+overwrite
+replace
+chmod[[:space:]]+777
+redirect

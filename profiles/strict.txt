@@ -5,8 +5,13 @@ protect-secrets-read
 abuse-chain-defense
 mcp-permission-guard
 mcp-install-source-allowlist
+sideloaded-extension-guard
 tool-origin-guard
 plugin-manifest-guard
+plugin-hook-origin-guard
+plugin-exec-chain-guard
+plugin-surface-expansion-guard
+plugin-trust-boundary-tamper-guard
 workspace-boundary-guard
 sandbox-escape-guard
 sandbox-policy-tamper-guard

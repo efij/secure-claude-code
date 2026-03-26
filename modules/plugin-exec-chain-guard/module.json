@@ -1,0 +1,18 @@
+{
+  "id": "plugin-exec-chain-guard",
+  "name": "Plugin Execution Chain Guard Pack",
+  "description": "Blocks dangerous download-and-execute or inline interpreter chains embedded in plugin hook and command definitions.",
+  "category": "plugin",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/plugin-exec-chain-guard.sh \"$TOOL_INPUT\""
+  }
+}

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0
+
+- added `plugin-hook-origin-guard`
+- added `plugin-exec-chain-guard`
+- added `plugin-surface-expansion-guard`
+- added `sideloaded-extension-guard`
+- added `plugin-trust-boundary-tamper-guard`
+- expanded plugin-malware coverage from install-source checks into post-install hook behavior, sideloaded extension paths, and trust-boundary tampering
+- updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new malicious-plugin signature pack set
+- expanded smoke coverage and generated plugin hook output for the new plugin guard pack set
+
 ## 1.1.7
 
 - split smoke coverage by platform so Windows runners keep install, plugin, and lifecycle validation while macOS and Linux continue running the full direct-hook behavior suite

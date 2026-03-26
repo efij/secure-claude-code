@@ -1,0 +1,18 @@
+{
+  "id": "plugin-hook-origin-guard",
+  "name": "Plugin Hook Origin Guard Pack",
+  "description": "Blocks plugin hook commands that execute code from temp, download, scratch, or other paths outside the plugin trust boundary.",
+  "category": "plugin",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/plugin-hook-origin-guard.sh \"$TOOL_INPUT\""
+  }
+}

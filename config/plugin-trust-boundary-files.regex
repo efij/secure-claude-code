@@ -1,0 +1,7 @@
+CLAUDE\.md
+\.mcp\.json
+settings\.json
+hooks/hooks\.json
+\.claude-plugin/
+\.secure-claude-code/
+~/.secure-claude-code/

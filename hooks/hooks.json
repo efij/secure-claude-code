@@ -59,6 +59,15 @@
       "hooks": [
         {
           "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sideloaded-extension-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
           "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tool-origin-guard.sh\" \"$TOOL_INPUT\""
         }
       ]
@@ -69,6 +78,42 @@
         {
           "type": "command",
           "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-manifest-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-hook-origin-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-exec-chain-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-surface-expansion-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "SECURE_CLAUDE_CODE_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-trust-boundary-tamper-guard.sh\" \"$TOOL_INPUT\""
         }
       ]
     },
