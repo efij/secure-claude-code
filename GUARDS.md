@@ -29,7 +29,10 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
 - `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
 - `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
+- `instruction-source-dropper-guard`: remote content written directly into AGENTS, CLAUDE, skills, or Claude command files
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
+- `mcp-secret-env-guard`: high-value secret environment variables forwarded into MCP server definitions
+- `mcp-server-command-chain-guard`: dangerous execution chains embedded in MCP server definitions
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
@@ -55,6 +58,9 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
+- `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files
+- `skill-install-source-guard`: unreviewed raw, temp, or sideloaded skill install sources
+- `skill-trust-boundary-tamper-guard`: prompt-override and guard-bypass language added to trusted skill and command files
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
 - `token-paste-guard`: live API token and private-key paste detection
 - `tool-origin-guard`: risky MCP or tool origins in config files

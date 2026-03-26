@@ -2,7 +2,7 @@
 
 > Local-first security for Claude Code. Protect shell, git, MCP, secrets, and risky agent actions without dragging in heavy enterprise tooling.
 
-Secure Claude Code adds a practical security layer around Claude Code to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP or tool configurations.
+Secure Claude Code adds a practical security layer around Claude Code to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
 
 It is built for solo builders, startups, security-minded teams, and larger orgs that want safer defaults around AI coding workflows.
 
@@ -29,6 +29,7 @@ Secure Claude Code helps reduce real-world risk around:
 - unsafe shell execution
 - dangerous git and repo actions
 - risky MCP and tool trust boundaries
+- malicious skill, command, and instruction-doc poisoning
 - weak local defaults in agent workflows
 
 It is local-first, practical, and built for real developer environments.
@@ -41,7 +42,7 @@ Secure Claude Code helps you:
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
 - reduce dangerous shell, git, and repo behavior
-- tighten MCP and tool trust boundaries
+- tighten MCP, plugin, skill, and tool trust boundaries
 - apply a safer default profile quickly
 - keep security useful without turning the workflow into sludge
 
@@ -147,9 +148,13 @@ Secure Claude Code focuses on the practical execution surface around Claude Code
 ### MCP and Tools
 
 - risky MCP permission grants
+- dangerous MCP server command chains
+- secret env forwarding into MCP servers
 - risky marketplace or install sources
 - sideloaded plugin and extension paths
 - untrusted tool origins
+- malicious skill install sources
+- poisoned skill and Claude command docs
 - risky plugin manifest edits
 - malicious plugin hook origins and execution chains
 - plugin trust-boundary tampering
@@ -238,6 +243,7 @@ Contributions are welcome, especially around:
 - new high-signal signatures
 - false-positive reduction
 - MCP and tool abuse detection
+- skill poisoning and trusted-instruction abuse detection
 - exfiltration and prompt-injection patterns, especially indirect prompt injection and output smuggling
 - better developer UX without losing security value
 

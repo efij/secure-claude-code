@@ -4,10 +4,16 @@ pre-push-scan
 protect-secrets-read
 abuse-chain-defense
 indirect-prompt-injection-guard
+instruction-source-dropper-guard
 mcp-permission-guard
+mcp-server-command-chain-guard
+mcp-secret-env-guard
 mcp-install-source-allowlist
+skill-install-source-guard
 sideloaded-extension-guard
 tool-origin-guard
+skill-exec-chain-guard
+skill-trust-boundary-tamper-guard
 plugin-manifest-guard
 plugin-hook-origin-guard
 plugin-exec-chain-guard

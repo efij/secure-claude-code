@@ -1,0 +1,3 @@
+(^|/)\.mcp\.json([[:space:]]|$)
+claude_desktop_config\.json([[:space:]]|$)
+(^|/)mcp[^[:space:]]*\.json([[:space:]]|$)

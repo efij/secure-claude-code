@@ -1,0 +1,18 @@
+{
+  "id": "skill-install-source-guard",
+  "name": "Skill Install Source Guard Pack",
+  "description": "Blocks sideloaded or raw skill install sources outside a reviewed allowlist.",
+  "category": "skills",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/skill-install-source-guard.sh \"$TOOL_INPUT\""
+  }
+}

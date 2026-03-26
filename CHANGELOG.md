@@ -1,6 +1,18 @@
 # Changelog
 
-## 1.3.0
+## 1.4.0
+
+- added `instruction-source-dropper-guard`
+- added `skill-install-source-guard`
+- added `skill-exec-chain-guard`
+- added `skill-trust-boundary-tamper-guard`
+- added `mcp-server-command-chain-guard`
+- added `mcp-secret-env-guard`
+- expanded `balanced` and `strict` for malicious skill, trusted-instruction, and MCP server coverage
+- updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new skill and MCP blind-spot coverage
+- expanded smoke coverage and generated plugin hook output for the new guard pack set
+
+## 1.2.0
 
 - added `indirect-prompt-injection-guard`
 - added plain-text prompt-injection signature sets for instruction override, jailbreak text, obfuscation, context manipulation, and instruction smuggling
@@ -8,7 +20,7 @@
 - updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new indirect prompt-injection coverage
 - expanded smoke coverage and generated plugin hook output for the new guard pack
 
-## 1.2.0
+## 1.3.0
 
 - added `plugin-hook-origin-guard`
 - added `plugin-exec-chain-guard`

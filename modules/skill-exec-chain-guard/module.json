@@ -1,0 +1,18 @@
+{
+  "id": "skill-exec-chain-guard",
+  "name": "Skill Execution Chain Guard Pack",
+  "description": "Blocks dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files.",
+  "category": "skills",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/skill-exec-chain-guard.sh \"$TOOL_INPUT\""
+  }
+}

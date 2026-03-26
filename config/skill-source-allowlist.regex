@@ -1,0 +1,2 @@
+^/skill[[:space:]]+install[[:space:]]+efij/secure-claude-code
+^/skill[[:space:]]+install[[:space:]]+[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)?$

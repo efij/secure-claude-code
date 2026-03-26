@@ -1,0 +1,18 @@
+{
+  "id": "mcp-server-command-chain-guard",
+  "name": "MCP Server Execution Chain Guard Pack",
+  "description": "Blocks dangerous download-and-execute or inline interpreter chains inside MCP server definitions.",
+  "category": "mcp",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/mcp-server-command-chain-guard.sh \"$TOOL_INPUT\""
+  }
+}

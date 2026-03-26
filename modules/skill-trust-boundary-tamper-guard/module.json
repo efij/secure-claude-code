@@ -1,0 +1,18 @@
+{
+  "id": "skill-trust-boundary-tamper-guard",
+  "name": "Skill Trust Boundary Tamper Guard Pack",
+  "description": "Blocks prompt-override and guard-bypass language being added to AGENTS, CLAUDE, skills, or Claude command files.",
+  "category": "skills",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/skill-trust-boundary-tamper-guard.sh \"$TOOL_INPUT\""
+  }
+}

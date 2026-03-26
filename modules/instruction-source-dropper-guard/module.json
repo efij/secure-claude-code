@@ -1,0 +1,18 @@
+{
+  "id": "instruction-source-dropper-guard",
+  "name": "Instruction Source Dropper Guard Pack",
+  "description": "Blocks remote content from being written directly into AGENTS, CLAUDE, skills, or Claude command files.",
+  "category": "trust-boundary",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.secure-claude-code/hooks/instruction-source-dropper-guard.sh \"$TOOL_INPUT\""
+  }
+}

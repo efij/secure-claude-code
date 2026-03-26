@@ -1,0 +1,8 @@
+ignore[[:space:]]+(all[[:space:]]+)?previous[[:space:]]+instructions
+system[[:space:]]+prompt
+developer[[:space:]]+prompt
+disable[[:space:]]+hooks
+bypass[[:space:]]+security
+override[[:space:]]+guardrails
+unrestricted[[:space:]]+mode
+\bDAN\b
