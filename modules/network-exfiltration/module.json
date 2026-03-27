@@ -13,7 +13,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/network-exfiltration.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/network-exfiltration.sh \"$TOOL_INPUT\""
   }
 }
 

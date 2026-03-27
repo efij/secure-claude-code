@@ -2,10 +2,10 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}"
+INSTALL_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}"
 CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
-HOOK_COMMAND_PREFIX='~/.secure-claude-code/hooks/'
-AUDIT_FILE="${SECURE_CLAUDE_CODE_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}"
+HOOK_COMMAND_PREFIX='~/.runwall/hooks/'
+AUDIT_FILE="${RUNWALL_AUDIT_FILE:-${SECURE_CLAUDE_CODE_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}}"
 PYTHON_BIN=""
 
 info() {
@@ -114,7 +114,7 @@ for module_id in module_ids:
         }
         if "command" in hook_payload:
             hook_payload["command"] = hook_payload["command"].replace(
-                "~/.secure-claude-code", render_home
+                "~/.runwall", render_home
             )
         entry = {
             "matcher": hook["matcher"],
@@ -173,18 +173,18 @@ for module_id in module_ids:
         }
         command = hook_payload.get("command")
         if command:
-            if command.startswith("bash ~/.secure-claude-code/"):
+            if command.startswith("bash ~/.runwall/"):
                 script_path, _, remainder = command.partition(' "$')
                 script_path = script_path.replace(
-                    "bash ~/.secure-claude-code/", '${CLAUDE_PLUGIN_ROOT}/'
+                    "bash ~/.runwall/", '${CLAUDE_PLUGIN_ROOT}/'
                 )
                 hook_payload["command"] = (
-                    'SECURE_CLAUDE_CODE_HOME="${CLAUDE_PLUGIN_ROOT}" '
+                    'RUNWALL_HOME="${CLAUDE_PLUGIN_ROOT}" '
                     f'bash "{script_path}" "$' + remainder
                 )
             else:
                 hook_payload["command"] = (
-                    'SECURE_CLAUDE_CODE_HOME="${CLAUDE_PLUGIN_ROOT}" ' + command
+                    'RUNWALL_HOME="${CLAUDE_PLUGIN_ROOT}" ' + command
                 )
 
         entry = {
@@ -347,7 +347,7 @@ install_profile() {
   printf '%s\n' "$profile" >"$INSTALL_HOME/state/profile.txt"
 
   info ""
-  info "Secure Claude Code installed."
+  info "Runwall installed."
   info "Profile: $profile"
   info "Protections: $(read_profile_modules "$profile" | wc -l | tr -d ' ') signatures enabled"
   info "Install home: $INSTALL_HOME"
@@ -386,7 +386,7 @@ validate_install() {
   }
 
   info ""
-  info "Secure Claude Code validation"
+  info "Runwall validation"
   info "Profile: $profile"
   info ""
 
@@ -455,6 +455,12 @@ validate_install() {
     check_pass "control file config present"
   else
     check_warn "control file config missing"
+  fi
+
+  if run_python "$ROOT_DIR/scripts/validate-patterns.py" "$INSTALL_HOME/config" >/dev/null 2>&1; then
+    check_pass "signature regex files compile cleanly"
+  else
+    check_fail "signature regex validation failed"
   fi
 
   if [ -f "$INSTALL_HOME/config/mcp-control-files.regex" ]; then
@@ -575,7 +581,7 @@ PY
   else
     info "  no active profile found"
     info ""
-    info "Repair with: bin/secure-claude-code doctor --fix balanced"
+    info "Repair with: bin/runwall doctor --fix balanced"
   fi
 }
 
@@ -715,11 +721,11 @@ uninstall_install() {
   remove_settings_entries "$CLAUDE_HOME/settings.json"
 
   if [ "$keep_home" = "true" ]; then
-    info "Secure Claude Code hooks removed from settings."
+    info "Runwall hooks removed from settings."
     info "Install home kept at $INSTALL_HOME"
   else
     rm -rf "$INSTALL_HOME"
-    info "Secure Claude Code hooks removed from settings."
+    info "Runwall hooks removed from settings."
     info "Install home removed: $INSTALL_HOME"
   fi
 }
@@ -727,17 +733,17 @@ uninstall_install() {
 usage() {
   cat <<'EOF'
 Usage:
-  bin/secure-claude-code install [profile]
-  bin/secure-claude-code update [profile]
-  bin/secure-claude-code uninstall [--keep-home]
-  bin/secure-claude-code validate
-  bin/secure-claude-code doctor [--fix] [profile]
-  bin/secure-claude-code logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
-  bin/secure-claude-code list profiles
-  bin/secure-claude-code list modules
-  bin/secure-claude-code list protections
-  bin/secure-claude-code generate-config [profile] [output]
-  bin/secure-claude-code generate-plugin-hooks [profile] [output]
+  bin/runwall install [profile]
+  bin/runwall update [profile]
+  bin/runwall uninstall [--keep-home]
+  bin/runwall validate
+  bin/runwall doctor [--fix] [profile]
+  bin/runwall logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
+  bin/runwall list profiles
+  bin/runwall list modules
+  bin/runwall list protections
+  bin/runwall generate-config [profile] [output]
+  bin/runwall generate-plugin-hooks [profile] [output]
 
 Profiles:
   minimal   Tight baseline for solo hacking

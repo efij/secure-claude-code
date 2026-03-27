@@ -14,13 +14,13 @@
       "event": "PreToolUse",
       "matcher": "Bash",
       "type": "command",
-      "command": "bash ~/.secure-claude-code/hooks/block-test-deletion.sh \"$TOOL_INPUT\""
+      "command": "bash ~/.runwall/hooks/block-test-deletion.sh \"$TOOL_INPUT\""
     },
     {
       "event": "PostToolUse",
       "matcher": "Write|Edit|MultiEdit",
       "type": "command",
-      "command": "bash ~/.secure-claude-code/hooks/protect-tests.sh \"$TOOL_INPUT\""
+      "command": "bash ~/.runwall/hooks/protect-tests.sh \"$TOOL_INPUT\""
     }
   ]
 }

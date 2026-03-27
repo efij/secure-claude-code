@@ -6,7 +6,7 @@ INPUT="${1:-}"
 
 block() {
   shield_audit "block-dangerous-commands" "block" "$1" "$INPUT"
-  printf '%s\n' '[secure-claude-code] blocked dangerous shell behavior' >&2
+  printf '%s\n' '[runwall] blocked dangerous shell behavior' >&2
   printf 'reason: %s\n' "$1" >&2
   printf 'next: %s\n' "$2" >&2
   exit 2

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-TEST_PATHS_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/test-paths.regex"
+TEST_PATHS_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/test-paths.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 [ -f "$TEST_PATHS_FILE" ] || exit 0
@@ -16,7 +16,7 @@ if [ -z "$test_hits" ] && [ -z "$skip_hits" ] && [ -z "$disable_hits" ]; then
 fi
 
 shield_audit "protect-tests" "warn" "test-integrity warning emitted" "$INPUT"
-printf '%s\n' '[secure-claude-code] warning: test integrity touched' >&2
+printf '%s\n' '[runwall] warning: test integrity touched' >&2
 printf '%s\n' 'reason: the change touches tests or uses a pattern that can silently weaken coverage' >&2
 if [ -n "$test_hits" ]; then
   printf '%s\n' 'test-path matches:' >&2

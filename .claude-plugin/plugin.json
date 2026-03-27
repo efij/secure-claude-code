@@ -1,7 +1,7 @@
 {
-  "name": "secure-claude-code",
-  "description": "Local-first security for Claude Code with balanced default hooks for shell, git, MCP, secret, and exfiltration risks.",
-  "version": "1.2.0",
+  "name": "runwall",
+  "description": "Runtime security for Claude Code with balanced default hooks for shell, git, MCP, secret, and exfiltration risks.",
+  "version": "2.0.0",
   "author": {
     "name": "efij"
   },
@@ -12,7 +12,7 @@
     "claude-code",
     "claude-plugin",
     "ai-security",
-    "agent-security",
+    "agent-runtime-security",
     "mcp-security",
     "devsecops"
   ]

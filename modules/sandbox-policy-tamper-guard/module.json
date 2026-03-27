@@ -13,6 +13,6 @@
     "event": "PreToolUse",
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/sandbox-policy-tamper-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/sandbox-policy-tamper-guard.sh \"$TOOL_INPUT\""
   }
 }

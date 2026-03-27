@@ -13,7 +13,7 @@
     "event": "PreToolUse",
     "matcher": "Read|Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
   }
 }
 

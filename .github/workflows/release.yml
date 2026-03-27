@@ -21,8 +21,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/secure-claude-code-*.tar.gz
-            dist/secure-claude-code-*.zip
+            dist/runwall-*.tar.gz
+            dist/runwall-*.zip
             dist/SHA256SUMS
-            dist/secure-claude-code.rb
-            dist/secure-claude-code.json
+            dist/runwall.rb
+            dist/runwall.json

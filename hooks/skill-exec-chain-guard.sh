@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 FILES_FILE="$CONFIG_HOME/instruction-files.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
@@ -29,7 +29,7 @@ else
 fi
 
 shield_audit "skill-exec-chain-guard" "block" "trusted skill or command instructions embed dangerous execution chains" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked dangerous skill execution chain' >&2
+printf '%s\n' '[runwall] blocked dangerous skill execution chain' >&2
 printf '%s\n' 'reason: the skill or Claude command text embeds download-and-execute or inline interpreter behavior that can be replayed later' >&2
 printf '%s\n' 'next: keep skills and command docs reviewable, local, and free of inline fetch-and-exec patterns' >&2
 exit 2

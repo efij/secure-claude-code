@@ -13,6 +13,6 @@
     "event": "PreToolUse",
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/dependency-script-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/dependency-script-guard.sh \"$TOOL_INPUT\""
   }
 }

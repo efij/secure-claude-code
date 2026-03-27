@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 ALLOW_FILE="$CONFIG_HOME/mcp-source-allowlist.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
@@ -29,7 +29,7 @@ case "$INPUT" in
 esac
 
 shield_audit "mcp-install-source-allowlist" "block" "unapproved MCP or plugin install source detected" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked unapproved MCP or plugin source' >&2
+printf '%s\n' '[runwall] blocked unapproved MCP or plugin source' >&2
 printf '%s\n' 'reason: the install source points at a raw, temp, or sideloaded location outside the current allowlist' >&2
 printf '%s\n' 'next: use a reviewed repository or update the source allowlist through code review' >&2
 exit 2

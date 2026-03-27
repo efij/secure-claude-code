@@ -1,6 +1,6 @@
 # Guard Registry
 
-Secure Claude Code is organized like a local YARA-style rule engine:
+Runwall is organized like a local YARA-style rule engine:
 
 - one guard pack equals one focused signature set
 - profiles enable groups of packs without changing code
@@ -44,7 +44,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `plugin-hook-origin-guard`: plugin hook commands that jump outside the plugin trust boundary
 - `plugin-manifest-guard`: risky plugin and extension manifest source edits
 - `plugin-surface-expansion-guard`: suspicious plugin hook coverage expansion onto sensitive lifecycle events or broad mutation-plus-shell combinations
-- `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Secure Claude Code control files
+- `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Runwall control files
 - `post-edit-quality-reminder`: post-edit lint/test reminders
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
 - `prod-target-guard`: direct mutating commands against production-like targets

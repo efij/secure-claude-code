@@ -2,12 +2,12 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-PROTECTED_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/protected-branches.txt"
+PROTECTED_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/protected-branches.txt"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 block() {
   shield_audit "block-unsafe-git" "block" "$1" "$INPUT"
-  printf '%s\n' '[secure-claude-code] blocked unsafe git action' >&2
+  printf '%s\n' '[runwall] blocked unsafe git action' >&2
   printf 'reason: %s\n' "$1" >&2
   printf 'next: %s\n' "$2" >&2
   exit 2
@@ -54,7 +54,7 @@ fi
 if printf '%s' "$INPUT" | grep -Eq 'git[[:space:]].*push' &&
   printf '%s' "$current_branch" | grep -Eq "^($protected_pattern)$"; then
   shield_audit "block-unsafe-git" "warn" "direct push from protected branch" "$INPUT"
-  printf '%s\n' '[secure-claude-code] warning: protected branch push' >&2
+  printf '%s\n' '[runwall] warning: protected branch push' >&2
   printf 'reason: current branch "%s" is protected\n' "$current_branch" >&2
   printf '%s\n' 'next: prefer a PR flow from a feature branch' >&2
 fi

@@ -3,4 +3,4 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-exec "$ROOT_DIR/bin/secure-claude-code" uninstall "${1:-}"
+exec "$ROOT_DIR/bin/runwall" uninstall "${1:-}"

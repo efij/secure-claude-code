@@ -13,6 +13,6 @@
     "event": "PreToolUse",
     "matcher": "Read|Write|Edit|MultiEdit|Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/workspace-boundary-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/workspace-boundary-guard.sh \"$TOOL_INPUT\""
   }
 }

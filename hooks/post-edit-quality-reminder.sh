@@ -23,7 +23,7 @@ fi
 
 if [ -n "$reminders" ]; then
   shield_audit "post-edit-quality-reminder" "warn" "post-edit quality reminder emitted" "$INPUT"
-  printf '%s\n' '[secure-claude-code] quality reminder' >&2
+  printf '%s\n' '[runwall] quality reminder' >&2
   printf '%s' "$reminders" >&2
 fi
 

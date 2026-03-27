@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 SECRET_PATHS_FILE="$CONFIG_HOME/secret-paths.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
@@ -51,7 +51,7 @@ if [ -z "$sensitive_hits" ] && [ -z "$archive_hits" ]; then
 fi
 
 shield_audit "network-exfiltration" "block" "suspicious outbound transfer with sensitive material" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked suspicious outbound transfer' >&2
+printf '%s\n' '[runwall] blocked suspicious outbound transfer' >&2
 printf '%s\n' 'reason: a network transfer command appears to include secret or database material' >&2
 if [ -n "$sensitive_hits" ]; then
   printf '%s\n' 'sensitive matches:' >&2

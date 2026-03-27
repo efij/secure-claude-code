@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 python_bin=""
@@ -13,9 +13,9 @@ else
   exit 0
 fi
 
-input_file="$(mktemp "${TMPDIR:-/tmp}/secure-claude-code-indirect-input.XXXXXX")"
-output_file="$(mktemp "${TMPDIR:-/tmp}/secure-claude-code-indirect-output.XXXXXX")"
-meta_file="$(mktemp "${TMPDIR:-/tmp}/secure-claude-code-indirect-meta.XXXXXX")"
+input_file="$(mktemp "${TMPDIR:-/tmp}/runwall-indirect-input.XXXXXX")"
+output_file="$(mktemp "${TMPDIR:-/tmp}/runwall-indirect-output.XXXXXX")"
+meta_file="$(mktemp "${TMPDIR:-/tmp}/runwall-indirect-meta.XXXXXX")"
 cleanup() {
   rm -f "$input_file" "$output_file" "$meta_file"
 }

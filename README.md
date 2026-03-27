@@ -1,8 +1,8 @@
-# Secure Claude Code
+# Runwall
 
-> Local-first security for Claude Code. Protect shell, git, MCP, secrets, and risky agent actions without dragging in heavy enterprise tooling.
+> Runtime security for Claude Code. Protect shell, git, MCP, secrets, plugins, skills, and risky agent actions before they turn into damage.
 
-Secure Claude Code adds a practical security layer around Claude Code to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
+Runwall adds a practical security layer around Claude Code to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
 
 It is built for solo builders, startups, security-minded teams, and larger orgs that want safer defaults around AI coding workflows.
 
@@ -15,13 +15,13 @@ It is built for solo builders, startups, security-minded teams, and larger orgs 
   <img alt="Last Commit" src="https://img.shields.io/github/last-commit/efij/secure-claude-code">
 </p>
 
-## Why Secure Claude Code?
+## Why Runwall?
 
 Claude Code is useful because it can read files, run shell commands, use git, and work with MCP tools.
 
 That is also exactly why it needs guardrails.
 
-Secure Claude Code helps reduce real-world risk around:
+Runwall helps reduce real-world risk around:
 
 - secret leakage
 - prompt injection and exfiltration paths
@@ -32,11 +32,11 @@ Secure Claude Code helps reduce real-world risk around:
 - malicious skill, command, and instruction-doc poisoning
 - weak local defaults in agent workflows
 
-It is local-first, practical, and built for real developer environments.
+It is practical, transparent, and built for real developer environments.
 
 ## What It Does
 
-Secure Claude Code helps you:
+Runwall helps you:
 
 - block high-confidence risky actions before they run
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
@@ -46,7 +46,7 @@ Secure Claude Code helps you:
 - apply a safer default profile quickly
 - keep security useful without turning the workflow into sludge
 
-It works well on top of Claude Code sandbox mode too. Sandboxing helps contain damage. Secure Claude Code adds guard logic on top of that containment layer.
+It works well on top of Claude Code sandbox mode too. Sandboxing helps contain damage. Runwall adds guard logic on top of that containment layer.
 
 ## Who It Is For
 
@@ -66,7 +66,7 @@ The cleanest install path now is the Claude Code plugin flow. It gives you the r
 
 ```text
 /plugin marketplace add efij/secure-claude-code
-/plugin install secure-claude-code@secure-claude-code
+/plugin install runwall@runwall
 ```
 
 Use the plugin path when you want fast setup and low friction.
@@ -82,7 +82,7 @@ curl -fsSL https://raw.githubusercontent.com/efij/secure-claude-code/main/script
 ### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.ps1 | iex; Install-SecureClaudeCode -Repo "efij/secure-claude-code" -Ref "main" -Profile "balanced"
+irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.ps1 | iex; Install-Runwall -Repo "efij/secure-claude-code" -Ref "main" -Profile "balanced"
 ```
 
 ### Local Checkout
@@ -90,7 +90,7 @@ irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/boots
 ```bash
 git clone https://github.com/efij/secure-claude-code.git
 cd secure-claude-code
-./bin/secure-claude-code install balanced
+./bin/runwall install balanced
 ```
 
 `install.sh`, `update.sh`, and `uninstall.sh` still exist, but they are only thin compatibility wrappers around the main CLI.
@@ -100,32 +100,32 @@ cd secure-claude-code
 ### Apply a safer baseline
 
 ```bash
-./bin/secure-claude-code install balanced
+./bin/runwall install balanced
 ```
 
 ### Validate the setup
 
 ```bash
-./bin/secure-claude-code doctor
-./bin/secure-claude-code validate
+./bin/runwall doctor
+./bin/runwall validate
 ```
 
 ### Review active protections
 
 ```bash
-./bin/secure-claude-code list protections
+./bin/runwall list protections
 ```
 
 ### Inspect recent blocks and warnings
 
 ```bash
-./bin/secure-claude-code logs 20
-./bin/secure-claude-code logs 50 --json
+./bin/runwall logs 20
+./bin/runwall logs 50 --json
 ```
 
 ## Security Coverage
 
-Secure Claude Code focuses on the practical execution surface around Claude Code.
+Runwall focuses on the practical execution surface around Claude Code.
 
 ### Shell
 
@@ -184,7 +184,7 @@ Stronger controls for sensitive repos, shared environments, and security-heavy t
 
 ## Why People Keep It Installed
 
-- local-first with no cloud control plane required for core protection
+- runtime security that stays close to the agent execution layer
 - modular guard packs instead of one opaque policy blob
 - plain-text regex and config files that are easy to tune
 - good fit for solo work, startup speed, and more controlled org setups
@@ -199,18 +199,18 @@ The architecture is intentionally YARA-like in spirit:
 
 ## Audit and Transparency
 
-Secure Claude Code writes local JSONL audit events for warnings and blocks.
+Runwall writes local JSONL audit events for warnings and blocks.
 
 Defaults:
 
-- path: `~/.secure-claude-code/state/audit.jsonl`
+- path: `~/.runwall/state/audit.jsonl`
 - mode: `alerts`
 
 Useful commands:
 
 ```bash
-./bin/secure-claude-code logs
-./bin/secure-claude-code logs 50 --decision block --since-hours 24
+./bin/runwall logs
+./bin/runwall logs 50 --decision block --since-hours 24
 ```
 
 If you want the deep dive:
@@ -256,7 +256,7 @@ Good places to start:
 
 ## Security Note
 
-Secure Claude Code reduces risk. It does not eliminate risk.
+Runwall reduces risk. It does not eliminate risk.
 
 You should still treat Claude Code, MCP tools, shell access, secrets, and repository operations as real security boundaries. This project is the local enforcement layer, not the whole security program.
 

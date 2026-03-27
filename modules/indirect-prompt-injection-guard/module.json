@@ -14,7 +14,7 @@
       "event": "PostToolUse",
       "matcher": "Read|WebFetch|Bash|Grep|Glob|Task|mcp__.*|mcp_.*",
       "type": "command",
-      "command": "bash ~/.secure-claude-code/hooks/indirect-prompt-injection-guard.sh \"$TOOL_INPUT\""
+      "command": "bash ~/.runwall/hooks/indirect-prompt-injection-guard.sh \"$TOOL_INPUT\""
     }
   ]
 }

@@ -13,6 +13,6 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/package-publish-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/package-publish-guard.sh \"$TOOL_INPUT\""
   }
 }

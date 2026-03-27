@@ -8,7 +8,7 @@ shield_prepare_pattern_file() {
 
   [ -f "$source_file" ] || return 1
 
-  temp_file="$(mktemp "${TMPDIR:-/tmp}/secure-claude-code-patterns.XXXXXX")" || return 1
+  temp_file="$(mktemp "${TMPDIR:-/tmp}/runwall-patterns.XXXXXX")" || return 1
   tr -d '\r' <"$source_file" >"$temp_file"
   shield_pattern_temp_files="${shield_pattern_temp_files}${temp_file}"$'\n'
   printf '%s\n' "$temp_file"

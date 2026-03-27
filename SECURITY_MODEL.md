@@ -1,6 +1,6 @@
 # Security Model
 
-Secure Claude Code is a local pre-tool and post-tool guardrail layer for Claude Code.
+Runwall is a local pre-tool and post-tool guardrail layer for Claude Code.
 
 It is designed to sit on top of normal safe setup choices such as Claude Code sandbox mode, repo protections, and secret hygiene. It does not replace them.
 
@@ -44,11 +44,11 @@ It is designed to sit on top of normal safe setup choices such as Claude Code sa
 
 Warnings and blocks are written to local JSONL audit logs by default.
 
-- path: `~/.secure-claude-code/state/audit.jsonl`
-- mode: `SECURE_CLAUDE_CODE_AUDIT_MODE=alerts|all|off`
+- path: `~/.runwall/state/audit.jsonl`
+- mode: `RUNWALL_AUDIT_MODE=alerts|all|off`
 
 ## Known Limits
 
 - hook visibility is strongest around tool inputs, not full remote content bodies
 - Windows-native hook execution is not yet first-class
-- the project intentionally stays local-first and does not include enterprise policy sync
+- the project intentionally stays focused on the runtime layer and does not include enterprise policy sync

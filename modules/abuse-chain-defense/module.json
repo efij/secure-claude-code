@@ -13,7 +13,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
   }
 }
 

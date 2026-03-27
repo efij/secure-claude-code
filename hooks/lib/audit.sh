@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-shield_audit_mode="${SECURE_CLAUDE_CODE_AUDIT_MODE:-alerts}"
-shield_audit_file="${SECURE_CLAUDE_CODE_AUDIT_FILE:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/state/audit.jsonl}"
+shield_audit_mode="${RUNWALL_AUDIT_MODE:-${SECURE_CLAUDE_CODE_AUDIT_MODE:-alerts}}"
+shield_audit_file="${RUNWALL_AUDIT_FILE:-${SECURE_CLAUDE_CODE_AUDIT_FILE:-${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/state/audit.jsonl}}"
 shield_python_bin=""
 
 shield_python() {
@@ -58,8 +58,11 @@ tool_input = sys.argv[5][:4000]
 
 shield_home = pathlib.Path(
     os.environ.get(
-        "SECURE_CLAUDE_CODE_HOME",
-        os.path.expanduser("~/.secure-claude-code"),
+        "RUNWALL_HOME",
+        os.environ.get(
+            "SECURE_CLAUDE_CODE_HOME",
+            os.path.expanduser("~/.runwall"),
+        ),
     )
 )
 profile_file = shield_home / "state" / "profile.txt"

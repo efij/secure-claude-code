@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 WEBHOOK_FILE="$CONFIG_HOME/webhook-sinks.regex"
 TOKEN_FILE="$CONFIG_HOME/live-token-patterns.regex"
 SECRET_FILE="$CONFIG_HOME/secret-paths.regex"
@@ -29,7 +29,7 @@ if shield_match_pattern_file "$INPUT" "$TOKEN_FILE" \
   || shield_match_pattern_file "$INPUT" "$ARCHIVE_FILE" \
   || printf '%s' "$INPUT" | grep -Eqi '(-F[[:space:]]+file=@|--data-binary|repo\.bundle|\.git/)'; then
   shield_audit "local-webhook-guard" "block" "webhook exfiltration path detected" "$INPUT"
-  printf '%s\n' '[secure-claude-code] blocked webhook exfiltration path' >&2
+  printf '%s\n' '[runwall] blocked webhook exfiltration path' >&2
   printf '%s\n' 'reason: the command sends sensitive or high-value data to a webhook-style endpoint' >&2
   printf '%s\n' 'next: remove the external sink and keep review artifacts inside approved channels' >&2
   exit 2

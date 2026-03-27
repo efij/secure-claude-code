@@ -13,6 +13,6 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/mcp-install-source-allowlist.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/mcp-install-source-allowlist.sh \"$TOOL_INPUT\""
   }
 }

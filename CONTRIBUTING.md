@@ -1,6 +1,6 @@
 # Contributing
 
-Secure Claude Code is designed around small, reviewable protection packs instead of a single growing script.
+Runwall is designed around small, reviewable protection packs instead of a single growing script.
 
 ## Contribution Principles
 
@@ -46,7 +46,7 @@ Secure Claude Code is designed around small, reviewable protection packs instead
     "event": "PostToolUse",
     "matcher": "Write|Edit|MultiEdit",
     "type": "command",
-    "command": "bash ~/.secure-claude-code/hooks/protect-tests.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.runwall/hooks/protect-tests.sh \"$TOOL_INPUT\""
   }
 }
 ```
@@ -56,8 +56,8 @@ Secure Claude Code is designed around small, reviewable protection packs instead
 Run before opening a PR:
 
 ```bash
-bash -n bin/shield bin/secure-claude-code install.sh uninstall.sh update.sh scripts/*.sh hooks/*.sh
-./bin/secure-claude-code list protections
-./bin/secure-claude-code generate-config balanced
+bash -n bin/shield bin/runwall install.sh uninstall.sh update.sh scripts/*.sh hooks/*.sh
+./bin/runwall list protections
+./bin/runwall generate-config balanced
 bash tests/smoke.sh
 ```

@@ -1,0 +1,17 @@
+{
+  "version": "{{VERSION}}",
+  "description": "Runtime security toolkit for Claude Code",
+  "homepage": "https://github.com/{{REPO}}",
+  "license": "MIT",
+  "url": "https://github.com/{{REPO}}/releases/download/v{{VERSION}}/runwall-{{VERSION}}.zip",
+  "hash": "{{SHA256_ZIP}}",
+  "bin": [
+    "bin\\runwall"
+  ],
+  "checkver": {
+    "github": "{{REPO}}"
+  },
+  "autoupdate": {
+    "url": "https://github.com/{{REPO}}/releases/download/v$version/runwall-$version.zip"
+  }
+}

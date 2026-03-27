@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 SECRET_PATHS_FILE="$CONFIG_HOME/secret-paths.regex"
 ALLOWLIST_FILE="$CONFIG_HOME/secret-allowlist.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
@@ -60,7 +60,7 @@ else
 fi
 
 shield_audit "protect-secrets-read" "block" "sensitive secret-file access requested" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked sensitive secret-file access' >&2
+printf '%s\n' '[runwall] blocked sensitive secret-file access' >&2
 printf '%s\n' 'reason: the requested tool input references local credential or secret material' >&2
 printf '%s\n' 'matched paths:' >&2
 printf '%s\n' "$filtered" | sed 's/^/  - /' >&2

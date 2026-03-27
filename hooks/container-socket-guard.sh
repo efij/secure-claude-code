@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-PATTERN_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/container-socket-paths.regex"
+PATTERN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/container-socket-paths.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -22,7 +22,7 @@ fi
 
 if printf '%s' "$INPUT" | grep -Eqi '(curl|docker|podman|ctr|crictl|socat|nc|--mount|-v[[:space:]]|DOCKER_HOST|CONTAINER_HOST|unix-socket)'; then
   shield_audit "container-socket-guard" "block" "container runtime socket access detected" "$INPUT"
-  printf '%s\n' '[secure-claude-code] blocked container socket access' >&2
+  printf '%s\n' '[runwall] blocked container socket access' >&2
   printf '%s\n' 'reason: the command reaches a container runtime socket that can widen execution beyond the workspace' >&2
   printf '%s\n' 'next: avoid direct socket access and use reviewed local tooling or mocked runtimes instead' >&2
   exit 2

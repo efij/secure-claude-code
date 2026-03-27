@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 FILES_FILE="$CONFIG_HOME/instruction-files.regex"
 TAMPER_FILE="$CONFIG_HOME/skill-tamper-phrases.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
@@ -21,7 +21,7 @@ if ! shield_match_pattern_file "$INPUT" "$TAMPER_FILE"; then
 fi
 
 shield_audit "skill-trust-boundary-tamper-guard" "block" "trusted instruction files contain prompt-override or guard-bypass language" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked trust-boundary tampering in skill or command instructions' >&2
+printf '%s\n' '[runwall] blocked trust-boundary tampering in skill or command instructions' >&2
 printf '%s\n' 'reason: the change adds classic prompt-override, jailbreak, or hook-bypass language into files that shape future agent behavior' >&2
 printf '%s\n' 'next: keep skill and command docs narrow, local, and free of instruction-overwrite language' >&2
 exit 2

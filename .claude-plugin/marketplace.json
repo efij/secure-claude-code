@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "name": "secure-claude-code",
+  "name": "runwall",
   "metadata": {
-    "description": "Claude Code security marketplace with a balanced default plugin and a full CLI hardening path."
+    "description": "Runwall marketplace entry with a balanced default plugin and a full CLI hardening path."
   },
   "owner": {
     "name": "efij"
   },
   "plugins": [
     {
-      "name": "secure-claude-code",
-      "description": "Balanced default security plugin for Claude Code with shell, git, MCP, secret, and exfiltration guardrails.",
-      "version": "1.2.0",
+      "name": "runwall",
+      "description": "Balanced default runtime security plugin for Claude Code with shell, git, MCP, secret, and exfiltration guardrails.",
+      "version": "2.0.0",
       "source": "./"
     }
   ]

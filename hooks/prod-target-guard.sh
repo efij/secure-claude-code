@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-PATTERN_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/prod-targets.regex"
+PATTERN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/prod-targets.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 [ -f "$PATTERN_FILE" ] || exit 0
@@ -16,7 +16,7 @@ if ! printf '%s' "$INPUT" | grep -Eqi '(terraform[^[:cntrl:]]+apply|kubectl[^[:c
 fi
 
 shield_audit "prod-target-guard" "block" "direct mutation against a production-like target detected" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked direct production-target command' >&2
+printf '%s\n' '[runwall] blocked direct production-target command' >&2
 printf '%s\n' 'reason: the command targets a production-like environment with a mutating deploy or infrastructure action' >&2
 printf '%s\n' 'next: move this step into a reviewed deployment path instead of running it directly through the agent' >&2
 exit 2

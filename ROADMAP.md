@@ -1,6 +1,6 @@
 # Roadmap
 
-Secure Claude Code should stay focused: strong local protections, simple installation, and modular growth.
+Runwall should stay focused: strong local protections, simple installation, and modular growth.
 
 ## Current Scope
 

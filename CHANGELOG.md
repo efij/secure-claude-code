@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.0
+
+- rebranded the product and primary CLI to `Runwall`
+- added `bin/runwall` as the primary entrypoint while keeping `bin/secure-claude-code` as a compatibility wrapper
+- moved the default install and audit home to `~/.runwall` while keeping legacy env var fallback support
+- renamed plugin, package, and release artifacts to `runwall`
+- added `scripts/validate-patterns.py` and wired regex validation into smoke tests, CI, and `validate`
+- tightened release-facing docs and messaging around the Runwall runtime-security positioning
+
 ## 1.4.0
 
 - added `instruction-source-dropper-guard`
@@ -93,7 +102,7 @@
 - added a full plain-English signature deep dive in `SIGNATURES.md`
 - simplified the public install story around the bootstrap installer and main CLI entrypoint
 - expanded smoke coverage for the new guard pack set
-- promoted Secure Claude Code to `1.0.0`
+- promoted Runwall to `1.0.0`
 
 ## 0.9.0
 
@@ -134,7 +143,7 @@
 - added bootstrap installers for shell and PowerShell
 - added `doctor --fix`
 - added filtered audit log views by module, decision, and time window
-- aligned wrapper scripts around `bin/secure-claude-code`
+- aligned wrapper scripts around `bin/runwall`
 - hardened release packaging against local editor, agent, temp, and audit-state leakage
 
 ## 0.3.0
@@ -154,7 +163,7 @@
 
 ## 0.1.0
 
-- initial public release of Secure Claude Code
+- initial public release of Runwall
 - added `block-unsafe-git`
 - added `pre-push-scan`
 - added local JSONL audit logging

@@ -27,7 +27,7 @@ else
 fi
 
 shield_audit "plugin-exec-chain-guard" "block" "plugin command embeds a dangerous execution chain" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked dangerous plugin execution chain' >&2
+printf '%s\n' '[runwall] blocked dangerous plugin execution chain' >&2
 printf '%s\n' 'reason: the plugin command embeds download-and-execute or inline interpreter execution behavior' >&2
 printf '%s\n' 'next: keep plugin commands simple, local, and reviewable instead of fetching or evaluating code inline' >&2
 exit 2

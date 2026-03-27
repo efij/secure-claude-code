@@ -2,14 +2,14 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-ALLOWLIST_FILE="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config/secret-allowlist.regex"
+ALLOWLIST_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/secret-allowlist.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 if ! printf '%s' "$INPUT" | grep -Eq 'git[[:space:]].*push'; then
   exit 0
 fi
 
-printf '%s\n' '[secure-claude-code] running pre-push scan' >&2
+printf '%s\n' '[runwall] running pre-push scan' >&2
 
 collect_matches() {
   local pattern="${1:-}"
@@ -70,12 +70,12 @@ fi
 
 if [ "$failures" -ne 0 ]; then
   shield_audit "pre-push-scan" "block" "pre-push scan found secrets or live connection data" "$INPUT"
-  printf '%s\n' '[secure-claude-code] push blocked' >&2
+  printf '%s\n' '[runwall] push blocked' >&2
   printf '%s\n' 'reason: the outgoing diff likely contains secrets, internal identifiers, or live connection data' >&2
-  printf '%s\n' 'next: remove the values or add a narrow allowlist rule in ~/.secure-claude-code/config/secret-allowlist.regex' >&2
+  printf '%s\n' 'next: remove the values or add a narrow allowlist rule in ~/.runwall/config/secret-allowlist.regex' >&2
   exit 2
 fi
 
 shield_audit "pre-push-scan" "warn" "pre-push scan passed" "$INPUT"
-printf '%s\n' '[secure-claude-code] pre-push scan passed' >&2
+printf '%s\n' '[runwall] pre-push scan passed' >&2
 exit 0

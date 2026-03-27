@@ -1,0 +1,19 @@
+class Runwall < Formula
+  desc "Runtime security toolkit for Claude Code"
+  homepage "https://github.com/{{REPO}}"
+  url "https://github.com/{{REPO}}/releases/download/v{{VERSION}}/runwall-{{VERSION}}.tar.gz"
+  sha256 "{{SHA256_TGZ}}"
+  license "MIT"
+
+  def install
+    libexec.install Dir["*"]
+    (bin/"runwall").write <<~EOS
+      #!/bin/bash
+      exec "#{libexec}/bin/runwall" "$@"
+    EOS
+  end
+
+  test do
+    assert_match "Usage:", shell_output("#{bin}/runwall --help")
+  end
+end

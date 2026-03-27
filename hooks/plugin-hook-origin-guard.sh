@@ -19,7 +19,7 @@ fi
 case "$INPUT" in
   *file://*|*/tmp/*|*/var/tmp/*|*/dev/shm/*|*Downloads/*|*AppData\\Local\\Temp\\*|*\\Users\\Public\\*)
     shield_audit "plugin-hook-origin-guard" "block" "plugin hook command points outside the plugin trust boundary" "$INPUT"
-    printf '%s\n' '[secure-claude-code] blocked plugin hook origin outside plugin trust boundary' >&2
+    printf '%s\n' '[runwall] blocked plugin hook origin outside plugin trust boundary' >&2
     printf '%s\n' 'reason: the plugin hook command points at temp, download, scratch, or other untrusted execution paths' >&2
     printf '%s\n' 'next: keep plugin hook commands under ${CLAUDE_PLUGIN_ROOT} or a reviewed repo-local path' >&2
     exit 2

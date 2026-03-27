@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION="${2:-$(cat "$ROOT_DIR/VERSION")}"
 REPO="${1:-}"
 DIST_DIR="$ROOT_DIR/dist"
-STAGE_DIR="$DIST_DIR/secure-claude-code-$VERSION"
+STAGE_DIR="$DIST_DIR/runwall-$VERSION"
 PYTHON_BIN="${PYTHON_BIN:-}"
 
 [ -n "$REPO" ] || {
@@ -45,13 +45,13 @@ rsync -a \
 
 (
   cd "$DIST_DIR"
-  tar -czf "secure-claude-code-$VERSION.tar.gz" "secure-claude-code-$VERSION"
-  rm -f "secure-claude-code-$VERSION.zip"
-  zip -qr "secure-claude-code-$VERSION.zip" "secure-claude-code-$VERSION"
+  tar -czf "runwall-$VERSION.tar.gz" "runwall-$VERSION"
+  rm -f "runwall-$VERSION.zip"
+  zip -qr "runwall-$VERSION.zip" "runwall-$VERSION"
 )
 
-SHA256_TGZ="$(shasum -a 256 "$DIST_DIR/secure-claude-code-$VERSION.tar.gz" | awk '{print $1}')"
-SHA256_ZIP="$(shasum -a 256 "$DIST_DIR/secure-claude-code-$VERSION.zip" | awk '{print $1}')"
+SHA256_TGZ="$(shasum -a 256 "$DIST_DIR/runwall-$VERSION.tar.gz" | awk '{print $1}')"
+SHA256_ZIP="$(shasum -a 256 "$DIST_DIR/runwall-$VERSION.zip" | awk '{print $1}')"
 
 "$PYTHON_BIN" - "$ROOT_DIR" "$REPO" "$VERSION" "$SHA256_TGZ" "$SHA256_ZIP" <<'PY'
 from pathlib import Path
@@ -72,12 +72,12 @@ replacements = {
 
 targets = [
     (
-        root / "packaging" / "homebrew" / "secure-claude-code.rb.tmpl",
-        root / "dist" / "secure-claude-code.rb",
+        root / "packaging" / "homebrew" / "runwall.rb.tmpl",
+        root / "dist" / "runwall.rb",
     ),
     (
-        root / "packaging" / "scoop" / "secure-claude-code.json.tmpl",
-        root / "dist" / "secure-claude-code.json",
+        root / "packaging" / "scoop" / "runwall.json.tmpl",
+        root / "dist" / "runwall.json",
     ),
 ]
 
@@ -89,8 +89,8 @@ for src, dest in targets:
 PY
 
 cat >"$DIST_DIR/SHA256SUMS" <<EOF
-$SHA256_TGZ  secure-claude-code-$VERSION.tar.gz
-$SHA256_ZIP  secure-claude-code-$VERSION.zip
+$SHA256_TGZ  runwall-$VERSION.tar.gz
+$SHA256_ZIP  runwall-$VERSION.zip
 EOF
 
 printf 'release assets created in %s\n' "$DIST_DIR"

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 CLIPBOARD_FILE="$CONFIG_HOME/clipboard-commands.regex"
 TOKEN_FILE="$CONFIG_HOME/live-token-patterns.regex"
 SECRET_PATHS_FILE="$CONFIG_HOME/secret-paths.regex"
@@ -46,7 +46,7 @@ else
 fi
 
 shield_audit "clipboard-exfiltration-guard" "block" "secret or credential material is being copied to the clipboard" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked clipboard exfiltration' >&2
+printf '%s\n' '[runwall] blocked clipboard exfiltration' >&2
 printf '%s\n' 'reason: the command routes likely secrets or tokens into the system clipboard' >&2
 printf '%s\n' 'next: keep secret handling out of clipboard flows and use redacted placeholders when sharing values' >&2
 exit 2

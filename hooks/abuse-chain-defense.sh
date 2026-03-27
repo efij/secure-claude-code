@@ -2,13 +2,13 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 CONTROL_FILE="${CONFIG_HOME}/control-files.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 block() {
   shield_audit "abuse-chain-defense" "block" "$1" "$INPUT"
-  printf '%s\n' '[secure-claude-code] blocked abuse-chain or prompt-injection pattern' >&2
+  printf '%s\n' '[runwall] blocked abuse-chain or prompt-injection pattern' >&2
   printf 'reason: %s\n' "$1" >&2
   printf 'next: %s\n' "$2" >&2
   exit 2

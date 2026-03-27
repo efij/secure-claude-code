@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 FILES_FILE="$CONFIG_HOME/mcp-server-files.regex"
 ENV_FILE="$CONFIG_HOME/mcp-secret-env.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
@@ -25,7 +25,7 @@ if ! shield_match_pattern_file "$INPUT" "$ENV_FILE"; then
 fi
 
 shield_audit "mcp-secret-env-guard" "warn" "MCP config passes high-value secret environment variables into a server" "$INPUT"
-printf '%s\n' '[secure-claude-code] warning: MCP server receives high-value secret env vars' >&2
+printf '%s\n' '[runwall] warning: MCP server receives high-value secret env vars' >&2
 printf '%s\n' 'reason: the MCP config forwards credentials or trust-boundary variables that can expand what the server can read or do' >&2
 printf '%s\n' 'next: keep MCP env narrow, prefer scoped service credentials, and avoid passing workstation or cloud-wide secrets unless the server is fully reviewed' >&2
 exit 0

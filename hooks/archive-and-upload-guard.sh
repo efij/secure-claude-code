@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 SECRET_PATHS_FILE="$CONFIG_HOME/secret-paths.regex"
 SENSITIVE_SOURCES_FILE="$CONFIG_HOME/archive-sensitive-sources.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
@@ -37,7 +37,7 @@ if [ -z "$sensitive_hits" ] && [ -z "$source_hits" ]; then
 fi
 
 shield_audit "archive-and-upload-guard" "block" "archive creation is chained with a transfer of sensitive or high-value material" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked archive-and-upload chain' >&2
+printf '%s\n' '[runwall] blocked archive-and-upload chain' >&2
 printf '%s\n' 'reason: the command combines archiving with outbound transfer while referencing secret, repo-control, or dump material' >&2
 if [ -n "$sensitive_hits" ]; then
   printf '%s\n' 'secret-related matches:' >&2

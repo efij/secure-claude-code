@@ -15,8 +15,8 @@ usage() {
 Usage:
   bootstrap.sh --repo owner/repo [--ref branch] [--profile profile]
   bootstrap.sh --repo owner/repo --version X.Y.Z [--profile profile]
-  bootstrap.sh --archive-url https://.../secure-claude-code.tar.gz [--profile profile]
-  bootstrap.sh --archive-file /path/to/secure-claude-code.tar.gz [--profile profile]
+  bootstrap.sh --archive-url https://.../runwall.tar.gz [--profile profile]
+  bootstrap.sh --archive-file /path/to/runwall.tar.gz [--profile profile]
 EOF
 }
 
@@ -37,11 +37,11 @@ make_tempdir() {
     printf '%s\n' "$tmpdir"
     return 0
   fi
-  if tmpdir="$(mktemp -d -t secure-claude-code-bootstrap 2>/dev/null)"; then
+  if tmpdir="$(mktemp -d -t runwall-bootstrap 2>/dev/null)"; then
     printf '%s\n' "$tmpdir"
     return 0
   fi
-  if tmpdir="$(mktemp -d "$base/secure-claude-code-bootstrap.XXXXXX" 2>/dev/null)"; then
+  if tmpdir="$(mktemp -d "$base/runwall-bootstrap.XXXXXX" 2>/dev/null)"; then
     printf '%s\n' "$tmpdir"
     return 0
   fi
@@ -118,7 +118,7 @@ fi
 if [ -z "$ARCHIVE_URL" ] && [ -z "$ARCHIVE_FILE" ]; then
   [ -n "$REPO" ] || fail "--repo is required unless --archive-url or --archive-file is used"
   if [ -n "$VERSION" ]; then
-    ARCHIVE_URL="https://github.com/$REPO/releases/download/v$VERSION/secure-claude-code-$VERSION.tar.gz"
+    ARCHIVE_URL="https://github.com/$REPO/releases/download/v$VERSION/runwall-$VERSION.tar.gz"
   else
     ARCHIVE_URL="https://github.com/$REPO/archive/refs/heads/$REF.tar.gz"
   fi
@@ -145,5 +145,5 @@ INSTALL_SCRIPT="$(find "$EXTRACT_DIR" -mindepth 1 -maxdepth 2 -type f -name inst
 [ -n "$INSTALL_SCRIPT" ] || fail "could not locate extracted install.sh"
 SOURCE_DIR="$(dirname "$INSTALL_SCRIPT")"
 
-printf 'Installing Secure Claude Code with profile %s\n' "$PROFILE"
+printf 'Installing Runwall with profile %s\n' "$PROFILE"
 bash "$SOURCE_DIR/install.sh" "$PROFILE"

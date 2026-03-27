@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${SECURE_CLAUDE_CODE_HOME:-$HOME/.secure-claude-code}/config"
+CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
 FILES_FILE="$CONFIG_HOME/mcp-server-files.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
@@ -29,7 +29,7 @@ else
 fi
 
 shield_audit "mcp-server-command-chain-guard" "block" "MCP server definition embeds a dangerous execution chain" "$INPUT"
-printf '%s\n' '[secure-claude-code] blocked dangerous MCP server execution chain' >&2
+printf '%s\n' '[runwall] blocked dangerous MCP server execution chain' >&2
 printf '%s\n' 'reason: the MCP server command uses download-and-execute or inline interpreter behavior instead of a stable reviewed binary' >&2
 printf '%s\n' 'next: point MCP servers at a reviewed local executable or source-controlled wrapper instead of inline fetched code' >&2
 exit 2
