@@ -12,7 +12,9 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 ## Implemented Guards
 
 - `abuse-chain-defense`: remote instruction writes, rule-override text, and secret-plus-transfer chains
+- `agent-session-secret-guard`: direct reads and exports of local auth, token, and session stores used by coding agents
 - `archive-and-upload-guard`: archive-plus-transfer chains involving secret or high-value material
+- `audit-evasion-guard`: shell history, event log, and Runwall audit trail clearing behavior
 - `binary-payload-guard`: downloaded or decoded executable payload staging
 - `block-dangerous-commands`: high-confidence dangerous shell patterns
 - `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
@@ -26,6 +28,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `dangerous-migration-guard`: destructive schema and data-loss migration patterns
 - `devcontainer-trust-guard`: risky devcontainer isolation weakening and remote setup injection
 - `dependency-script-guard`: install-time and build-time dependency script abuse
+- `desktop-credential-store-guard`: direct access to OS-backed desktop credential stores such as Keychain, libsecret, and Windows Credential Manager
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
 - `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
 - `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
@@ -57,6 +60,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `release-key-guard`: reads and exports of release-signing and provenance key material
 - `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
+- `ssh-trust-downgrade-guard`: host verification and known-host trust downgrades in SSH commands or config
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files
 - `skill-install-source-guard`: unreviewed raw, temp, or sideloaded skill install sources
@@ -64,6 +68,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
 - `token-paste-guard`: live API token and private-key paste detection
 - `tool-origin-guard`: risky MCP or tool origins in config files
+- `trusted-config-symlink-guard`: symlink redirection of trusted policy, plugin, MCP, and instruction files
 - `workspace-boundary-guard`: system-path and deep-parent boundary escapes
 
 ## FFU Pipeline A

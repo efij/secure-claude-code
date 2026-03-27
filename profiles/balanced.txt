@@ -2,6 +2,7 @@
 block-unsafe-git
 pre-push-scan
 protect-secrets-read
+agent-session-secret-guard
 abuse-chain-defense
 indirect-prompt-injection-guard
 instruction-source-dropper-guard
@@ -20,8 +21,10 @@ plugin-exec-chain-guard
 plugin-surface-expansion-guard
 plugin-trust-boundary-tamper-guard
 workspace-boundary-guard
+trusted-config-symlink-guard
 sandbox-escape-guard
 sandbox-policy-tamper-guard
+audit-evasion-guard
 cloud-metadata-guard
 dns-exfiltration-guard
 local-webhook-guard
@@ -54,6 +57,8 @@ token-paste-guard
 repo-mass-harvest-guard
 binary-payload-guard
 ssh-agent-abuse-guard
+ssh-trust-downgrade-guard
+desktop-credential-store-guard
 mass-delete-guard
 package-publish-guard
 post-edit-quality-reminder

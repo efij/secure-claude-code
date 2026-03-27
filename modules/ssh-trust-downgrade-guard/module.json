@@ -1,0 +1,18 @@
+{
+  "id": "ssh-trust-downgrade-guard",
+  "name": "SSH Trust Downgrade Guard Pack",
+  "description": "Blocks SSH commands and config changes that disable host verification or known-host trust checks.",
+  "category": "trust-boundary",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/ssh-trust-downgrade-guard.sh \"$TOOL_INPUT\""
+  }
+}

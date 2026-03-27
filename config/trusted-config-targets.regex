@@ -1,0 +1,8 @@
+\bCLAUDE\.md\b
+\bAGENTS\.md\b
+\.mcp\.json
+\.claude-plugin/plugin\.json
+\.claude-plugin/marketplace\.json
+hooks/hooks\.json
+\.runwall/config/
+\.runwall/state/

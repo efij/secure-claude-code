@@ -1,0 +1,8 @@
+\.claude[^[:space:]]*/(auth|session|token|tokens|credentials)[^[:space:]]*\.(json|db|sqlite)
+\.codex[^[:space:]]*/(auth|session|token|tokens|credentials)[^[:space:]]*\.(json|db|sqlite)
+\.openclaw[^[:space:]]*/(auth|session|token|tokens|credentials)[^[:space:]]*\.(json|db|sqlite)
+\.cursor[^[:space:]]*/(auth|session|token|tokens|credentials)[^[:space:]]*\.(json|db|sqlite)
+\.windsurf[^[:space:]]*/(auth|session|token|tokens|credentials)[^[:space:]]*\.(json|db|sqlite)
+claude[^[:space:]]*/session[^[:space:]]*\.(json|db|sqlite)
+codex[^[:space:]]*/session[^[:space:]]*\.(json|db|sqlite)
+openclaw[^[:space:]]*/session[^[:space:]]*\.(json|db|sqlite)

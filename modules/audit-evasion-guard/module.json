@@ -1,0 +1,18 @@
+{
+  "id": "audit-evasion-guard",
+  "name": "Audit Evasion Guard Pack",
+  "description": "Blocks shell history, event log, and Runwall audit trail clearing behavior.",
+  "category": "defense-evasion",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/audit-evasion-guard.sh \"$TOOL_INPUT\""
+  }
+}

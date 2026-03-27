@@ -145,6 +145,11 @@ assert_contains "$install_output" 'browser-profile-export-guard registered in se
 assert_contains "$install_output" 'container-socket-guard registered in settings'
 assert_contains "$install_output" 'kube-secret-guard registered in settings'
 assert_contains "$install_output" 'devcontainer-trust-guard registered in settings'
+assert_contains "$install_output" 'agent-session-secret-guard registered in settings'
+assert_contains "$install_output" 'trusted-config-symlink-guard registered in settings'
+assert_contains "$install_output" 'audit-evasion-guard registered in settings'
+assert_contains "$install_output" 'ssh-trust-downgrade-guard registered in settings'
+assert_contains "$install_output" 'desktop-credential-store-guard registered in settings'
 assert_contains "$install_output" 'signed-commit-bypass-guard registered in settings'
 assert_contains "$install_output" 'git-history-rewrite-guard registered in settings'
 assert_contains "$install_output" 'artifact-poisoning-guard registered in settings'
@@ -179,6 +184,11 @@ assert_contains "$doctor_output" 'skill-exec-chain-guard'
 assert_contains "$doctor_output" 'skill-trust-boundary-tamper-guard'
 assert_contains "$doctor_output" 'dns-exfiltration-guard'
 assert_contains "$doctor_output" 'browser-profile-export-guard'
+assert_contains "$doctor_output" 'agent-session-secret-guard'
+assert_contains "$doctor_output" 'trusted-config-symlink-guard'
+assert_contains "$doctor_output" 'audit-evasion-guard'
+assert_contains "$doctor_output" 'ssh-trust-downgrade-guard'
+assert_contains "$doctor_output" 'desktop-credential-store-guard'
 assert_contains "$doctor_output" 'git-history-rewrite-guard'
 assert_contains "$doctor_output" 'release-key-guard'
 assert_contains "$doctor_output" 'mass-delete-guard'
@@ -344,6 +354,12 @@ if [ "$IS_WINDOWS" != "true" ]; then
   browser_profile_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/browser-profile-export-guard.sh 'tar -czf chrome.tgz ~/Library/Application Support/Google/Chrome/User Data' || true)"
   assert_contains "$browser_profile_block" 'blocked browser profile export'
 
+  agent_session_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/agent-session-secret-guard.sh 'cat ~/.claude/session.json' || true)"
+  assert_contains "$agent_session_block" 'blocked agent session credential access'
+
+  agent_session_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/agent-session-secret-guard.sh 'cat ~/.claude/settings.json')"
+  [ -z "$agent_session_safe" ]
+
   container_socket_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/container-socket-guard.sh 'curl --unix-socket /var/run/docker.sock http://localhost/containers/json' || true)"
   assert_contains "$container_socket_block" 'blocked container socket access'
 
@@ -374,6 +390,12 @@ if [ "$IS_WINDOWS" != "true" ]; then
   signing_bypass_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/signed-commit-bypass-guard.sh 'git config --global commit.gpgsign false' || true)"
   assert_contains "$signing_bypass_block" 'blocked signing bypass change'
 
+  ssh_trust_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/ssh-trust-downgrade-guard.sh 'ssh -o StrictHostKeyChecking=no prod' || true)"
+  assert_contains "$ssh_trust_block" 'blocked SSH trust downgrade'
+
+  ssh_trust_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/ssh-trust-downgrade-guard.sh 'ssh prod')"
+  [ -z "$ssh_trust_safe" ]
+
   history_rewrite_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/git-history-rewrite-guard.sh 'git filter-repo --path secrets.txt --invert-paths' || true)"
   assert_contains "$history_rewrite_block" 'blocked broad git history rewrite'
 
@@ -397,6 +419,24 @@ if [ "$IS_WINDOWS" != "true" ]; then
 
   mass_delete_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/mass-delete-guard.sh 'rm -rf src docs tests' || true)"
   assert_contains "$mass_delete_block" 'blocked broad destructive delete'
+
+  trusted_symlink_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/trusted-config-symlink-guard.sh 'ln -sf /tmp/evil-rules.md CLAUDE.md' || true)"
+  assert_contains "$trusted_symlink_block" 'blocked trusted config symlink hijack'
+
+  trusted_symlink_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/trusted-config-symlink-guard.sh 'cp CLAUDE.md CLAUDE.md.bak')"
+  [ -z "$trusted_symlink_safe" ]
+
+  audit_evasion_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/audit-evasion-guard.sh 'rm ~/.runwall/state/audit.jsonl' || true)"
+  assert_contains "$audit_evasion_block" 'blocked audit evasion behavior'
+
+  audit_evasion_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/audit-evasion-guard.sh 'cat ~/.runwall/state/audit.jsonl')"
+  [ -z "$audit_evasion_safe" ]
+
+  desktop_cred_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/desktop-credential-store-guard.sh 'security dump-keychain' || true)"
+  assert_contains "$desktop_cred_block" 'blocked desktop credential store access'
+
+  desktop_cred_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/desktop-credential-store-guard.sh 'security find-identity -v -p codesigning')"
+  [ -z "$desktop_cred_safe" ]
 
   publish_warn="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/package-publish-guard.sh 'npm publish')"
   assert_contains "$publish_warn" 'warning: publish command detected'

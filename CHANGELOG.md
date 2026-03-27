@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.1.0
+
+- added `audit-evasion-guard`
+- added `ssh-trust-downgrade-guard`
+- added `agent-session-secret-guard`
+- added `trusted-config-symlink-guard`
+- added `desktop-credential-store-guard`
+- expanded `balanced` and `strict` for defense-evasion, SSH trust, workstation credential store, and agent session theft coverage
+- updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new guard pack set
+- expanded smoke coverage and generated plugin hook output for the new high-confidence signatures
+
 ## 2.0.0
 
 - rebranded the product and primary CLI to `Runwall`

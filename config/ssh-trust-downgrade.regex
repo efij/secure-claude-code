@@ -1,0 +1,6 @@
+StrictHostKeyChecking[[:space:]]+no
+UserKnownHostsFile[[:space:]]+/dev/null
+GlobalKnownHostsFile[[:space:]]+/dev/null
+VerifyHostKeyDNS[[:space:]]+no
+ssh[[:space:]]+-o[[:space:]]+StrictHostKeyChecking=no
+ssh[[:space:]]+-o[[:space:]]+UserKnownHostsFile=/dev/null

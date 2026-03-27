@@ -1,0 +1,3 @@
+(^|/)\.ssh/config([[:space:]]|$)
+(^|/)ssh_config([[:space:]]|$)
+(^|/)known_hosts([[:space:]]|$)

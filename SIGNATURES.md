@@ -477,3 +477,43 @@ This page is the plain-English deep dive for every implemented guard.
 - Why it matters: provenance controls help users trust what was authored and released.
 - Example: `git config --global commit.gpgsign false`
 - Action: block
+
+## audit-evasion-guard
+
+- Purpose: stop deliberate audit and shell-history clearing behavior.
+- Detects: `history -c`, `Clear-History`, event log clearing, direct deletion of Runwall audit state, and similar cleanup commands.
+- Why it matters: deleting evidence is a common follow-on step after an attacker has executed something risky and wants to hide the trail.
+- Example: `rm ~/.runwall/state/audit.jsonl`
+- Action: block
+
+## agent-session-secret-guard
+
+- Purpose: stop direct reads and exports of local auth and session stores used by coding agents.
+- Detects: access to agent token caches, auth databases, session JSON, and similar local stores when combined with read, copy, archive, or transfer commands.
+- Why it matters: a stolen local agent session can be just as valuable to an attacker as a leaked API key.
+- Example: `cat ~/.claude/session.json`
+- Action: block
+
+## desktop-credential-store-guard
+
+- Purpose: stop direct access to operating-system credential stores.
+- Detects: macOS Keychain dump commands, libsecret queries, and Windows Credential Manager or DPAPI access patterns.
+- Why it matters: workstation credential stores often contain reusable secrets that widen compromise beyond the current repo.
+- Example: `security dump-keychain`
+- Action: block
+
+## ssh-trust-downgrade-guard
+
+- Purpose: stop commands and config edits that weaken SSH host verification.
+- Detects: `StrictHostKeyChecking no`, null known-host files, and command-line options that disable normal trust checks.
+- Why it matters: turning off host verification makes it much easier to hide man-in-the-middle or host-impersonation attacks.
+- Example: `ssh -o StrictHostKeyChecking=no prod`
+- Action: block
+
+## trusted-config-symlink-guard
+
+- Purpose: stop symlink redirection of trusted policy and instruction files.
+- Detects: `ln -s`, `mklink`, or symbolic-link creation targeting `CLAUDE.md`, `.mcp.json`, plugin files, or Runwall config.
+- Why it matters: symlink tricks can silently redirect a trusted file to attacker-controlled content without an obvious inline edit.
+- Example: `ln -sf /tmp/evil-rules.md CLAUDE.md`
+- Action: block

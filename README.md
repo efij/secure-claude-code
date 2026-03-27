@@ -24,10 +24,12 @@ That is also exactly why it needs guardrails.
 Runwall helps reduce real-world risk around:
 
 - secret leakage
+- agent session theft and desktop credential store access
 - prompt injection and exfiltration paths
 - indirect prompt injection hidden in files, web pages, shell output, and MCP responses
 - unsafe shell execution
 - dangerous git and repo actions
+- SSH trust downgrades and audit evasion
 - risky MCP and tool trust boundaries
 - malicious skill, command, and instruction-doc poisoning
 - weak local defaults in agent workflows
@@ -41,6 +43,7 @@ Runwall helps you:
 - block high-confidence risky actions before they run
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
+- protect trusted config and instruction files from symlink hijack or stealth cleanup
 - reduce dangerous shell, git, and repo behavior
 - tighten MCP, plugin, skill, and tool trust boundaries
 - apply a safer default profile quickly
@@ -136,12 +139,14 @@ Runwall focuses on the practical execution surface around Claude Code.
 ### Secrets
 
 - local secret file reads
+- local agent session and desktop credential store access
 - token paste and fixture leaks
 - browser session and cluster secret access
 
 ### Git and Repo Actions
 
 - destructive git operations
+- audit evasion and stealth cleanup
 - signing bypasses
 - mass deletion and repo harvest patterns
 
@@ -159,6 +164,7 @@ Runwall focuses on the practical execution surface around Claude Code.
 - malicious plugin hook origins and execution chains
 - plugin trust-boundary tampering
 - weak local trust boundaries
+- trusted-config symlink redirection
 
 ### Exfiltration and Agent Abuse
 

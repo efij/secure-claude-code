@@ -1,0 +1,18 @@
+{
+  "id": "agent-session-secret-guard",
+  "name": "Agent Session Secret Guard Pack",
+  "description": "Blocks reads and exports of local auth, token, and session stores used by coding agents.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Read|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/agent-session-secret-guard.sh \"$TOOL_INPUT\""
+  }
+}

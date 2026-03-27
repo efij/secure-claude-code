@@ -28,6 +28,15 @@
       ]
     },
     {
+      "matcher": "Read|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-session-secret-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
       "matcher": "Bash",
       "hooks": [
         {
@@ -185,6 +194,15 @@
       "hooks": [
         {
           "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/trusted-config-symlink-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
           "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-escape-guard.sh\" \"$TOOL_INPUT\""
         }
       ]
@@ -195,6 +213,15 @@
         {
           "type": "command",
           "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-policy-tamper-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/audit-evasion-guard.sh\" \"$TOOL_INPUT\""
         }
       ]
     },
@@ -474,6 +501,24 @@
         {
           "type": "command",
           "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-agent-abuse-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-trust-downgrade-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/desktop-credential-store-guard.sh\" \"$TOOL_INPUT\""
         }
       ]
     },

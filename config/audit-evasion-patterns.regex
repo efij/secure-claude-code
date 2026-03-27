@@ -1,0 +1,9 @@
+(^|[[:space:]])history[[:space:]]+-c($|[[:space:]])
+(^|[[:space:]])Clear-History($|[[:space:]])
+\.bash_history
+\.zsh_history
+ConsoleHost_history\.txt
+PSReadLine[/\\]ConsoleHost_history\.txt
+wevtutil[[:space:]]+cl
+\.runwall/state/audit\.jsonl
+(^|[[:space:]])journalctl[[:space:]]+--vacuum-time=0s($|[[:space:]])
