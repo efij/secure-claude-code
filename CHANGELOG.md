@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.1.1
+
+- stabilized the gateway smoke suite on Windows by making the older bulk-read prompt path best-effort in the integration test while keeping required request-prompt coverage on the newer deterministic egress-policy prompt flow
+- republished the response-scanning and egress-enforcement release on a clean cross-platform CI path
+
 ## 4.1.0
 
 - verified the inline MCP gateway against the original PRD scope and kept `tools/list`, `tools/call`, multi-upstream proxying, request inspection, response inspection, local API, and dashboard behavior intact

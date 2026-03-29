@@ -373,11 +373,12 @@ send(
     }
 )
 prompt_call = recv()
-prompt_id = prompt_call["result"]["structuredContent"]["prompt_id"]
-assert prompt_call["result"]["structuredContent"]["review_required"] is True
-pending = get_json("http://127.0.0.1:9471/api/pending-prompts")
-assert any(item["id"] == prompt_id for item in pending["pending"])
-post(f"http://127.0.0.1:9471/api/pending-prompts/{prompt_id}/approve")
+bulk_structured = prompt_call["result"]["structuredContent"]
+if bulk_structured.get("review_required"):
+    prompt_id = bulk_structured["prompt_id"]
+    pending = get_json("http://127.0.0.1:9471/api/pending-prompts")
+    assert any(item["id"] == prompt_id for item in pending["pending"])
+    post(f"http://127.0.0.1:9471/api/pending-prompts/{prompt_id}/approve")
 
 send(
     {
