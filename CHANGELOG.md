@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.5
+
+- added a gateway-side fallback for obvious secret markers so upstream MCP responses still get redacted even when nested JSON payloads are mangled by platform-specific shell argument handling
+- kept the redaction attribution on `mcp-response-secret-leak-guard` so the signature model and audit trail stay consistent
+
 ## 3.3.4
 
 - fixed the MCP response secret redaction path on Windows by adding a deterministic fixed-string fast path for obvious secret markers before regex-file matching

@@ -134,6 +134,36 @@ def first_reason(result: dict[str, Any], fallback: str) -> str:
     return fallback
 
 
+def secret_redaction_fallback(result: dict[str, Any]) -> dict[str, Any] | None:
+    payload = safe_json_dumps(result)
+    obvious_markers = (
+        "AWS_SECRET_ACCESS_KEY",
+        "ghp_",
+        "github_pat_",
+        "PRIVATE KEY",
+    )
+    if not any(marker in payload for marker in obvious_markers):
+        return None
+    return {
+        "allowed": True,
+        "action": "redact",
+        "hits": [
+            {
+                "module": "mcp-response-secret-leak-guard",
+                "name": "MCP Response Secret Leak Guard Pack",
+                "category": "mcp",
+                "decision": "redact",
+                "exit_code": 0,
+                "output": "[runwall] redacting secret-like MCP response content",
+                "metadata": {
+                    "reason": "The upstream response contains secret-like material and should be redacted before it reaches the client.",
+                    "redactions": [{"type": "full-response", "label": "secret-material"}],
+                },
+            }
+        ],
+    }
+
+
 def load_gateway_config(path: pathlib.Path | None) -> dict[str, Any]:
     if path is None or not path.exists():
         return {"servers": {}}
@@ -670,6 +700,10 @@ class Gateway:
                 }
             ),
         )
+        if response_eval["action"] == "allow":
+            fallback = secret_redaction_fallback(result)
+            if fallback is not None:
+                response_eval = fallback
         if response_eval["action"] == "block":
             self.audit_gateway_event(
                 {
@@ -738,7 +772,7 @@ class Gateway:
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "runwall-gateway", "version": "3.3.4"},
+                            "serverInfo": {"name": "runwall-gateway", "version": "3.3.5"},
                         },
                     },
                 )
