@@ -5,7 +5,7 @@ INPUT="${1:-}"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 printf '%s' "$INPUT" | grep -q '"arguments"' || exit 0
-count="$(printf '%s' "$INPUT" | grep -Eo '(\.env|\.aws|\.ssh|id_rsa|kubeconfig|session\.json|credentials|known_hosts)' || true)"
+count="$(printf '%s' "$INPUT" | grep -Eo '(\.env|\.aws|\.ssh|id_rsa|kubeconfig|session\.json|credentials|known_hosts|secrets?(\.[A-Za-z0-9._-]+)?)' || true)"
 count="$(printf '%s' "$count" | wc -l | tr -d ' ')"
 [ "${count:-0}" -ge 2 ] || exit 0
 

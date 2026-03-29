@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.1
+
+- fixed the `windows-latest` shell-resolution regression by preferring Git Bash over WSL-style shims in the policy engine
+- fixed a BSD `grep -E` portability issue in `mcp-response-secrets.regex` that broke `macos-latest` validation
+- fixed the inline gateway smoke path so bulk sensitive MCP reads reliably trigger prompt review and the git safety assertion stays stable across platforms
+- republished the inline MCP gateway release with green CI across `ubuntu-latest`, `macos-latest`, and `windows-latest`
+
 ## 3.3.0
 
 - fixed the real `windows-latest` CI failure by making hook-shell resolution deterministic in the Python policy engine instead of relying on a generic `bash` shim
