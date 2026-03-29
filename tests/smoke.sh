@@ -85,6 +85,8 @@ from pathlib import Path
 required = [
     Path(".claude-plugin/plugin.json"),
     Path(".claude-plugin/marketplace.json"),
+    Path(".codex-plugin/plugin.json"),
+    Path(".mcp.json"),
     Path("hooks/hooks.json"),
     Path("skills/secure-setup/SKILL.md"),
     Path("skills/secure-status/SKILL.md"),
@@ -95,7 +97,7 @@ for path in required:
     if not path.exists():
         raise SystemExit(f"missing required plugin file: {path}")
 
-for path in required[:3]:
+for path in required[:5]:
     json.loads(path.read_text())
 
 print("plugin-json-ok")

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "runwall": {
+      "command": "python3",
+      "args": [
+        "scripts/runwall_mcp_server.py",
+        "--root",
+        ".",
+        "--profile",
+        "balanced"
+      ]
+    }
+  }
+}

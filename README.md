@@ -40,9 +40,10 @@ Runwall helps reduce real-world risk around:
 
 It is practical, transparent, and built for real developer environments.
 
-Runwall now supports two integration styles:
+Runwall now supports three integration styles:
 
 - native runtime adapters where hooks exist today, starting with Claude Code
+- plugin or bundle installs for Codex and OpenClaw
 - companion MCP mode for Codex, Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP-capable clients
 
 ## What It Does
@@ -76,7 +77,7 @@ It is much less relevant for plain chat-only usage where no tools, shell, git, o
 
 ## Fast Install
 
-The cleanest install path now is the Claude Code plugin flow. It gives you the recommended balanced baseline in one install.
+The cleanest install path is now the plugin or bundle path for the runtime you already use.
 
 ### Claude Code Plugin
 
@@ -85,7 +86,28 @@ The cleanest install path now is the Claude Code plugin flow. It gives you the r
 /plugin install runwall@runwall
 ```
 
-Use the plugin path when you want fast setup and low friction.
+### Codex Plugin Bundle
+
+This repo now ships a Codex bundle manifest in [`.codex-plugin/plugin.json`](/Users/efi.jeremiah/projects/secure-claude-code/.codex-plugin/plugin.json) and a shared MCP definition in [`.mcp.json`](/Users/efi.jeremiah/projects/secure-claude-code/.mcp.json).
+
+If your Codex supports local plugin or bundle install, install this repo directly as `runwall` and restart Codex.
+
+If you want the manual fallback:
+
+```bash
+./bin/runwall generate-runtime-config codex balanced
+```
+
+### OpenClaw Plugin Bundle
+
+OpenClaw can install this repo directly as a compatible bundle because it detects Claude and Codex bundle markers and imports supported skills and MCP tools.
+
+```bash
+openclaw plugins install ./secure-claude-code
+openclaw plugins list
+openclaw plugins inspect runwall
+openclaw gateway restart
+```
 
 Use the CLI path when you want profile switching, update, uninstall, doctor repair, runtime config generation, or a separate local install home.
 
@@ -147,18 +169,20 @@ cd secure-claude-code
 
 ## Multi-Runtime Support
 
-Runwall is now structured around runtime adapters:
+Runwall is now structured around runtime adapters and bundle installs:
 
 - `Claude Code`: native hook mode with direct pre-tool and post-tool enforcement
-- `Codex`: companion MCP server plus generated `config.toml` and `AGENTS.md` snippets
+- `Codex`: plugin bundle plus MCP companion mode
+- `OpenClaw`: compatible bundle install that maps Runwall skills and MCP tools into OpenClaw
 - `Generic MCP clients`: shared MCP companion mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and similar clients
 - `CI/CD`: generated GitHub Actions snippet plus CLI policy evaluation for high-risk commands
 
 The strategy is:
 
 1. native enforcement where the runtime exposes hooks
-2. MCP companion mode where the runtime speaks MCP but does not expose equivalent hooks
-3. CLI evaluation for pipeline and automation gates
+2. plugin or bundle install where the runtime can consume Runwall directly
+3. MCP companion mode where the runtime speaks MCP but does not expose equivalent hooks
+4. CLI evaluation for pipeline and automation gates
 
 For the runtime matrix and integration notes, see [RUNTIMES.md](RUNTIMES.md).
 
@@ -172,6 +196,16 @@ This prints:
 
 - a `~/.codex/config.toml` MCP server block
 - a matching `AGENTS.md` snippet that tells Codex when to consult Runwall
+
+If your Codex install supports local plugins, prefer the plugin or bundle path first and keep the generated config as the fallback.
+
+### OpenClaw
+
+```bash
+openclaw plugins install ./secure-claude-code
+```
+
+OpenClaw detects this repo as a compatible Claude or Codex bundle and maps supported skills and MCP tools automatically.
 
 ### Generic MCP Clients
 

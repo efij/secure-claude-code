@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.0
+
+- added a Codex bundle manifest in `.codex-plugin/plugin.json`
+- added a shared `.mcp.json` so plugin and bundle installs have a ready Runwall MCP server definition
+- updated Claude plugin metadata to the current Runwall version
+- updated `README.md` and `RUNTIMES.md` so Claude Code, Codex, and OpenClaw plugin or bundle installs are the primary KISS paths
+
 ## 3.0.0
 
 - added multi-runtime adapter support instead of keeping Runwall Claude-only

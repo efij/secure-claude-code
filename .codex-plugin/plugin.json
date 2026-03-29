@@ -1,6 +1,6 @@
 {
   "name": "runwall",
-  "description": "Runtime security plugin for Claude Code with balanced default hooks for shell, git, MCP, secret, and exfiltration risks.",
+  "description": "Runtime security plugin bundle for Codex with Runwall MCP policy tools, skills, and safer defaults for coding-agent workflows.",
   "version": "3.1.0",
   "author": {
     "name": "efij"
@@ -9,8 +9,8 @@
   "repository": "https://github.com/efij/secure-claude-code",
   "license": "MIT",
   "keywords": [
-    "claude-code",
-    "claude-plugin",
+    "codex",
+    "codex-plugin",
     "runwall",
     "ai-security",
     "agent-runtime-security",
