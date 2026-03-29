@@ -13,3 +13,5 @@ state/
 .mcp/
 .mcp*/
 .vscode/
+__pycache__/
+*.pyc

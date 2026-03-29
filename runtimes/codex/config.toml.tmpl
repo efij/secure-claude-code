@@ -1,0 +1,9 @@
+# Codex runtime adapter for Runwall
+# Add this block to ~/.codex/config.toml
+
+[mcp_servers.runwall]
+command = "{{PYTHON_BIN}}"
+args = ["{{ROOT_DIR}}/scripts/runwall_mcp_server.py", "--root", "{{ROOT_DIR}}", "--profile", "{{PROFILE}}"]
+
+# Recommended companion instruction:
+# Include the generated AGENTS snippet below in your project or user AGENTS.md

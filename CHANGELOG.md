@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.0.0
+
+- added multi-runtime adapter support instead of keeping Runwall Claude-only
+- added `list runtimes`, `generate-runtime-config`, `evaluate`, and `mcp serve` CLI commands
+- added a reusable policy evaluation engine in `scripts/runwall_policy.py`
+- added a local Runwall MCP companion server in `scripts/runwall_mcp_server.py`
+- added generated runtime templates for Codex, generic MCP clients, and CI/CD
+- documented the runtime matrix and companion-mode strategy in `README.md` and `RUNTIMES.md`
+- expanded smoke coverage to validate runtime generation, CLI policy evaluation, and MCP server handshake behavior
+
 ## 2.2.0
 
 - added `shell-profile-persistence-guard`

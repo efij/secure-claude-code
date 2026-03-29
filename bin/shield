@@ -618,6 +618,151 @@ for manifest_path in sorted(modules_dir.glob("*/module.json")):
 PY
 }
 
+list_runtimes() {
+  cat <<'EOF'
+Runtimes:
+  - claude-code    native hook adapter with direct pre/post tool enforcement
+  - codex          MCP companion mode plus generated AGENTS.md snippet
+  - generic-mcp    MCP companion mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP clients
+  - ci             CI/CD snippet plus CLI policy evaluation
+
+Aliases:
+  - cursor -> generic-mcp
+  - windsurf -> generic-mcp
+  - claude-desktop -> generic-mcp
+  - claude-cowork -> generic-mcp
+EOF
+}
+
+generate_runtime_config() {
+  local runtime="${1:-}"
+  local profile="${2:-balanced}"
+  local output="${3:-}"
+
+  [ -n "$runtime" ] || fail "runtime is required"
+  assert_profile_exists "$profile"
+
+  case "$runtime" in
+    cursor|windsurf|claude-desktop|claude-cowork)
+      runtime="generic-mcp"
+      ;;
+  esac
+
+  if [ "$runtime" = "claude-code" ]; then
+    generate_config "$profile" "$output" "$INSTALL_HOME"
+    return 0
+  fi
+
+  require_python
+  run_python - "$ROOT_DIR" "$runtime" "$profile" "$output" "$(basename "$PYTHON_BIN")" <<'PY'
+import pathlib
+import sys
+
+root = pathlib.Path(sys.argv[1])
+runtime = sys.argv[2]
+profile = sys.argv[3]
+output = sys.argv[4]
+python_bin = sys.argv[5]
+
+def render(path: pathlib.Path) -> str:
+    text = path.read_text()
+    return (
+        text.replace("{{ROOT_DIR}}", str(root))
+        .replace("{{PROFILE}}", profile)
+        .replace("{{PYTHON_BIN}}", python_bin)
+    )
+
+if runtime == "codex":
+    config_text = render(root / "runtimes" / "codex" / "config.toml.tmpl")
+    agents_text = render(root / "runtimes" / "codex" / "AGENTS.md.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(config_text)
+      agents_path = output_path.with_name(output_path.stem + ".AGENTS.md")
+      agents_path.write_text(agents_text)
+      print(f"wrote {output_path}")
+      print(f"wrote {agents_path}")
+    else:
+      print("# config.toml snippet")
+      print(config_text.rstrip())
+      print()
+      print("# AGENTS.md snippet")
+      print(agents_text.rstrip())
+elif runtime == "generic-mcp":
+    text = render(root / "runtimes" / "generic-mcp" / "mcp.json.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(text)
+      print(f"wrote {output_path}")
+    else:
+      print(text.rstrip())
+elif runtime == "ci":
+    text = render(root / "runtimes" / "ci" / "github-actions.yml.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(text)
+      print(f"wrote {output_path}")
+    else:
+      print(text.rstrip())
+else:
+    raise SystemExit(f"unknown runtime: {runtime}")
+PY
+}
+
+evaluate_policy_cmd() {
+  local event="${1:-}"
+  local matcher="${2:-}"
+  local payload="${3:-}"
+  local profile="balanced"
+  local json_flag=false
+
+  [ -n "$event" ] || fail "event is required"
+  [ -n "$matcher" ] || fail "matcher is required"
+
+  shift 3 || true
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --json)
+        json_flag=true
+        ;;
+      --profile)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --profile"
+        profile="$1"
+        ;;
+      *)
+        fail "unknown evaluate option: $1"
+        ;;
+    esac
+    shift
+  done
+
+  assert_profile_exists "$profile"
+  require_python
+  local args=(
+    "$ROOT_DIR/scripts/runwall_policy.py"
+    --root "$ROOT_DIR"
+    --profile "$profile"
+    --event "$event"
+    --matcher "$matcher"
+    --input "$payload"
+  )
+  if [ "$json_flag" = "true" ]; then
+    args+=(--json)
+  fi
+  "$PYTHON_BIN" "${args[@]}"
+}
+
+mcp_serve() {
+  local profile="${1:-balanced}"
+  assert_profile_exists "$profile"
+  require_python
+  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_mcp_server.py" --root "$ROOT_DIR" --profile "$profile"
+}
+
 show_logs() {
   local count="20"
   local mode="pretty"
@@ -742,8 +887,12 @@ Usage:
   bin/runwall list profiles
   bin/runwall list modules
   bin/runwall list protections
+  bin/runwall list runtimes
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
+  bin/runwall generate-runtime-config <runtime> [profile] [output]
+  bin/runwall evaluate <event> <matcher> <input> [--profile name] [--json]
+  bin/runwall mcp serve [profile]
 
 Profiles:
   minimal   Tight baseline for solo hacking
@@ -785,6 +934,7 @@ case "$command" in
     case "${2:-}" in
       profiles) list_profiles ;;
       modules|protections) list_modules ;;
+      runtimes) list_runtimes ;;
       *) usage; exit 1 ;;
     esac
     ;;
@@ -793,6 +943,24 @@ case "$command" in
     ;;
   generate-plugin-hooks)
     generate_plugin_hooks "${2:-balanced}" "${3:-$ROOT_DIR/hooks/hooks.json}"
+    ;;
+  generate-runtime-config)
+    generate_runtime_config "${2:-}" "${3:-balanced}" "${4:-}"
+    ;;
+  evaluate)
+    shift
+    evaluate_policy_cmd "$@"
+    ;;
+  mcp)
+    case "${2:-}" in
+      serve)
+        mcp_serve "${3:-balanced}"
+        ;;
+      *)
+        usage
+        exit 1
+        ;;
+    esac
     ;;
   help|-h|--help|"")
     usage

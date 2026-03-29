@@ -1,8 +1,8 @@
 # Runwall
 
-> Runtime security for Claude Code. Protect shell, git, MCP, secrets, plugins, skills, and risky agent actions before they turn into damage.
+> Runtime security for Claude Code, Codex, and MCP-native coding clients. Protect shell, git, MCP, secrets, plugins, skills, and risky agent actions before they turn into damage.
 
-Runwall adds a practical security layer around Claude Code to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
+Runwall adds a practical security layer around coding-agent runtimes to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
 
 It is built for solo builders, startups, security-minded teams, and larger orgs that want safer defaults around AI coding workflows.
 
@@ -17,9 +17,9 @@ It is built for solo builders, startups, security-minded teams, and larger orgs 
 
 ## Why Runwall?
 
-Claude Code is useful because it can read files, run shell commands, use git, and work with MCP tools.
+Coding agents are useful because they can read files, run shell commands, use git, connect to MCP tools, and increasingly work across more than one runtime.
 
-That is also exactly why it needs guardrails.
+That is also exactly why they need guardrails.
 
 Runwall helps reduce real-world risk around:
 
@@ -39,6 +39,11 @@ Runwall helps reduce real-world risk around:
 - weak local defaults in agent workflows
 
 It is practical, transparent, and built for real developer environments.
+
+Runwall now supports two integration styles:
+
+- native runtime adapters where hooks exist today, starting with Claude Code
+- companion MCP mode for Codex, Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP-capable clients
 
 ## What It Does
 
@@ -67,7 +72,7 @@ It works well on top of Claude Code sandbox mode too. Sandboxing helps contain d
 - DevSecOps teams adopting MCP-based tools
 - larger orgs that need a cleaner baseline before enterprise policy layers come later
 
-It is much less relevant for plain Claude chat-only usage where no tools, shell, git, or file actions are involved.
+It is much less relevant for plain chat-only usage where no tools, shell, git, or file actions are involved.
 
 ## Fast Install
 
@@ -82,7 +87,7 @@ The cleanest install path now is the Claude Code plugin flow. It gives you the r
 
 Use the plugin path when you want fast setup and low friction.
 
-Use the CLI path when you want profile switching, update, uninstall, doctor repair, or a separate local install home.
+Use the CLI path when you want profile switching, update, uninstall, doctor repair, runtime config generation, or a separate local install home.
 
 ### macOS / Linux
 
@@ -127,12 +132,75 @@ cd secure-claude-code
 ./bin/runwall list protections
 ```
 
+### Review supported runtimes
+
+```bash
+./bin/runwall list runtimes
+```
+
 ### Inspect recent blocks and warnings
 
 ```bash
 ./bin/runwall logs 20
 ./bin/runwall logs 50 --json
 ```
+
+## Multi-Runtime Support
+
+Runwall is now structured around runtime adapters:
+
+- `Claude Code`: native hook mode with direct pre-tool and post-tool enforcement
+- `Codex`: companion MCP server plus generated `config.toml` and `AGENTS.md` snippets
+- `Generic MCP clients`: shared MCP companion mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and similar clients
+- `CI/CD`: generated GitHub Actions snippet plus CLI policy evaluation for high-risk commands
+
+The strategy is:
+
+1. native enforcement where the runtime exposes hooks
+2. MCP companion mode where the runtime speaks MCP but does not expose equivalent hooks
+3. CLI evaluation for pipeline and automation gates
+
+For the runtime matrix and integration notes, see [RUNTIMES.md](RUNTIMES.md).
+
+### Codex
+
+```bash
+./bin/runwall generate-runtime-config codex balanced
+```
+
+This prints:
+
+- a `~/.codex/config.toml` MCP server block
+- a matching `AGENTS.md` snippet that tells Codex when to consult Runwall
+
+### Generic MCP Clients
+
+```bash
+./bin/runwall generate-runtime-config generic-mcp balanced
+```
+
+Use the same output as the base MCP server block for:
+
+- Cursor
+- Windsurf
+- Claude Desktop
+- Claude Cowork
+- other MCP-native clients
+
+### CI/CD
+
+```bash
+./bin/runwall generate-runtime-config ci strict
+./bin/runwall evaluate PreToolUse Bash "kubectl --context prod apply -f deploy.yaml" --profile strict --json
+```
+
+### Local MCP Server
+
+```bash
+./bin/runwall mcp serve balanced
+```
+
+This starts the local Runwall MCP companion server used by Codex and generic MCP runtimes.
 
 ## Security Coverage
 
