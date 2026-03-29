@@ -1,0 +1,18 @@
+{
+  "id": "shell-profile-persistence-guard",
+  "name": "Shell Profile Persistence Guard Pack",
+  "description": "Blocks suspicious downloader or execution payloads from being added to shell or PowerShell profile files.",
+  "category": "persistence",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/shell-profile-persistence-guard.sh \"$TOOL_INPUT\""
+  }
+}

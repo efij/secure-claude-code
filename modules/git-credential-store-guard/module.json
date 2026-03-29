@@ -1,0 +1,18 @@
+{
+  "id": "git-credential-store-guard",
+  "name": "Git Credential Store Guard Pack",
+  "description": "Blocks plaintext git credential storage and direct reads of git credential stores.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Read|Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/git-credential-store-guard.sh \"$TOOL_INPUT\""
+  }
+}

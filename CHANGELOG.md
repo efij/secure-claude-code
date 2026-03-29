@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.2.0
+
+- added `shell-profile-persistence-guard`
+- added `scheduled-task-persistence-guard`
+- added `ssh-authorized-keys-guard`
+- added `hosts-file-tamper-guard`
+- added `sudoers-tamper-guard`
+- added `git-credential-store-guard`
+- added `netrc-credential-guard`
+- added `registry-credential-guard`
+- added `cloud-key-creation-guard`
+- added `production-shell-guard`
+- expanded `balanced` and `strict` for workstation persistence, privilege tampering, credential-store abuse, cloud key issuance, and prod-shell access coverage
+- updated `README.md`, `GUARDS.md`, and `SIGNATURES.md` for the new guard pack set
+- expanded smoke coverage and generated plugin hook output for the new high-confidence signatures
+
 ## 2.1.0
 
 - added `audit-evasion-guard`

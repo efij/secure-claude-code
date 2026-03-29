@@ -1,0 +1,9 @@
+crontab[[:space:]]
+/etc/cron\.
+/etc/cron/
+Library/LaunchAgents/
+Library/LaunchDaemons/
+launchctl[[:space:]]+(bootstrap|load)
+schtasks(\.exe)?[[:space:]]+/create
+~/.config/systemd/user/
+/etc/systemd/system/

@@ -59,6 +59,16 @@ repo-mass-harvest-guard
 binary-payload-guard
 ssh-agent-abuse-guard
 ssh-trust-downgrade-guard
+ssh-authorized-keys-guard
+shell-profile-persistence-guard
+scheduled-task-persistence-guard
+hosts-file-tamper-guard
+sudoers-tamper-guard
+git-credential-store-guard
+netrc-credential-guard
+registry-credential-guard
+cloud-key-creation-guard
+production-shell-guard
 desktop-credential-store-guard
 mass-delete-guard
 package-publish-guard

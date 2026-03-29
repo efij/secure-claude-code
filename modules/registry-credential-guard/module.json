@@ -1,0 +1,18 @@
+{
+  "id": "registry-credential-guard",
+  "name": "Registry Credential Guard Pack",
+  "description": "Blocks direct reads and exports of package and container registry credential files.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Read|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/registry-credential-guard.sh \"$TOOL_INPUT\""
+  }
+}

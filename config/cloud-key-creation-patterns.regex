@@ -1,0 +1,4 @@
+aws[[:space:]]+iam[[:space:]]+create-access-key\b
+gcloud[[:space:]]+iam[[:space:]]+service-accounts[[:space:]]+keys[[:space:]]+create\b
+az[[:space:]]+ad[[:space:]]+app[[:space:]]+credential[[:space:]]+reset\b
+az[[:space:]]+ad[[:space:]]+sp[[:space:]]+credential[[:space:]]+reset\b

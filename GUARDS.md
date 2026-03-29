@@ -20,6 +20,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
 - `browser-cookie-guard`: browser cookie, login, and session-store access
 - `browser-profile-export-guard`: copying or archiving full browser profiles with live sessions and saved credentials
+- `cloud-key-creation-guard`: creation of long-lived cloud access keys and service-account credentials
 - `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
 - `clipboard-exfiltration-guard`: clipboard-based secret movement
 - `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
@@ -30,7 +31,9 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `dependency-script-guard`: install-time and build-time dependency script abuse
 - `desktop-credential-store-guard`: direct access to OS-backed desktop credential stores such as Keychain, libsecret, and Windows Credential Manager
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
+- `git-credential-store-guard`: plaintext git credential stores and credential-helper downgrade behavior
 - `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
+- `hosts-file-tamper-guard`: hosts-file remaps for high-trust vendor and registry domains
 - `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
 - `instruction-source-dropper-guard`: remote content written directly into AGENTS, CLAUDE, skills, or Claude command files
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
@@ -41,6 +44,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
 - `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
+- `netrc-credential-guard`: direct reads and exports of `.netrc` credential files
 - `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
 - `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
@@ -50,6 +54,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Runwall control files
 - `post-edit-quality-reminder`: post-edit lint/test reminders
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
+- `production-shell-guard`: interactive shells into production-like workloads and containers
 - `prod-target-guard`: direct mutating commands against production-like targets
 - `protect-secrets-read`: local secret file access
 - `protect-sensitive-files`: risky file-category edits
@@ -57,9 +62,13 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `remote-script-dropper-guard`: remote content dropped into executable or script paths
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
 - `registry-target-guard`: publish and login flows that target unexpected registries
+- `registry-credential-guard`: direct reads and exports of package and container registry credentials
 - `release-key-guard`: reads and exports of release-signing and provenance key material
+- `scheduled-task-persistence-guard`: cron, launchd, systemd, and scheduled-task persistence
+- `shell-profile-persistence-guard`: suspicious downloader or execution payloads added to shell profiles
 - `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
+- `ssh-authorized-keys-guard`: agent-driven writes to SSH authorized keys and login trust material
 - `ssh-trust-downgrade-guard`: host verification and known-host trust downgrades in SSH commands or config
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files
@@ -69,6 +78,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `token-paste-guard`: live API token and private-key paste detection
 - `tool-origin-guard`: risky MCP or tool origins in config files
 - `trusted-config-symlink-guard`: symlink redirection of trusted policy, plugin, MCP, and instruction files
+- `sudoers-tamper-guard`: edits that weaken sudo password and privilege policy
 - `workspace-boundary-guard`: system-path and deep-parent boundary escapes
 
 ## FFU Pipeline A

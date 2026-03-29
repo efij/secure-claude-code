@@ -1,0 +1,7 @@
+\b(github\.com|api\.github\.com)\b
+\b(anthropic\.com|api\.anthropic\.com|claude\.ai)\b
+\b(openai\.com|api\.openai\.com)\b
+\b(npmjs\.org|registry\.npmjs\.org)\b
+\b(pypi\.org|files\.pythonhosted\.org)\b
+\b(docker\.io|registry-1\.docker\.io)\b
+\b(microsoft\.com|packages\.microsoft\.com)\b

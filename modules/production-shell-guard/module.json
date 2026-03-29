@@ -1,0 +1,18 @@
+{
+  "id": "production-shell-guard",
+  "name": "Production Shell Guard Pack",
+  "description": "Blocks interactive shell access into production-like workloads and targets.",
+  "category": "production",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/production-shell-guard.sh \"$TOOL_INPUT\""
+  }
+}

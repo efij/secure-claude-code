@@ -1,0 +1,5 @@
+/etc/sudoers\b
+/etc/sudoers\.d/
+\bvisudo\b
+\bNOPASSWD\b
+\b!authenticate\b

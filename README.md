@@ -30,8 +30,12 @@ Runwall helps reduce real-world risk around:
 - unsafe shell execution
 - dangerous git and repo actions
 - SSH trust downgrades and audit evasion
+- shell-profile, scheduled-task, and SSH-key persistence
+- hosts-file and sudo-policy tampering
+- plaintext git, netrc, and registry credential stores
 - risky MCP and tool trust boundaries
 - malicious skill, command, and instruction-doc poisoning
+- cloud key creation and direct production shell access
 - weak local defaults in agent workflows
 
 It is practical, transparent, and built for real developer environments.
@@ -43,9 +47,13 @@ Runwall helps you:
 - block high-confidence risky actions before they run
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
+- block persistence through shell profiles, launch items, cron, systemd, and SSH authorized keys
 - protect trusted config and instruction files from symlink hijack or stealth cleanup
 - reduce dangerous shell, git, and repo behavior
+- stop local trust-boundary tampering such as hosts-file remaps and sudoers weakening
+- keep plaintext git, netrc, and registry credentials out of agent reach
 - tighten MCP, plugin, skill, and tool trust boundaries
+- block cloud key creation and direct prod-shell break-glass behavior
 - apply a safer default profile quickly
 - keep security useful without turning the workflow into sludge
 
@@ -149,6 +157,8 @@ Runwall focuses on the practical execution surface around Claude Code.
 - audit evasion and stealth cleanup
 - signing bypasses
 - mass deletion and repo harvest patterns
+- shell-profile, cron, launch-agent, systemd, and SSH authorized-key persistence
+- hosts-file and sudo policy tampering
 
 ### MCP and Tools
 
@@ -158,6 +168,13 @@ Runwall focuses on the practical execution surface around Claude Code.
 - risky marketplace or install sources
 - sideloaded plugin and extension paths
 - untrusted tool origins
+
+### Identity and Credential Material
+
+- git credential stores and `.netrc`
+- registry auth material in `.npmrc`, `.pypirc`, `.docker/config.json`, and similar files
+- long-lived cloud key creation paths
+- desktop credential stores and local agent session caches
 - malicious skill install sources
 - poisoned skill and Claude command docs
 - risky plugin manifest edits

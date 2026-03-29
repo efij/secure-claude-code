@@ -514,6 +514,96 @@
       ]
     },
     {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-authorized-keys-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/shell-profile-persistence-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scheduled-task-persistence-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/hosts-file-tamper-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sudoers-tamper-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Read|Write|Edit|MultiEdit|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-credential-store-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Read|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/netrc-credential-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Read|Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/registry-credential-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-key-creation-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/production-shell-guard.sh\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
       "matcher": "Bash",
       "hooks": [
         {
