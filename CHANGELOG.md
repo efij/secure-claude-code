@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.4
+
+- fixed the MCP response secret redaction path on Windows by adding a deterministic fixed-string fast path for obvious secret markers before regex-file matching
+- republished the gateway hardening release with the secret-response smoke case aligned across Linux, macOS, and Windows
+
 ## 3.3.3
 
 - fixed cross-platform MCP tool suppression by converting shipped ERE rule packs away from non-portable `(?i)` and `\b` constructs

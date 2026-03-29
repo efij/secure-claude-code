@@ -10,7 +10,14 @@ trap 'shield_cleanup_pattern_files' EXIT
 
 [ -f "$PATTERNS_FILE" ] || exit 0
 printf '%s' "$INPUT" | grep -q '"tool_response"' || exit 0
-shield_match_pattern_file "$INPUT" "$PATTERNS_FILE" || exit 0
+
+case "$INPUT" in
+  *AWS_SECRET_ACCESS_KEY*|*ghp_*|*github_pat_*|*"PRIVATE KEY"* )
+    ;;
+  *)
+    shield_match_pattern_file "$INPUT" "$PATTERNS_FILE" || exit 0
+    ;;
+esac
 
 shield_audit "mcp-response-secret-leak-guard" "redact" "An upstream MCP response contains secret-like material that should not be returned raw" "$INPUT"
 shield_emit_metadata '{"reason":"The upstream response contains secret-like material and should be redacted before it reaches the client.","redactions":[{"type":"full-response","label":"secret-material"}]}'

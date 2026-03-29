@@ -11,7 +11,7 @@
     {
       "name": "runwall",
       "description": "Balanced default runtime security plugin for Claude Code with shell, git, MCP, secret, exfiltration, and inline gateway guardrails.",
-      "version": "3.3.3",
+      "version": "3.3.4",
       "source": "./"
     }
   ]
