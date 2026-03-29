@@ -41,6 +41,15 @@ def validate_python_patterns(path: pathlib.Path) -> int:
 
 
 def validate_ere_patterns(path: pathlib.Path) -> int:
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "(?i)" in line:
+            fail(f"{path.name}:{lineno}: non-portable ERE flag '(?i)' is not allowed; use grep -i and a portable pattern")
+        if r"\b" in line:
+            fail(f"{path.name}:{lineno}: non-portable ERE boundary '\\b' is not allowed; use explicit character boundaries")
+
     result = subprocess.run(
         ["grep", "-E", "-f", str(path), "/dev/null"],
         stdout=subprocess.DEVNULL,

@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.3
+
+- fixed cross-platform MCP tool suppression by converting shipped ERE rule packs away from non-portable `(?i)` and `\b` constructs
+- hardened regex validation so grep-based signature packs now fail fast if they include non-portable ERE features
+- simplified the git safety smoke assertion so the cross-platform shell-resolution check stays stable without overfitting to one stderr shape
+
 ## 3.3.2
 
 - fixed the MCP bulk-read prompt guard so multiple sensitive path hits are counted correctly across Linux, macOS, and Windows

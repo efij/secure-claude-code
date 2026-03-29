@@ -1,4 +1,4 @@
-\b(prod|production|live|mainnet)\b
+(^|[^[:alnum:]_])(prod|production|live|mainnet)([^[:alnum:]_]|$)
 --env[=[:space:]]production
 --profile[=[:space:]]prod
 --context[=[:space:]]prod

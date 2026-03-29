@@ -1,4 +1,4 @@
-\bAGENTS\.md\b
-\bCLAUDE\.md\b
+AGENTS\.md
+CLAUDE\.md
 skills/[^[:space:]\"']+/SKILL\.md
 \.claude/commands/[^[:space:]\"']+\.md

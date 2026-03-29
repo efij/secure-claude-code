@@ -1,4 +1,4 @@
-aws[[:space:]]+iam[[:space:]]+create-access-key\b
-gcloud[[:space:]]+iam[[:space:]]+service-accounts[[:space:]]+keys[[:space:]]+create\b
-az[[:space:]]+ad[[:space:]]+app[[:space:]]+credential[[:space:]]+reset\b
-az[[:space:]]+ad[[:space:]]+sp[[:space:]]+credential[[:space:]]+reset\b
+aws[[:space:]]+iam[[:space:]]+create-access-key($|[[:space:];])
+gcloud[[:space:]]+iam[[:space:]]+service-accounts[[:space:]]+keys[[:space:]]+create($|[[:space:];])
+az[[:space:]]+ad[[:space:]]+app[[:space:]]+credential[[:space:]]+reset($|[[:space:];])
+az[[:space:]]+ad[[:space:]]+sp[[:space:]]+credential[[:space:]]+reset($|[[:space:];])

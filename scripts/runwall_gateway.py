@@ -738,7 +738,7 @@ class Gateway:
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "runwall-gateway", "version": "3.3.2"},
+                            "serverInfo": {"name": "runwall-gateway", "version": "3.3.3"},
                         },
                     },
                 )

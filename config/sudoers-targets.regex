@@ -1,5 +1,5 @@
-/etc/sudoers\b
+/etc/sudoers($|[^[:alnum:]_])
 /etc/sudoers\.d/
-\bvisudo\b
-\bNOPASSWD\b
-\b!authenticate\b
+(^|[^[:alnum:]_])visudo([^[:alnum:]_]|$)
+NOPASSWD
+!authenticate

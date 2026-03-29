@@ -5,4 +5,4 @@ disable[[:space:]]+hooks
 bypass[[:space:]]+security
 override[[:space:]]+guardrails
 unrestricted[[:space:]]+mode
-\bDAN\b
+(^|[^[:alnum:]_])DAN([^[:alnum:]_]|$)

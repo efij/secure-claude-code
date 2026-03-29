@@ -1,4 +1,4 @@
-(?i)ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?)
-(?i)(curl|wget|iwr|Invoke-WebRequest)[^[:cntrl:]]*(\||&&|;)[^[:cntrl:]]*(bash|sh|zsh|pwsh|powershell)
-(?i)(python|node|ruby|php)[[:space:]]+-[ce]
+ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?)
+(curl|wget|iwr|Invoke-WebRequest)[^[:cntrl:]]*(\||&&|;)[^[:cntrl:]]*(bash|sh|zsh|pwsh|powershell)
+(python|node|ruby|php)[[:space:]]+-[ce]
 [A-Za-z0-9+/=]{80,}

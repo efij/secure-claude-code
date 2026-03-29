@@ -1,4 +1,4 @@
-(?i)ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?)
-(?i)reveal\s+the\s+(developer|system)\s+prompt
-(?i)do\s+not\s+follow\s+(your\s+)?(previous|original)\s+(instructions?|rules?)
-(?i)<\!--\s*SYSTEM:
+ignore\s+(all\s+)?(previous|prior|above)\s+(instructions?|prompts?|rules?)
+reveal\s+the\s+(developer|system)\s+prompt
+do\s+not\s+follow\s+(your\s+)?(previous|original)\s+(instructions?|rules?)
+<\!--\s*SYSTEM:

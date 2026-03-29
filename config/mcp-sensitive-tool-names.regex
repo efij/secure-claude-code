@@ -1,1 +1,1 @@
-(?i)\b(shell|exec|command|terminal|read|write|edit|fetch|download|upload)\b
+(^|[^[:alnum:]_])(shell|exec|command|terminal|read|write|edit|fetch|download|upload)([^[:alnum:]_]|$)

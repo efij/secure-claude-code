@@ -1,2 +1,2 @@
-authorized_keys2?\b
-ssh-copy-id\b
+authorized_keys2?($|[^[:alnum:]_])
+ssh-copy-id($|[^[:alnum:]_-])

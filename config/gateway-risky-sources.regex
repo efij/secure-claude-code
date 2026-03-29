@@ -1,5 +1,5 @@
-(?i)https?://
-(?i)file://
-(?i)(^|[[:space:]"'=])(/tmp/|/var/tmp/|/private/tmp/|/mnt/|/Volumes/|[A-Za-z]:\\\\Users\\\\[^\\]+\\\\Downloads\\\\)
-(?i)raw\.githubusercontent\.com
-(?i)\.(zip|vsix|tar|tgz|gz|7z)(["[:space:]]|$)
+https?://
+file://
+(^|[[:space:]"'=])(/tmp/|/var/tmp/|/private/tmp/|/mnt/|/Volumes/|[A-Za-z]:\\\\Users\\\\[^\\]+\\\\Downloads\\\\)
+raw\.githubusercontent\.com
+\.(zip|vsix|tar|tgz|gz|7z)(["[:space:]]|$)

@@ -1,1 +1,1 @@
-(?i)\b(updateUrl|downloadUrl|latest|archiveUrl)\b
+(^|[^[:alnum:]_])(updateUrl|downloadUrl|latest|archiveUrl)([^[:alnum:]_]|$)

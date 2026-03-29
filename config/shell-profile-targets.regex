@@ -1,8 +1,8 @@
-(^|/)\.bashrc\b
-(^|/)\.bash_profile\b
-(^|/)\.zshrc\b
-(^|/)\.zprofile\b
-(^|/)\.profile\b
-\.config/fish/config\.fish\b
-Microsoft\.PowerShell_profile\.ps1\b
-PowerShell/profile\.ps1\b
+(^|/)\.bashrc($|/)
+(^|/)\.bash_profile($|/)
+(^|/)\.zshrc($|/)
+(^|/)\.zprofile($|/)
+(^|/)\.profile($|/)
+\.config/fish/config\.fish($|/)
+Microsoft\.PowerShell_profile\.ps1($|/)
+PowerShell/profile\.ps1($|/)

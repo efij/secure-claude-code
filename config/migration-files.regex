@@ -1,2 +1,2 @@
-(^|/)(migrations?|db/migrate|prisma/migrations|schema)\b
+(^|/)(migrations?|db/migrate|prisma/migrations|schema)($|/)
 \.(sql|prisma)$
