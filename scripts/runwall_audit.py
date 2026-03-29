@@ -386,7 +386,7 @@ def render_text(report: dict[str, Any]) -> str:
         "Score Breakdown",
     ]
     for item in report["scoreBreakdown"].values():
-        bar = "█" * item["score"] + "░" * (20 - item["score"])
+        bar = "#" * item["score"] + "-" * (20 - item["score"])
         lines.append(f"{item['label']:<12} {bar} {item['score']}")
     lines.extend(["", "Findings"])
     if not report["findings"]:

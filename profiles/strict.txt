@@ -12,11 +12,16 @@ mcp-tool-impersonation-guard
 mcp-tool-schema-widening-guard
 mcp-parameter-smuggling-guard
 mcp-bulk-read-exfil-guard
+mcp-egress-private-network-guard
+mcp-egress-destination-class-guard
+mcp-egress-policy-guard
 mcp-server-command-chain-guard
 mcp-secret-env-guard
 mcp-response-secret-leak-guard
 mcp-response-prompt-smuggling-guard
 mcp-binary-dropper-guard
+mcp-response-suspicious-url-guard
+mcp-response-shell-snippet-guard
 mcp-install-source-allowlist
 skill-install-source-guard
 skill-multi-stage-dropper-guard

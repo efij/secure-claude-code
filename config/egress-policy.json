@@ -1,0 +1,56 @@
+{
+  "profiles": {
+    "balanced": {
+      "mode": "denylist",
+      "unknown_destination": "allow",
+      "private_network": "prompt",
+      "metadata": "block",
+      "class_actions": {
+        "webhook": "block",
+        "paste": "block",
+        "gist": "prompt",
+        "blob": "prompt"
+      },
+      "allowlist": [
+        "api.github.com",
+        "github.com",
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org"
+      ],
+      "denylist": [
+        "pastebin.com",
+        "paste.rs",
+        "transfer.sh",
+        "file.io",
+        "0x0.st"
+      ]
+    },
+    "strict": {
+      "mode": "allowlist",
+      "unknown_destination": "prompt",
+      "private_network": "block",
+      "metadata": "block",
+      "class_actions": {
+        "webhook": "block",
+        "paste": "block",
+        "gist": "block",
+        "blob": "prompt"
+      },
+      "allowlist": [
+        "api.github.com",
+        "github.com",
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org"
+      ],
+      "denylist": [
+        "pastebin.com",
+        "paste.rs",
+        "transfer.sh",
+        "file.io",
+        "0x0.st"
+      ]
+    }
+  }
+}

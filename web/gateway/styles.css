@@ -189,6 +189,26 @@ button {
   margin-bottom: 8px;
 }
 
+.prompt-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.prompt-preview {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(31, 26, 22, 0.04);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .prompt-actions {
   display: flex;
   gap: 10px;

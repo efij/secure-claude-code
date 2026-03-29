@@ -1,0 +1,18 @@
+{
+  "id": "mcp-egress-destination-class-guard",
+  "name": "MCP Egress Destination Class Guard Pack",
+  "description": "Blocks or prompts on MCP requests that target webhooks, paste sites, gist-like hosts, or blob storage according to outbound policy.",
+  "category": "mcp",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-egress-destination-class-guard.sh \"$TOOL_INPUT\""
+  }
+}

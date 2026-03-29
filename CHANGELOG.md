@@ -1,5 +1,18 @@
 # Changelog
 
+## 4.1.0
+
+- verified the inline MCP gateway against the original PRD scope and kept `tools/list`, `tools/call`, multi-upstream proxying, request inspection, response inspection, local API, and dashboard behavior intact
+- upgraded gateway response enforcement with deterministic response scanning, JSON-safe redaction, response-side prompt flow, and richer evidence in event payloads
+- added `mcp-response-suspicious-url-guard`
+- added `mcp-response-shell-snippet-guard`
+- added per-profile outbound destination policy in `config/egress-policy.json` for allowlist, denylist, metadata, private-network, webhook, paste, gist-like, and blob-style destinations
+- added `mcp-egress-private-network-guard`
+- added `mcp-egress-destination-class-guard`
+- added `mcp-egress-policy-guard`
+- hardened the audit text renderer for Windows consoles by removing non-ASCII score bars that were breaking `windows-latest` CI output
+- updated the gateway dashboard, runtime docs, signature docs, and smoke coverage for response-side prompt/block/redact behavior and outbound policy enforcement
+
 ## 4.0.0
 
 - added `runwall audit` with scored static analysis for agent configs, hooks, MCP servers, instruction files, skills, and plugin metadata

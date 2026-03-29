@@ -1,0 +1,18 @@
+{
+  "id": "mcp-egress-policy-guard",
+  "name": "MCP Egress Policy Guard Pack",
+  "description": "Prompts or blocks when an MCP request targets a destination outside the configured per-profile outbound policy.",
+  "category": "mcp",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-egress-policy-guard.sh \"$TOOL_INPUT\""
+  }
+}

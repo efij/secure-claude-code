@@ -42,11 +42,16 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `mcp-tool-schema-widening-guard`: sensitive MCP tools that suddenly widen into free-form schemas
 - `mcp-parameter-smuggling-guard`: MCP tool arguments that hide prompt overrides, encoded blobs, or execution chains
 - `mcp-bulk-read-exfil-guard`: multi-target secret-like MCP reads that should pause for review
+- `mcp-egress-private-network-guard`: private IP, localhost, and link-local outbound MCP destinations
+- `mcp-egress-destination-class-guard`: webhook, paste, gist-like, and blob-style outbound MCP destinations
+- `mcp-egress-policy-guard`: per-profile allowlist or denylist enforcement for outbound MCP destinations
 - `mcp-secret-env-guard`: high-value secret environment variables forwarded into MCP server definitions
 - `mcp-server-command-chain-guard`: dangerous execution chains embedded in MCP server definitions
 - `mcp-response-secret-leak-guard`: upstream MCP responses that contain live secret or credential material
 - `mcp-response-prompt-smuggling-guard`: upstream MCP responses that contain hidden prompt injection or policy-override text
 - `mcp-binary-dropper-guard`: upstream MCP responses that look like executable, archive, or staged payload material
+- `mcp-response-suspicious-url-guard`: upstream MCP responses that contain risky outbound URLs and should pause for review
+- `mcp-response-shell-snippet-guard`: upstream MCP responses that contain fetch-and-execute or staged shell snippets
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material

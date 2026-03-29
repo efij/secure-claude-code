@@ -34,6 +34,8 @@ Runwall now has four layers:
    - evaluates requests before upstream execution
    - evaluates responses before they reach the client
    - supports `allow`, `block`, `prompt`, and `redact`
+   - applies per-profile outbound destination policy before risky egress leaves the runtime
+   - exposes response redaction, response prompt, and egress decisions through the local API and dashboard
 
    It also keeps the policy helper tools:
    - `preflight_bash`

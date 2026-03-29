@@ -3,6 +3,7 @@ const detail = document.getElementById("event-detail");
 const prompts = document.getElementById("pending-prompts");
 const refreshButton = document.getElementById("refresh-button");
 const decisionFilter = document.getElementById("decision-filter");
+const directionFilter = document.getElementById("direction-filter");
 const serverFilter = document.getElementById("server-filter");
 const toolFilter = document.getElementById("tool-filter");
 
@@ -16,6 +17,7 @@ function decisionBadge(decision) {
 function queryString() {
   const params = new URLSearchParams();
   if (decisionFilter.value) params.set("decision", decisionFilter.value);
+  if (directionFilter.value) params.set("direction", directionFilter.value);
   if (serverFilter.value) params.set("server_id", serverFilter.value);
   if (toolFilter.value) params.set("tool_name", toolFilter.value);
   return params.toString();
@@ -30,7 +32,7 @@ function selectEvent(index) {
 
 function renderEvents() {
   if (!currentEvents.length) {
-    eventsBody.innerHTML = `<tr><td colspan="5" class="empty-state">No events match the current filters.</td></tr>`;
+    eventsBody.innerHTML = `<tr><td colspan="6" class="empty-state">No events match the current filters.</td></tr>`;
     detail.textContent = "Select an event to inspect it.";
     return;
   }
@@ -44,6 +46,7 @@ function renderEvents() {
         <tr data-index="${actualIndex}" class="${rowClass}">
           <td>${new Date(event.ts).toLocaleTimeString()}</td>
           <td>${decisionBadge(event.decision)}</td>
+          <td>${event.direction || "runtime"}</td>
           <td>${event.server_id || "local"}</td>
           <td>${event.tool_name || event.module || "-"}</td>
           <td>${event.reason || "-"}</td>
@@ -72,7 +75,9 @@ function renderPrompts(items) {
             <strong>${item.server_id}__${item.tool_name}</strong>
             ${decisionBadge("prompt")}
           </header>
+          <div class="prompt-meta">${item.direction || "request"} checkpoint</div>
           <div>${item.hits?.[0]?.output || "Review required for this request."}</div>
+          ${item.response_hint ? `<pre class="prompt-preview">${item.response_hint}</pre>` : ""}
           <div class="prompt-actions">
             <button type="button" data-action="approve" data-id="${item.id}">Approve</button>
             <button type="button" data-action="deny" data-id="${item.id}">Deny</button>
@@ -126,7 +131,7 @@ refreshButton.addEventListener("click", async () => {
   await Promise.all([loadHealth(), loadEvents(), loadPrompts()]);
 });
 
-[decisionFilter, serverFilter, toolFilter].forEach((element) =>
+[decisionFilter, directionFilter, serverFilter, toolFilter].forEach((element) =>
   element.addEventListener("change", loadEvents)
 );
 

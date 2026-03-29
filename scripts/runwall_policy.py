@@ -131,9 +131,10 @@ def parse_hook_output(output: str) -> tuple[str, dict[str, Any]]:
     return cleaned, metadata
 
 
-def run_hook(root: pathlib.Path, script_path: pathlib.Path, payload: str):
+def run_hook(root: pathlib.Path, profile: str, script_path: pathlib.Path, payload: str):
     env = os.environ.copy()
     env["RUNWALL_HOME"] = str(root)
+    env["RUNWALL_PROFILE"] = profile
     proc = subprocess.run(
         [resolve_hook_shell(), str(script_path), payload],
         input=payload,
@@ -207,7 +208,11 @@ def normalize_hit(
     output: str,
     metadata: dict[str, Any],
 ) -> dict[str, Any]:
-    decision = "block" if returncode != 0 else manifest.get("kind", "warn")
+    metadata_decision = metadata.get("decision") if isinstance(metadata, dict) else None
+    if metadata_decision in _DECISION_PRIORITY:
+        decision = metadata_decision
+    else:
+        decision = "block" if returncode != 0 else manifest.get("kind", "warn")
     hit = {
         "module": manifest["id"],
         "name": manifest.get("name", manifest["id"]),
@@ -232,7 +237,7 @@ def evaluate(root: pathlib.Path, profile: str, event: str, matcher: str, payload
         script_path = extract_script(root, command)
         if script_path is None or not script_path.exists():
             continue
-        returncode, output, metadata = run_hook(root, script_path, payload)
+        returncode, output, metadata = run_hook(root, profile, script_path, payload)
         if returncode == 0 and not output and not metadata:
             continue
         hit = normalize_hit(manifest, returncode, output, metadata)

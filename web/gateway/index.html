@@ -45,6 +45,16 @@
           </select>
         </label>
         <label>
+          <span>Direction</span>
+          <select id="direction-filter">
+            <option value="">All</option>
+            <option value="request">Request</option>
+            <option value="response">Response</option>
+            <option value="tools/list">Tools List</option>
+            <option value="registry">Registry</option>
+          </select>
+        </label>
+        <label>
           <span>Server</span>
           <input id="server-filter" placeholder="alpha" />
         </label>
@@ -77,6 +87,7 @@
                 <tr>
                   <th>Time</th>
                   <th>Decision</th>
+                  <th>Direction</th>
                   <th>Server</th>
                   <th>Tool</th>
                   <th>Reason</th>

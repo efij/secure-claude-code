@@ -127,11 +127,46 @@ def request_fingerprint(server_id: str, tool_name: str, arguments: dict[str, Any
     return digest.hexdigest()
 
 
+def response_fingerprint(request_id: str, result: dict[str, Any]) -> str:
+    digest = hashlib.sha256()
+    digest.update(safe_json_dumps({"request": request_id, "result": result}).encode("utf-8"))
+    return digest.hexdigest()
+
+
 def first_reason(result: dict[str, Any], fallback: str) -> str:
     for hit in result.get("hits", []):
         if hit.get("output"):
             return hit["output"].splitlines()[0]
     return fallback
+
+
+def recursive_string_scrub(value: Any, replacement: str) -> Any:
+    if isinstance(value, str):
+        return replacement
+    if isinstance(value, list):
+        return [recursive_string_scrub(item, replacement) for item in value]
+    if isinstance(value, dict):
+        return {key: recursive_string_scrub(item, replacement) for key, item in value.items()}
+    return value
+
+
+def response_preview(result: dict[str, Any], limit: int = 240) -> str:
+    for item in result.get("content", []):
+        if isinstance(item, dict) and item.get("type") == "text" and item.get("text"):
+            return str(item["text"])[:limit]
+    structured = result.get("structuredContent")
+    if isinstance(structured, dict):
+        return safe_json_dumps(structured)[:limit]
+    return safe_json_dumps(result)[:limit]
+
+
+def response_evidence(evaluation: dict[str, Any]) -> list[dict[str, Any]]:
+    evidence: list[dict[str, Any]] = []
+    for hit in evaluation.get("hits", []):
+        metadata = hit.get("metadata") or {}
+        if isinstance(metadata.get("evidence"), list):
+            evidence.extend(item for item in metadata["evidence"] if isinstance(item, dict))
+    return evidence[:5]
 
 
 def secret_redaction_fallback(result: dict[str, Any]) -> dict[str, Any] | None:
@@ -196,6 +231,7 @@ class EventStore:
         server_id = (query.get("server_id") or [""])[0]
         tool_name = (query.get("tool_name") or [""])[0]
         decision = (query.get("decision") or [""])[0]
+        direction = (query.get("direction") or [""])[0]
         module = (query.get("module") or [""])[0]
         if runtime:
             events = [event for event in events if event.get("runtime") == runtime]
@@ -205,6 +241,8 @@ class EventStore:
             events = [event for event in events if event.get("tool_name") == tool_name]
         if decision:
             events = [event for event in events if event.get("decision") == decision]
+        if direction:
+            events = [event for event in events if event.get("direction") == direction]
         if module:
             events = [event for event in events if event.get("module") == module]
         return events
@@ -581,13 +619,16 @@ class Gateway:
             if hit["decision"] == "redact"
         ]
         redacted = copy.deepcopy(result)
+        replacement = "[runwall] sensitive or malicious upstream content was redacted"
         for item in redacted.get("content", []):
             if isinstance(item, dict) and item.get("type") == "text":
-                item["text"] = "[runwall] sensitive or malicious upstream content was redacted"
+                item["text"] = replacement
         structured = redacted.get("structuredContent")
         if isinstance(structured, dict):
-            structured["runwall_redacted"] = True
-            structured["runwall_redactions"] = redactions
+            preserved = recursive_string_scrub(structured, replacement)
+            preserved["runwall_redacted"] = True
+            preserved["runwall_redactions"] = redactions
+            redacted["structuredContent"] = preserved
         else:
             redacted["structuredContent"] = {
                 "runwall_redacted": True,
@@ -602,6 +643,9 @@ class Gateway:
         arguments: dict[str, Any],
         evaluation: dict[str, Any],
         fingerprint: str,
+        *,
+        direction: str,
+        response_hint: str | None = None,
     ) -> dict[str, Any]:
         prompt = self.event_store.create_prompt(
             {
@@ -611,6 +655,9 @@ class Gateway:
                 "tool_name": tool_name,
                 "arguments": arguments,
                 "hits": evaluation["hits"],
+                "direction": direction,
+                "response_hint": response_hint,
+                "evidence": response_evidence(evaluation),
                 "created_at": time.time(),
             }
         )
@@ -630,10 +677,12 @@ class Gateway:
                 "runtime": "gateway",
                 "server_id": server_id,
                 "tool_name": tool_name,
-                "direction": "request",
+                "direction": direction,
                 "prompt_id": prompt["id"],
                 "tool_input": safe_json_dumps(arguments),
                 "hits": evaluation["hits"],
+                "evidence": response_evidence(evaluation),
+                "response_preview": response_hint,
             }
         )
         return tool_result(payload, is_error=True)
@@ -653,6 +702,7 @@ class Gateway:
             "arguments": arguments,
         }
         fingerprint = request_fingerprint(server_id, tool_name, arguments, self.profile)
+        request_prompt_key = f"{fingerprint}:request"
         request_eval = runwall_policy.evaluate(
             self.root,
             self.profile,
@@ -677,8 +727,15 @@ class Gateway:
             )
             return tool_result(request_eval, is_error=True)
 
-        if request_eval["action"] == "prompt" and not self.event_store.approved(fingerprint):
-            return self.prompt_result(server_id, tool_name, arguments, request_eval, fingerprint)
+        if request_eval["action"] == "prompt" and not self.event_store.approved(request_prompt_key):
+            return self.prompt_result(
+                server_id,
+                tool_name,
+                arguments,
+                request_eval,
+                request_prompt_key,
+                direction="request",
+            )
 
         started = time.perf_counter()
         upstream = self.get_upstream(server_id)
@@ -704,6 +761,7 @@ class Gateway:
             fallback = secret_redaction_fallback(result)
             if fallback is not None:
                 response_eval = fallback
+        response_prompt_key = f"{response_fingerprint(fingerprint, result)}:response"
         if response_eval["action"] == "block":
             self.audit_gateway_event(
                 {
@@ -717,9 +775,22 @@ class Gateway:
                     "latency_ms": latency_ms,
                     "tool_input": safe_json_dumps(arguments),
                     "hits": response_eval["hits"],
+                    "response_preview": response_preview(result),
+                    "evidence": response_evidence(response_eval),
                 }
             )
             return tool_result(response_eval, is_error=True)
+
+        if response_eval["action"] == "prompt" and not self.event_store.approved(response_prompt_key):
+            return self.prompt_result(
+                server_id,
+                tool_name,
+                arguments,
+                response_eval,
+                response_prompt_key,
+                direction="response",
+                response_hint=response_preview(result),
+            )
 
         final_result = result
         if response_eval["action"] == "redact":
@@ -737,6 +808,8 @@ class Gateway:
                     "tool_input": safe_json_dumps(arguments),
                     "hits": response_eval["hits"],
                     "redactions": final_result.get("structuredContent", {}).get("runwall_redactions", []),
+                    "response_preview": response_preview(final_result),
+                    "evidence": response_evidence(response_eval),
                 }
             )
         else:
@@ -751,6 +824,7 @@ class Gateway:
                     "direction": "response",
                     "latency_ms": latency_ms,
                     "tool_input": safe_json_dumps(arguments),
+                    "response_preview": response_preview(result),
                 }
             )
         return final_result
@@ -772,7 +846,7 @@ class Gateway:
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "runwall-gateway", "version": "4.0.0"},
+                            "serverInfo": {"name": "runwall-gateway", "version": "4.1.0"},
                         },
                     },
                 )

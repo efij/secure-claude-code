@@ -1,0 +1,7 @@
+(curl|wget|iwr|irm|Invoke-WebRequest)[^[:cntrl:]]*(\||&&|;)[^[:cntrl:]]*(bash|sh|zsh|pwsh|powershell)
+(bash|sh)[[:space:]]+-c[^[:cntrl:]]*(curl|wget|iwr|irm|Invoke-WebRequest)
+(powershell|pwsh)[[:space:]]+-enc
+base64[^[:cntrl:]]*(-d|--decode)[^[:cntrl:]]*(\||&&|;)[^[:cntrl:]]*(bash|sh|zsh|pwsh|powershell)
+chmod[[:space:]]+\+x[^[:cntrl:]]*(\||&&|;)[^[:cntrl:]]*(/tmp/|Downloads|\.\/)
+python[[:space:]]+-c[^[:cntrl:]]*(exec|os\.system|subprocess)
+node[[:space:]]+-e[^[:cntrl:]]*(child_process|exec\()

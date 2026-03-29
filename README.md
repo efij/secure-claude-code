@@ -59,8 +59,11 @@ Runwall helps you:
 - scan agent/runtime config and produce a scored report before you install anything
 - block high-confidence risky actions before they run
 - enforce MCP tool calls inline before they reach upstream servers
-- redact secret or prompt-smuggling content out of upstream tool responses
+- scan MCP tool responses before they reach the runtime
+- redact secret or prompt-smuggling content out of upstream tool responses while keeping JSON valid where possible
+- block staged shell snippets and risky response payloads before they turn into follow-on execution
 - require local review for suspicious multi-target MCP requests
+- enforce outbound destination policy for private IPs, metadata endpoints, webhooks, paste sites, raw gist-style hosts, and non-allowlisted egress
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
 - block persistence through shell profiles, launch items, cron, systemd, and SSH authorized keys
@@ -226,6 +229,12 @@ cd secure-claude-code
 
 Then open `http://127.0.0.1:9470` to inspect events, redactions, and pending approvals.
 
+The dashboard now makes three flows explicit:
+
+- request-side blocks and prompts before upstream execution
+- response-side redaction, prompts, and blocks before tool output reaches the runtime
+- outbound destination decisions for metadata endpoints, private IPs, webhooks, paste sites, gist-like hosts, and non-allowlisted egress
+
 ### Generate a baseline CI workflow
 
 ```bash
@@ -323,6 +332,8 @@ Gateway mode adds:
 - request inspection before upstream execution
 - response inspection after upstream execution
 - actions: `allow`, `block`, `prompt`, `redact`
+- deterministic response scanning for secrets, prompt smuggling, suspicious outbound URLs, and staged shell snippets
+- per-profile outbound policy for private IPs, metadata endpoints, webhooks, paste sites, gist-like hosts, blob storage, and non-allowlisted destinations
 - local API and dashboard for health, live events, pending prompts, and approvals
 
 ### CI/CD

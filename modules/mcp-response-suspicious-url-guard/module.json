@@ -1,0 +1,18 @@
+{
+  "id": "mcp-response-suspicious-url-guard",
+  "name": "MCP Response Suspicious URL Guard Pack",
+  "description": "Prompts for review when upstream MCP responses contain risky outbound URLs such as paste sites, webhooks, raw gists, or private endpoints.",
+  "category": "mcp",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PostToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-response-suspicious-url-guard.sh \"$TOOL_INPUT\""
+  }
+}
