@@ -6,7 +6,7 @@ INPUT="${1:-}"
 
 printf '%s' "$INPUT" | grep -q '"arguments"' || exit 0
 count="$(printf '%s' "$INPUT" | grep -Eo '(\.env|\.aws|\.ssh|id_rsa|kubeconfig|session\.json|credentials|known_hosts|secrets?(\.[A-Za-z0-9._-]+)?)' || true)"
-count="$(printf '%s' "$count" | wc -l | tr -d ' ')"
+count="$(printf '%s\n' "$count" | sed '/^$/d' | wc -l | tr -d ' ')"
 [ "${count:-0}" -ge 2 ] || exit 0
 
 shield_audit "mcp-bulk-read-exfil-guard" "prompt" "An MCP tool call is trying to bundle multiple sensitive read targets into one request" "$INPUT"

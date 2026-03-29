@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.2
+
+- fixed the MCP bulk-read prompt guard so multiple sensitive path hits are counted correctly across Linux, macOS, and Windows
+- republished the inline gateway patch release with a clean smoke path for request-time prompt review
+
 ## 3.3.1
 
 - fixed the `windows-latest` shell-resolution regression by preferring Git Bash over WSL-style shims in the policy engine
