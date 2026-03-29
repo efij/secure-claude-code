@@ -1,0 +1,18 @@
+{
+  "id": "mcp-response-secret-leak-guard",
+  "name": "MCP Response Secret Leak Guard Pack",
+  "description": "Redacts upstream MCP responses that contain live secret or credential material.",
+  "category": "mcp",
+  "kind": "redact",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PostToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-response-secret-leak-guard.sh \"$TOOL_INPUT\""
+  }
+}

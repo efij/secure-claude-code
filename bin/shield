@@ -622,11 +622,11 @@ list_runtimes() {
   cat <<'EOF'
 Runtimes:
   - claude-code    native hook adapter with direct pre/post tool enforcement
-  - codex          plugin bundle plus generated MCP fallback config and AGENTS.md snippet
-  - cursor         generated mcp.json for Cursor
-  - windsurf       generated mcp_config.json for Windsurf
-  - claude-desktop generated claude_desktop_config.json for Claude Desktop
-  - generic-mcp    generic MCP companion mode for other MCP clients
+  - codex          plugin bundle plus generated inline gateway fallback config and AGENTS.md snippet
+  - cursor         generated mcp.json for Cursor with Runwall inline gateway
+  - windsurf       generated mcp_config.json for Windsurf with Runwall inline gateway
+  - claude-desktop generated claude_desktop_config.json for Claude Desktop with Runwall inline gateway
+  - generic-mcp    generic MCP inline gateway mode for other MCP clients
   - ci             CI/CD snippet plus CLI policy evaluation
 
 Aliases:
@@ -787,7 +787,49 @@ mcp_serve() {
   local profile="${1:-balanced}"
   assert_profile_exists "$profile"
   require_python
-  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_mcp_server.py" --root "$ROOT_DIR" --profile "$profile"
+  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_gateway.py" --root "$ROOT_DIR" --profile "$profile" --config "$ROOT_DIR/config/gateway.json"
+}
+
+gateway_serve() {
+  local profile="balanced"
+  local config="$ROOT_DIR/config/gateway.json"
+  local api_port="9470"
+
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --config)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --config"
+        config="$1"
+        ;;
+      --api-port)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --api-port"
+        api_port="$1"
+        ;;
+      --profile)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --profile"
+        profile="$1"
+        ;;
+      *)
+        if [ "$profile" = "balanced" ] && [ -n "$1" ] && [ "${1#--}" = "$1" ]; then
+          profile="$1"
+        else
+          fail "unknown gateway option: $1"
+        fi
+        ;;
+    esac
+    shift
+  done
+
+  assert_profile_exists "$profile"
+  require_python
+  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_gateway.py" \
+    --root "$ROOT_DIR" \
+    --profile "$profile" \
+    --config "$config" \
+    --api-port "$api_port"
 }
 
 show_logs() {
@@ -920,6 +962,7 @@ Usage:
   bin/runwall generate-runtime-config <runtime> [profile] [output]
   bin/runwall evaluate <event> <matcher> <input> [--profile name] [--json]
   bin/runwall mcp serve [profile]
+  bin/runwall gateway serve [profile] [--config path] [--api-port port]
 
 Profiles:
   minimal   Tight baseline for solo hacking
@@ -982,6 +1025,18 @@ case "$command" in
     case "${2:-}" in
       serve)
         mcp_serve "${3:-balanced}"
+        ;;
+      *)
+        usage
+        exit 1
+        ;;
+    esac
+    ;;
+  gateway)
+    case "${2:-}" in
+      serve)
+        shift 2
+        gateway_serve "$@"
         ;;
       *)
         usage

@@ -1,0 +1,18 @@
+{
+  "id": "mcp-parameter-smuggling-guard",
+  "name": "MCP Parameter Smuggling Guard Pack",
+  "description": "Blocks MCP tool-call arguments that hide prompt overrides, encoded payloads, or inline execution chains.",
+  "category": "mcp",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-parameter-smuggling-guard.sh \"$TOOL_INPUT\""
+  }
+}

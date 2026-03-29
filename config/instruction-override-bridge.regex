@@ -1,0 +1,4 @@
+(?i)ignore\s+runwall
+(?i)disable\s+(the\s+)?runwall\s+(gateway|checks|guard|policy)
+(?i)trust\s+(the\s+)?tool\s+output\s+over\s+(local\s+)?policy
+(?i)bypass\s+(local\s+)?gateway\s+review

@@ -1,0 +1,18 @@
+{
+  "id": "mcp-response-prompt-smuggling-guard",
+  "name": "MCP Response Prompt Smuggling Guard Pack",
+  "description": "Redacts upstream MCP responses that contain hidden prompt injection or policy-override text.",
+  "category": "mcp",
+  "kind": "redact",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PostToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-response-prompt-smuggling-guard.sh \"$TOOL_INPUT\""
+  }
+}

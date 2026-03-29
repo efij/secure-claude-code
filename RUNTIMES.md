@@ -7,18 +7,18 @@ Runwall is now organized around runtime adapters instead of assuming Claude Code
 | Runtime | Mode | Status | Notes |
 | --- | --- | --- | --- |
 | Claude Code | Native hooks | First-class | Direct pre-tool and post-tool enforcement |
-| Codex | Plugin bundle + MCP companion | Supported | `.codex-plugin/plugin.json` plus generated fallback config |
+| Codex | Plugin bundle + inline gateway fallback | Supported | `.codex-plugin/plugin.json` plus generated fallback config |
 | OpenClaw | Compatible bundle install | Supported | Installs this repo as a Claude/Codex bundle and maps skills + MCP |
-| Cursor | MCP companion | First-class | Generated `mcp.json` config |
-| Windsurf | MCP companion | First-class | Generated `mcp_config.json` config |
-| Claude Desktop | MCP companion | First-class | Generated `claude_desktop_config.json` config |
-| Claude Cowork | MCP companion | Generic path | Use `generic-mcp` where MCP config import is available |
-| Generic MCP clients | MCP companion | Supported | Use the generated generic MCP config |
+| Cursor | Inline MCP gateway | First-class | Generated `mcp.json` config |
+| Windsurf | Inline MCP gateway | First-class | Generated `mcp_config.json` config |
+| Claude Desktop | Inline MCP gateway | First-class | Generated `claude_desktop_config.json` config |
+| Claude Cowork | Inline MCP gateway | Generic path | Use `generic-mcp` where MCP config import is available |
+| Generic MCP clients | Inline MCP gateway | Supported | Use the generated generic MCP config |
 | CI/CD | CLI policy gate | Supported | Use `generate-runtime-config ci` plus `runwall evaluate` |
 
 ## Architecture
 
-Runwall now has three layers:
+Runwall now has four layers:
 
 1. Native adapters
    Claude Code remains the strongest integration because it exposes direct hook points.
@@ -26,8 +26,16 @@ Runwall now has three layers:
 2. Plugin and bundle adapters
    Codex and OpenClaw can consume this repo as a plugin or compatible bundle surface.
 
-3. Companion MCP mode
-   Cursor, Windsurf, Claude Desktop, Codex fallback mode, and other MCP-native clients can run Runwall as a local MCP server and expose policy tools such as:
+3. Inline MCP gateway mode
+   Cursor, Windsurf, Claude Desktop, Codex fallback mode, and other MCP-native clients can run Runwall as a local inline gateway that:
+   - fronts multiple upstream MCP servers
+   - intercepts `tools/list`
+   - intercepts `tools/call`
+   - evaluates requests before upstream execution
+   - evaluates responses before they reach the client
+   - supports `allow`, `block`, `prompt`, and `redact`
+
+   It also keeps the policy helper tools:
    - `preflight_bash`
    - `preflight_read`
    - `preflight_write`
@@ -46,6 +54,7 @@ Runwall now has three layers:
 ./bin/runwall generate-runtime-config claude-desktop balanced
 ./bin/runwall generate-runtime-config generic-mcp balanced
 ./bin/runwall generate-runtime-config ci strict
+./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
 ./bin/runwall mcp serve balanced
 ./bin/runwall evaluate PreToolUse Bash "git push --force origin main" --profile strict --json
 openclaw plugins install ./secure-claude-code
@@ -60,7 +69,7 @@ It is:
 - Claude Code first
 - Codex plugin bundle next
 - OpenClaw compatible bundle install
-- Cursor, Windsurf, and Claude Desktop as first-class MCP targets
+- Cursor, Windsurf, and Claude Desktop as first-class inline gateway targets
 - generic MCP client mode after that
 - CI/CD policy gate mode on top
 

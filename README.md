@@ -40,17 +40,21 @@ Runwall helps reduce real-world risk around:
 
 It is practical, transparent, and built for real developer environments.
 
-Runwall now supports three integration styles:
+Runwall now supports four integration styles:
 
 - native runtime adapters where hooks exist today, starting with Claude Code
 - plugin or bundle installs for Codex and OpenClaw
-- companion MCP mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP-capable clients
+- inline MCP gateway mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, Codex fallback, and other MCP-capable clients
+- CLI evaluation for pipeline and automation gates
 
 ## What It Does
 
 Runwall helps you:
 
 - block high-confidence risky actions before they run
+- enforce MCP tool calls inline before they reach upstream servers
+- redact secret or prompt-smuggling content out of upstream tool responses
+- require local review for suspicious multi-target MCP requests
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
 - block persistence through shell profiles, launch items, cron, systemd, and SSH authorized keys
@@ -120,6 +124,7 @@ Generate a Cursor-ready `mcp.json`:
 ```
 
 Then place that output in the MCP config file Cursor expects on your machine.
+It now points at the inline Runwall gateway instead of the older helper-only companion server.
 
 ### Windsurf
 
@@ -130,6 +135,7 @@ Generate a Windsurf-ready `mcp_config.json`:
 ```
 
 Then place that output in the MCP config file Windsurf expects on your machine.
+It now points at the inline Runwall gateway instead of the older helper-only companion server.
 
 ### Claude Desktop
 
@@ -140,6 +146,7 @@ Generate a Claude Desktop-ready `claude_desktop_config.json`:
 ```
 
 Then merge that output into your Claude Desktop MCP config.
+It now points at the inline Runwall gateway instead of the older helper-only companion server.
 
 ### macOS / Linux
 
@@ -197,24 +204,32 @@ cd secure-claude-code
 ./bin/runwall logs 50 --json
 ```
 
+### Start the inline gateway and dashboard
+
+```bash
+./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
+```
+
+Then open `http://127.0.0.1:9470` to inspect events, redactions, and pending approvals.
+
 ## Multi-Runtime Support
 
-Runwall is now structured around runtime adapters and bundle installs:
+Runwall is now structured around runtime adapters, bundle installs, and the inline MCP gateway:
 
 - `Claude Code`: native hook mode with direct pre-tool and post-tool enforcement
-- `Codex`: plugin bundle plus MCP companion mode
+- `Codex`: plugin bundle plus inline gateway fallback mode
 - `OpenClaw`: compatible bundle install that maps Runwall skills and MCP tools into OpenClaw
-- `Cursor`: generated `mcp.json` companion config
-- `Windsurf`: generated `mcp_config.json` companion config
-- `Claude Desktop`: generated `claude_desktop_config.json` companion config
-- `Generic MCP clients`: shared MCP companion mode for Claude Cowork and similar clients
+- `Cursor`: generated `mcp.json` gateway config
+- `Windsurf`: generated `mcp_config.json` gateway config
+- `Claude Desktop`: generated `claude_desktop_config.json` gateway config
+- `Generic MCP clients`: shared inline gateway mode for Claude Cowork and similar clients
 - `CI/CD`: generated GitHub Actions snippet plus CLI policy evaluation for high-risk commands
 
 The strategy is:
 
 1. native enforcement where the runtime exposes hooks
 2. plugin or bundle install where the runtime can consume Runwall directly
-3. MCP companion mode where the runtime speaks MCP but does not expose equivalent hooks
+3. Inline MCP gateway mode where the runtime speaks MCP but does not expose equivalent hooks
 4. CLI evaluation for pipeline and automation gates
 
 For the runtime matrix and integration notes, see [RUNTIMES.md](RUNTIMES.md).
@@ -227,7 +242,7 @@ For the runtime matrix and integration notes, see [RUNTIMES.md](RUNTIMES.md).
 
 This prints:
 
-- a `~/.codex/config.toml` MCP server block
+- a `~/.codex/config.toml` inline gateway block
 - a matching `AGENTS.md` snippet that tells Codex when to consult Runwall
 
 If your Codex install supports local plugins, prefer the plugin or bundle path first and keep the generated config as the fallback.
@@ -269,6 +284,22 @@ Use the generic output for:
 - Claude Cowork
 - other MCP-native clients that accept a standard stdio MCP server block
 
+### Inline MCP Gateway
+
+```bash
+./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
+```
+
+Gateway mode adds:
+
+- multi-upstream MCP proxying
+- `tools/list` interception
+- `tools/call` interception
+- request inspection before upstream execution
+- response inspection after upstream execution
+- actions: `allow`, `block`, `prompt`, `redact`
+- local API and dashboard for health, live events, pending prompts, and approvals
+
 ### CI/CD
 
 ```bash
@@ -282,7 +313,7 @@ Use the generic output for:
 ./bin/runwall mcp serve balanced
 ```
 
-This starts the local Runwall MCP companion server used by Codex and generic MCP runtimes.
+This starts the local Runwall MCP gateway with the default gateway config.
 
 ## Security Coverage
 
@@ -313,8 +344,12 @@ Runwall focuses on the practical execution surface around Claude Code.
 ### MCP and Tools
 
 - risky MCP permission grants
+- risky MCP upstream source swaps
+- MCP tool impersonation and schema widening
+- MCP parameter smuggling and bulk sensitive read staging
 - dangerous MCP server command chains
 - secret env forwarding into MCP servers
+- secret leaks, prompt smuggling, and binary payloads in MCP responses
 - risky marketplace or install sources
 - sideloaded plugin and extension paths
 - untrusted tool origins
@@ -327,10 +362,13 @@ Runwall focuses on the practical execution surface around Claude Code.
 - desktop credential stores and local agent session caches
 - malicious skill install sources
 - poisoned skill and Claude command docs
+- multi-stage dropper chains hidden in trusted skill docs
 - risky plugin manifest edits
+- risky plugin update source swaps
 - malicious plugin hook origins and execution chains
 - plugin trust-boundary tampering
 - weak local trust boundaries
+- instruction bridges that tell the runtime to bypass Runwall or trust tool output over local policy
 - trusted-config symlink redirection
 
 ### Exfiltration and Agent Abuse

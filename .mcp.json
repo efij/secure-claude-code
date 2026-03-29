@@ -4,11 +4,15 @@
       "type": "stdio",
       "command": "python3",
       "args": [
-        "scripts/runwall_mcp_server.py",
+        "scripts/runwall_gateway.py",
         "--root",
         ".",
         "--profile",
-        "balanced"
+        "balanced",
+        "--config",
+        "config/gateway.json",
+        "--api-port",
+        "9470"
       ]
     }
   }

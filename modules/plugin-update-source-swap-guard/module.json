@@ -1,0 +1,18 @@
+{
+  "id": "plugin-update-source-swap-guard",
+  "name": "Plugin Update Source Swap Guard Pack",
+  "description": "Blocks plugin update metadata that swaps reviewed sources to risky remote or scratch locations.",
+  "category": "plugin",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/plugin-update-source-swap-guard.sh \"$TOOL_INPUT\""
+  }
+}

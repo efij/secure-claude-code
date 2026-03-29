@@ -84,3 +84,9 @@ with path.open("a", encoding="utf-8") as fh:
     fh.write(json.dumps(event, separators=(",", ":")) + "\n")
 PY
 }
+
+shield_emit_metadata() {
+  local json_payload="${1:-}"
+  [ -n "$json_payload" ] || return 0
+  printf 'RUNWALL_JSON:%s\n' "$json_payload"
+}

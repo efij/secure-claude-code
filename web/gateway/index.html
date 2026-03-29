@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runwall Gateway</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Runwall Inline Gateway</p>
+          <h1>Real-time control for tool calls, prompt smuggling, and MCP abuse.</h1>
+          <p class="lede">
+            Watch decisions as they happen, review blocked or prompted requests, and see
+            exactly which signatures fired before risky runtime actions turn into damage.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <div class="metric">
+            <span class="metric-label">Status</span>
+            <strong id="health-status">Checking</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Profile</span>
+            <strong id="health-profile">balanced</strong>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Upstreams</span>
+            <strong id="health-servers">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="toolbar">
+        <label>
+          <span>Decision</span>
+          <select id="decision-filter">
+            <option value="">All</option>
+            <option value="allow">Allow</option>
+            <option value="block">Block</option>
+            <option value="prompt">Prompt</option>
+            <option value="redact">Redact</option>
+          </select>
+        </label>
+        <label>
+          <span>Server</span>
+          <input id="server-filter" placeholder="alpha" />
+        </label>
+        <label>
+          <span>Tool</span>
+          <input id="tool-filter" placeholder="search_notes" />
+        </label>
+        <button id="refresh-button" type="button">Refresh</button>
+      </section>
+
+      <section class="grid">
+        <div class="pane pane-prompts">
+          <div class="pane-head">
+            <h2>Pending Prompts</h2>
+            <p>Approve or deny high-risk requests that need a human checkpoint.</p>
+          </div>
+          <div id="pending-prompts" class="stack empty-state">
+            No pending prompts.
+          </div>
+        </div>
+
+        <div class="pane pane-events">
+          <div class="pane-head">
+            <h2>Event Feed</h2>
+            <p>Live gateway decisions, latency, and signature hits.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Decision</th>
+                  <th>Server</th>
+                  <th>Tool</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="events-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="pane pane-detail">
+          <div class="pane-head">
+            <h2>Event Detail</h2>
+            <p>Request preview, response metadata, and matched signatures.</p>
+          </div>
+          <pre id="event-detail" class="detail empty-state">Select an event to inspect it.</pre>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

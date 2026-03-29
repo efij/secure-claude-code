@@ -9,4 +9,4 @@
   env:
     RUNWALL_COMMAND: "kubectl --context prod apply -f deploy.yaml"
   run: |
-    ./bin/runwall evaluate PreToolUse Bash "$RUNWALL_COMMAND" strict --json
+    ./bin/runwall evaluate PreToolUse Bash "$RUNWALL_COMMAND" --profile strict --json

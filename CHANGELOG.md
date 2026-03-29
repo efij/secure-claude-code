@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.3.0
+
+- fixed the real `windows-latest` CI failure by making hook-shell resolution deterministic in the Python policy engine instead of relying on a generic `bash` shim
+- added the inline MCP gateway with `./bin/runwall gateway serve`, multi-upstream stdio proxying, request and response inspection, and namespaced upstream tool exposure
+- added a built-in local API and dashboard for health, live events, pending prompts, approvals, and redaction visibility
+- upgraded the MCP runtime path from helper-only companion mode to real-time enforcement for Codex, Cursor, Windsurf, Claude Desktop, Claude Cowork, and generic MCP clients
+- added `mcp-upstream-swap-guard`
+- added `mcp-tool-impersonation-guard`
+- added `mcp-tool-schema-widening-guard`
+- added `mcp-parameter-smuggling-guard`
+- added `mcp-bulk-read-exfil-guard`
+- added `mcp-response-secret-leak-guard`
+- added `mcp-response-prompt-smuggling-guard`
+- added `mcp-binary-dropper-guard`
+- added `plugin-update-source-swap-guard`
+- added `skill-multi-stage-dropper-guard`
+- added `tool-capability-escalation-guard`
+- added `instruction-override-bridge-guard`
+- updated runtime templates, `.mcp.json`, plugin hook generation, and smoke coverage so the inline gateway is the default MCP path
+- expanded `README.md`, `RUNTIMES.md`, `GUARDS.md`, and `SIGNATURES.md` for the new gateway architecture and signature pack set
+
 ## 3.2.0
 
 - added first-class runtime config generation for Cursor, Windsurf, and Claude Desktop

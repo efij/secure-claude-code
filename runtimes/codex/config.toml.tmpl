@@ -3,7 +3,7 @@
 
 [mcp_servers.runwall]
 command = "{{PYTHON_BIN}}"
-args = ["{{ROOT_DIR}}/scripts/runwall_mcp_server.py", "--root", "{{ROOT_DIR}}", "--profile", "{{PROFILE}}"]
+args = ["{{ROOT_DIR}}/scripts/runwall_gateway.py", "--root", "{{ROOT_DIR}}", "--profile", "{{PROFILE}}", "--config", "{{ROOT_DIR}}/config/gateway.json", "--api-port", "9470"]
 
 # Recommended companion instruction:
 # Include the generated AGENTS snippet below in your project or user AGENTS.md

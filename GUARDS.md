@@ -37,8 +37,16 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
 - `instruction-source-dropper-guard`: remote content written directly into AGENTS, CLAUDE, skills, or Claude command files
 - `mcp-permission-guard`: wildcard or high-risk MCP permission grants
+- `mcp-upstream-swap-guard`: gateway upstream registry entries that switch to remote, sideloaded, or scratch-path server sources
+- `mcp-tool-impersonation-guard`: upstream MCP tools that spoof trusted Runwall or control-plane tool names
+- `mcp-tool-schema-widening-guard`: sensitive MCP tools that suddenly widen into free-form schemas
+- `mcp-parameter-smuggling-guard`: MCP tool arguments that hide prompt overrides, encoded blobs, or execution chains
+- `mcp-bulk-read-exfil-guard`: multi-target secret-like MCP reads that should pause for review
 - `mcp-secret-env-guard`: high-value secret environment variables forwarded into MCP server definitions
 - `mcp-server-command-chain-guard`: dangerous execution chains embedded in MCP server definitions
+- `mcp-response-secret-leak-guard`: upstream MCP responses that contain live secret or credential material
+- `mcp-response-prompt-smuggling-guard`: upstream MCP responses that contain hidden prompt injection or policy-override text
+- `mcp-binary-dropper-guard`: upstream MCP responses that look like executable, archive, or staged payload material
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
@@ -50,6 +58,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
 - `plugin-hook-origin-guard`: plugin hook commands that jump outside the plugin trust boundary
 - `plugin-manifest-guard`: risky plugin and extension manifest source edits
+- `plugin-update-source-swap-guard`: plugin update metadata that swaps reviewed release sources to raw, remote, or scratch locations
 - `plugin-surface-expansion-guard`: suspicious plugin hook coverage expansion onto sensitive lifecycle events or broad mutation-plus-shell combinations
 - `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Runwall control files
 - `post-edit-quality-reminder`: post-edit lint/test reminders
@@ -73,17 +82,19 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files
 - `skill-install-source-guard`: unreviewed raw, temp, or sideloaded skill install sources
+- `skill-multi-stage-dropper-guard`: trusted skill or instruction docs that embed fetch-save-execute or decode-then-run chains
 - `skill-trust-boundary-tamper-guard`: prompt-override and guard-bypass language added to trusted skill and command files
 - `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
 - `token-paste-guard`: live API token and private-key paste detection
 - `tool-origin-guard`: risky MCP or tool origins in config files
+- `tool-capability-escalation-guard`: MCP tool definitions that combine broad shell, file, and network reach in one widened surface
+- `instruction-override-bridge-guard`: trusted instruction files that tell the runtime to bypass Runwall or trust tool output over local policy
 - `trusted-config-symlink-guard`: symlink redirection of trusted policy, plugin, MCP, and instruction files
 - `sudoers-tamper-guard`: edits that weaken sudo password and privilege policy
 - `workspace-boundary-guard`: system-path and deep-parent boundary escapes
 
 ## FFU Pipeline A
 
-- `mcp-tool-impersonation-guard`: block tool names that spoof trusted providers
 - `mcp-secret-scope-guard`: block MCP configs that request secret scope outside declared need
 - `cloud-credential-assume-guard`: block risky cloud role assumption and impersonation flows
 - `secret-diff-guard`: block secrets at edit time before they ever reach pre-push
@@ -96,6 +107,5 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `terraform-destroy-guard`: block destructive Terraform and OpenTofu flows
 - `container-escape-guard`: block host-mount and privileged container escape patterns
 - `oauth-token-exchange-guard`: block token exchange and delegated session minting flows
-- `desktop-credential-store-guard`: block reads of macOS Keychain, Windows Credential Manager, and libsecret stores
 - `secret-redaction-guard`: require redacted examples instead of live secret examples in docs and fixtures
 - `unexpected-registry-login-guard`: block logins to unapproved package and container registries

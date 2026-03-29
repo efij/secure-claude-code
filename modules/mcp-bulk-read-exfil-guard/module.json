@@ -1,0 +1,18 @@
+{
+  "id": "mcp-bulk-read-exfil-guard",
+  "name": "MCP Bulk Read Exfiltration Guard Pack",
+  "description": "Prompts for review when an MCP tool call bundles multiple secret-like read targets into one request.",
+  "category": "mcp",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "mcp__.*",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/mcp-bulk-read-exfil-guard.sh \"$TOOL_INPUT\""
+  }
+}
