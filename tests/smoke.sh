@@ -68,6 +68,7 @@ cd "$ROOT_DIR"
 bash -n bin/shield bin/runwall bin/secure-claude-code install.sh update.sh uninstall.sh scripts/*.sh hooks/*.sh hooks/lib/*.sh tests/smoke.sh
 python_bin="$(command -v python3 || command -v python)"
 "$python_bin" scripts/validate-patterns.py config
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -142,6 +143,29 @@ assert_contains "$claude_desktop_runtime_output" '"env": {}'
 ci_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config ci strict)"
 assert_contains "$ci_runtime_output" 'Runwall policy validation'
 assert_contains "$ci_runtime_output" './bin/runwall evaluate PreToolUse Bash'
+
+audit_text_output="$(run_capture false ./bin/runwall audit . --profile strict)"
+assert_contains "$audit_text_output" 'Runwall Audit Report'
+assert_contains "$audit_text_output" 'Grade:'
+
+audit_json_output="$TMP_BASE/runwall-audit.json"
+./bin/runwall audit . --profile strict --format json --output "$audit_json_output"
+assert_contains "$(cat "$audit_json_output")" '"score"'
+assert_contains "$(cat "$audit_json_output")" '"guardId"'
+
+audit_html_output="$TMP_BASE/runwall-audit.html"
+./bin/runwall audit . --profile strict --format html --output "$audit_html_output"
+assert_contains "$(cat "$audit_html_output")" 'Runwall Audit Report'
+
+audit_sarif_output="$TMP_BASE/runwall-audit.sarif"
+./bin/runwall audit . --profile strict --format sarif --output "$audit_sarif_output"
+assert_contains "$(cat "$audit_sarif_output")" '"version": "2.1.0"'
+
+init_workspace="$TMP_BASE/init-workspace"
+mkdir -p "$init_workspace"
+./bin/runwall init "$init_workspace" --profile strict
+assert_contains "$(cat "$init_workspace/.runwall/audit-baseline.json")" '"profile": "strict"'
+assert_contains "$(cat "$init_workspace/.github/workflows/runwall-audit.yml")" 'Runwall Audit'
 
 eval_block_json="$(run_capture true ./bin/runwall evaluate PreToolUse Bash 'git push --force origin main' --profile strict --json || true)"
 assert_contains "$eval_block_json" '"allowed": false'

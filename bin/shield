@@ -950,6 +950,8 @@ Usage:
   bin/runwall install [profile]
   bin/runwall update [profile]
   bin/runwall uninstall [--keep-home]
+  bin/runwall init [path] [--profile name] [--force]
+  bin/runwall audit [path] [--profile name] [--format text|json|html|sarif] [--output path] [--fail-on severity]
   bin/runwall validate
   bin/runwall doctor [--fix] [profile]
   bin/runwall logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
@@ -971,6 +973,39 @@ Profiles:
 EOF
 }
 
+init_baseline_cmd() {
+  local path="."
+  local profile="strict"
+  local force="false"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --profile)
+        profile="${2:-strict}"
+        shift 2
+        ;;
+      --force)
+        force="true"
+        shift
+        ;;
+      *)
+        path="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [ "$force" = "true" ]; then
+    run_python "$ROOT_DIR/scripts/runwall_audit.py" init "$path" --profile "$profile" --force
+  else
+    run_python "$ROOT_DIR/scripts/runwall_audit.py" init "$path" --profile "$profile"
+  fi
+}
+
+audit_cmd() {
+  run_python "$ROOT_DIR/scripts/runwall_audit.py" audit "$@"
+}
+
 command="${1:-help}"
 case "$command" in
   install)
@@ -985,6 +1020,14 @@ case "$command" in
     else
       uninstall_install false
     fi
+    ;;
+  init)
+    shift
+    init_baseline_cmd "$@"
+    ;;
+  audit)
+    shift
+    audit_cmd "$@"
     ;;
   validate)
     validate_install

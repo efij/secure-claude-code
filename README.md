@@ -4,6 +4,11 @@
 
 Runwall adds a practical security layer around coding-agent runtimes to reduce prompt injection fallout, secret leakage, unsafe command execution, dangerous git operations, and risky MCP, plugin, or skill configurations.
 
+It now does both:
+
+- audit mode for scanning agent configs, hooks, MCP servers, skills, plugins, and instruction files
+- runtime mode for inline enforcement, prompting, blocking, and redaction
+
 It is built for solo builders, startups, security-minded teams, and larger orgs that want safer defaults around AI coding workflows.
 
 <p align="left">
@@ -51,6 +56,7 @@ Runwall now supports four integration styles:
 
 Runwall helps you:
 
+- scan agent/runtime config and produce a scored report before you install anything
 - block high-confidence risky actions before they run
 - enforce MCP tool calls inline before they reach upstream servers
 - redact secret or prompt-smuggling content out of upstream tool responses
@@ -178,6 +184,14 @@ cd secure-claude-code
 ./bin/runwall install balanced
 ```
 
+### Run an audit first
+
+```bash
+./bin/runwall audit .
+./bin/runwall audit . --format html --output runwall-audit.html
+./bin/runwall audit . --format sarif --output runwall-audit.sarif --fail-on high
+```
+
 ### Validate the setup
 
 ```bash
@@ -211,6 +225,17 @@ cd secure-claude-code
 ```
 
 Then open `http://127.0.0.1:9470` to inspect events, redactions, and pending approvals.
+
+### Generate a baseline CI workflow
+
+```bash
+./bin/runwall init .
+```
+
+That creates:
+
+- `.runwall/audit-baseline.json`
+- `.github/workflows/runwall-audit.yml`
 
 ## Multi-Runtime Support
 

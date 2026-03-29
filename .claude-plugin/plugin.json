@@ -1,7 +1,7 @@
 {
   "name": "runwall",
   "description": "Runtime security plugin for Claude Code with balanced default hooks plus the Runwall inline MCP gateway for shell, git, MCP, secret, and exfiltration risks.",
-  "version": "3.3.5",
+  "version": "4.0.0",
   "author": {
     "name": "efij"
   },

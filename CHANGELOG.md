@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.0
+
+- added `runwall audit` with scored static analysis for agent configs, hooks, MCP servers, instruction files, skills, and plugin metadata
+- added audit outputs for `text`, `json`, `html`, and `sarif`, plus `--fail-on` for CI gating
+- added `runwall init` to create a baseline `.runwall/audit-baseline.json` and `.github/workflows/runwall-audit.yml`
+- added audit-to-runtime bridge metadata so findings recommend the runtime guard that maps to the issue
+- expanded smoke coverage to verify audit reporting, SARIF generation, and baseline initialization
+
 ## 3.3.5
 
 - added a gateway-side fallback for obvious secret markers so upstream MCP responses still get redacted even when nested JSON payloads are mangled by platform-specific shell argument handling
