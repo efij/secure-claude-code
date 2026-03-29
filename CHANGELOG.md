@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.0
+
+- added first-class runtime config generation for Cursor, Windsurf, and Claude Desktop
+- updated the runtime matrix so leading MCP-native platforms are no longer buried under `generic-mcp`
+- simplified the README install flow with explicit per-platform config generation commands
+
 ## 3.1.0
 
 - added a Codex bundle manifest in `.codex-plugin/plugin.json`

@@ -111,6 +111,9 @@ fi
 runtime_list_output="$(run_capture false ./bin/runwall list runtimes)"
 assert_contains "$runtime_list_output" 'claude-code'
 assert_contains "$runtime_list_output" 'codex'
+assert_contains "$runtime_list_output" 'cursor'
+assert_contains "$runtime_list_output" 'windsurf'
+assert_contains "$runtime_list_output" 'claude-desktop'
 assert_contains "$runtime_list_output" 'generic-mcp'
 assert_contains "$runtime_list_output" 'ci'
 
@@ -121,6 +124,20 @@ assert_contains "$codex_runtime_output" 'AGENTS.md snippet'
 generic_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config generic-mcp balanced)"
 assert_contains "$generic_runtime_output" '"mcpServers"'
 assert_contains "$generic_runtime_output" 'runwall_mcp_server.py'
+assert_contains "$generic_runtime_output" '"type": "stdio"'
+
+cursor_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config cursor balanced)"
+assert_contains "$cursor_runtime_output" '"mcpServers"'
+assert_contains "$cursor_runtime_output" '"type": "stdio"'
+
+windsurf_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config windsurf balanced)"
+assert_contains "$windsurf_runtime_output" '"mcpServers"'
+assert_contains "$windsurf_runtime_output" '"type": "stdio"'
+
+claude_desktop_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config claude-desktop balanced)"
+assert_contains "$claude_desktop_runtime_output" '"mcpServers"'
+assert_contains "$claude_desktop_runtime_output" '"type": "stdio"'
+assert_contains "$claude_desktop_runtime_output" '"env": {}'
 
 ci_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config ci strict)"
 assert_contains "$ci_runtime_output" 'Runwall policy validation'

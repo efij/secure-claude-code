@@ -44,7 +44,7 @@ Runwall now supports three integration styles:
 
 - native runtime adapters where hooks exist today, starting with Claude Code
 - plugin or bundle installs for Codex and OpenClaw
-- companion MCP mode for Codex, Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP-capable clients
+- companion MCP mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP-capable clients
 
 ## What It Does
 
@@ -111,6 +111,36 @@ openclaw gateway restart
 
 Use the CLI path when you want profile switching, update, uninstall, doctor repair, runtime config generation, or a separate local install home.
 
+### Cursor
+
+Generate a Cursor-ready `mcp.json`:
+
+```bash
+./bin/runwall generate-runtime-config cursor balanced
+```
+
+Then place that output in the MCP config file Cursor expects on your machine.
+
+### Windsurf
+
+Generate a Windsurf-ready `mcp_config.json`:
+
+```bash
+./bin/runwall generate-runtime-config windsurf balanced
+```
+
+Then place that output in the MCP config file Windsurf expects on your machine.
+
+### Claude Desktop
+
+Generate a Claude Desktop-ready `claude_desktop_config.json`:
+
+```bash
+./bin/runwall generate-runtime-config claude-desktop balanced
+```
+
+Then merge that output into your Claude Desktop MCP config.
+
 ### macOS / Linux
 
 ```bash
@@ -174,7 +204,10 @@ Runwall is now structured around runtime adapters and bundle installs:
 - `Claude Code`: native hook mode with direct pre-tool and post-tool enforcement
 - `Codex`: plugin bundle plus MCP companion mode
 - `OpenClaw`: compatible bundle install that maps Runwall skills and MCP tools into OpenClaw
-- `Generic MCP clients`: shared MCP companion mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and similar clients
+- `Cursor`: generated `mcp.json` companion config
+- `Windsurf`: generated `mcp_config.json` companion config
+- `Claude Desktop`: generated `claude_desktop_config.json` companion config
+- `Generic MCP clients`: shared MCP companion mode for Claude Cowork and similar clients
 - `CI/CD`: generated GitHub Actions snippet plus CLI policy evaluation for high-risk commands
 
 The strategy is:
@@ -207,19 +240,34 @@ openclaw plugins install ./secure-claude-code
 
 OpenClaw detects this repo as a compatible Claude or Codex bundle and maps supported skills and MCP tools automatically.
 
+### Cursor
+
+```bash
+./bin/runwall generate-runtime-config cursor balanced
+```
+
+### Windsurf
+
+```bash
+./bin/runwall generate-runtime-config windsurf balanced
+```
+
+### Claude Desktop
+
+```bash
+./bin/runwall generate-runtime-config claude-desktop balanced
+```
+
 ### Generic MCP Clients
 
 ```bash
 ./bin/runwall generate-runtime-config generic-mcp balanced
 ```
 
-Use the same output as the base MCP server block for:
+Use the generic output for:
 
-- Cursor
-- Windsurf
-- Claude Desktop
 - Claude Cowork
-- other MCP-native clients
+- other MCP-native clients that accept a standard stdio MCP server block
 
 ### CI/CD
 

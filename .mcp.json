@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "runwall": {
+      "type": "stdio",
       "command": "python3",
       "args": [
         "scripts/runwall_mcp_server.py",

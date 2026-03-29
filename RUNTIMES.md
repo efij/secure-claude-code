@@ -9,10 +9,10 @@ Runwall is now organized around runtime adapters instead of assuming Claude Code
 | Claude Code | Native hooks | First-class | Direct pre-tool and post-tool enforcement |
 | Codex | Plugin bundle + MCP companion | Supported | `.codex-plugin/plugin.json` plus generated fallback config |
 | OpenClaw | Compatible bundle install | Supported | Installs this repo as a Claude/Codex bundle and maps skills + MCP |
-| Cursor | MCP companion | Supported via generic mode | Uses the shared MCP server block |
-| Windsurf | MCP companion | Supported via generic mode | Uses the shared MCP server block |
-| Claude Desktop | MCP companion | Supported via generic mode | Uses the shared MCP server block |
-| Claude Cowork | MCP companion | Supported via generic mode | Uses the shared MCP server block |
+| Cursor | MCP companion | First-class | Generated `mcp.json` config |
+| Windsurf | MCP companion | First-class | Generated `mcp_config.json` config |
+| Claude Desktop | MCP companion | First-class | Generated `claude_desktop_config.json` config |
+| Claude Cowork | MCP companion | Generic path | Use `generic-mcp` where MCP config import is available |
 | Generic MCP clients | MCP companion | Supported | Use the generated generic MCP config |
 | CI/CD | CLI policy gate | Supported | Use `generate-runtime-config ci` plus `runwall evaluate` |
 
@@ -27,7 +27,7 @@ Runwall now has three layers:
    Codex and OpenClaw can consume this repo as a plugin or compatible bundle surface.
 
 3. Companion MCP mode
-   For Codex and other MCP-native clients, Runwall can also run as a local MCP server and expose policy tools such as:
+   Cursor, Windsurf, Claude Desktop, Codex fallback mode, and other MCP-native clients can run Runwall as a local MCP server and expose policy tools such as:
    - `preflight_bash`
    - `preflight_read`
    - `preflight_write`
@@ -41,6 +41,9 @@ Runwall now has three layers:
 ```bash
 ./bin/runwall list runtimes
 ./bin/runwall generate-runtime-config codex balanced
+./bin/runwall generate-runtime-config cursor balanced
+./bin/runwall generate-runtime-config windsurf balanced
+./bin/runwall generate-runtime-config claude-desktop balanced
 ./bin/runwall generate-runtime-config generic-mcp balanced
 ./bin/runwall generate-runtime-config ci strict
 ./bin/runwall mcp serve balanced
@@ -57,6 +60,7 @@ It is:
 - Claude Code first
 - Codex plugin bundle next
 - OpenClaw compatible bundle install
+- Cursor, Windsurf, and Claude Desktop as first-class MCP targets
 - generic MCP client mode after that
 - CI/CD policy gate mode on top
 

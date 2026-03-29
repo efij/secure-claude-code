@@ -622,14 +622,14 @@ list_runtimes() {
   cat <<'EOF'
 Runtimes:
   - claude-code    native hook adapter with direct pre/post tool enforcement
-  - codex          MCP companion mode plus generated AGENTS.md snippet
-  - generic-mcp    MCP companion mode for Cursor, Windsurf, Claude Desktop, Claude Cowork, and other MCP clients
+  - codex          plugin bundle plus generated MCP fallback config and AGENTS.md snippet
+  - cursor         generated mcp.json for Cursor
+  - windsurf       generated mcp_config.json for Windsurf
+  - claude-desktop generated claude_desktop_config.json for Claude Desktop
+  - generic-mcp    generic MCP companion mode for other MCP clients
   - ci             CI/CD snippet plus CLI policy evaluation
 
 Aliases:
-  - cursor -> generic-mcp
-  - windsurf -> generic-mcp
-  - claude-desktop -> generic-mcp
   - claude-cowork -> generic-mcp
 EOF
 }
@@ -643,7 +643,7 @@ generate_runtime_config() {
   assert_profile_exists "$profile"
 
   case "$runtime" in
-    cursor|windsurf|claude-desktop|claude-cowork)
+    claude-cowork)
       runtime="generic-mcp"
       ;;
   esac
@@ -691,6 +691,33 @@ if runtime == "codex":
       print(agents_text.rstrip())
 elif runtime == "generic-mcp":
     text = render(root / "runtimes" / "generic-mcp" / "mcp.json.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(text)
+      print(f"wrote {output_path}")
+    else:
+      print(text.rstrip())
+elif runtime == "cursor":
+    text = render(root / "runtimes" / "cursor" / "mcp.json.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(text)
+      print(f"wrote {output_path}")
+    else:
+      print(text.rstrip())
+elif runtime == "windsurf":
+    text = render(root / "runtimes" / "windsurf" / "mcp_config.json.tmpl")
+    if output:
+      output_path = pathlib.Path(output)
+      output_path.parent.mkdir(parents=True, exist_ok=True)
+      output_path.write_text(text)
+      print(f"wrote {output_path}")
+    else:
+      print(text.rstrip())
+elif runtime == "claude-desktop":
+    text = render(root / "runtimes" / "claude-desktop" / "claude_desktop_config.json.tmpl")
     if output:
       output_path = pathlib.Path(output)
       output_path.parent.mkdir(parents=True, exist_ok=True)
