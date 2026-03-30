@@ -1,6 +1,7 @@
 # More defensive workflow for shared or sensitive codebases.
 block-unsafe-git
 pre-push-scan
+context-chain-guard
 protect-secrets-read
 agent-session-secret-guard
 abuse-chain-defense

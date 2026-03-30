@@ -1,6 +1,7 @@
 # Strong default for everyday shipping.
 block-unsafe-git
 pre-push-scan
+context-chain-guard
 protect-secrets-read
 agent-session-secret-guard
 abuse-chain-defense

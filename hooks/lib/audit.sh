@@ -48,6 +48,7 @@ import os
 import pathlib
 import socket
 import sys
+import uuid
 from datetime import datetime, timezone
 
 path = pathlib.Path(sys.argv[1])
@@ -69,6 +70,7 @@ profile_file = shield_home / "state" / "profile.txt"
 profile = profile_file.read_text().strip() if profile_file.exists() else "unknown"
 
 event = {
+    "event_id": os.environ.get("RUNWALL_EVENT_ID") or uuid.uuid4().hex,
     "ts": datetime.now(timezone.utc).isoformat(),
     "module": module,
     "decision": decision,
@@ -79,6 +81,28 @@ event = {
     "host": socket.gethostname(),
     "tool_input": tool_input,
 }
+
+runtime = os.environ.get("RUNWALL_RUNTIME")
+if runtime:
+    event["runtime"] = runtime
+
+for env_name, field in (
+    ("RUNWALL_AGENT_ID", "agent_id"),
+    ("RUNWALL_SUBAGENT_ID", "subagent_id"),
+    ("RUNWALL_PARENT_AGENT_ID", "parent_agent_id"),
+    ("RUNWALL_SESSION_ID", "session_id"),
+):
+    value = os.environ.get(env_name)
+    if value:
+        event[field] = value
+
+background = os.environ.get("RUNWALL_BACKGROUND")
+if isinstance(background, str):
+    lowered = background.strip().lower()
+    if lowered in {"1", "true", "yes", "on"}:
+        event["background"] = True
+    elif lowered in {"0", "false", "no", "off"}:
+        event["background"] = False
 
 with path.open("a", encoding="utf-8") as fh:
     fh.write(json.dumps(event, separators=(",", ":")) + "\n")

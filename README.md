@@ -62,6 +62,8 @@ Runwall helps you:
 - scan MCP tool responses before they reach the runtime
 - redact secret or prompt-smuggling content out of upstream tool responses while keeping JSON valid where possible
 - block staged shell snippets and risky response payloads before they turn into follow-on execution
+- fingerprint trusted MCP servers and tools over time instead of trusting same-name metadata forever
+- detect server drift, schema drift, capability expansion, and same-name tool collisions before trust quietly widens
 - require local review for suspicious multi-target MCP requests
 - enforce outbound destination policy for private IPs, metadata endpoints, webhooks, paste sites, raw gist-style hosts, and non-allowlisted egress
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
@@ -73,6 +75,8 @@ Runwall helps you:
 - keep plaintext git, netrc, and registry credentials out of agent reach
 - tighten MCP, plugin, skill, and tool trust boundaries
 - block cloud key creation and direct prod-shell break-glass behavior
+- explain every runtime decision with masked previews, evidence, confidence, and a safer alternative
+- export masked incident bundles for review, triage, and post-incident handoff
 - apply a safer default profile quickly
 - keep security useful without turning the workflow into sludge
 
@@ -235,6 +239,12 @@ The dashboard now makes three flows explicit:
 - response-side redaction, prompts, and blocks before tool output reaches the runtime
 - outbound destination decisions for metadata endpoints, private IPs, webhooks, paste sites, gist-like hosts, and non-allowlisted egress
 
+It also shows:
+
+- tool and server identity drift with baseline-vs-current diffs
+- masked request and response previews by default
+- exportable incident bundles for a single event, drift review, or runtime investigation
+
 ### Generate a baseline CI workflow
 
 ```bash
@@ -332,9 +342,10 @@ Gateway mode adds:
 - request inspection before upstream execution
 - response inspection after upstream execution
 - actions: `allow`, `block`, `prompt`, `redact`
+- tool and server fingerprinting with first-sight review, server drift, schema drift, capability expansion, and same-name collision detection
 - deterministic response scanning for secrets, prompt smuggling, suspicious outbound URLs, and staged shell snippets
 - per-profile outbound policy for private IPs, metadata endpoints, webhooks, paste sites, gist-like hosts, blob storage, and non-allowlisted destinations
-- local API and dashboard for health, live events, pending prompts, and approvals
+- local API and dashboard for health, live events, pending prompts, approvals, diff views, masked previews, and incident bundle export
 
 ### CI/CD
 

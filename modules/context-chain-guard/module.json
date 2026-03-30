@@ -1,0 +1,98 @@
+{
+  "id": "context-chain-guard",
+  "name": "Context And Chain Guard Pack",
+  "description": "Adds subagent-aware runtime prompts and session-scoped risky chain detection without requiring whole-agent interception.",
+  "category": "runtime",
+  "kind": "prompt",
+  "default_profiles": ["minimal", "balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "workflow.md"
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "matcher": "Read",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse Read \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Write",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse Write \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Edit",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse Write \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "MultiEdit",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse Write \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse Bash \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "mcp__.*",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PreToolUse mcp__generic \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Read",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse Read \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "WebFetch",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse WebFetch \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Bash",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse Bash \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Grep",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse Grep \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Glob",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse Glob \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Task",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse Task \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "mcp__.*",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse mcp__generic \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "mcp_.*",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse mcp_generic \"$TOOL_INPUT\""
+    }
+  ]
+}

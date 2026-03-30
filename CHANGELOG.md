@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.2.0
+
+- added tool and server identity fingerprinting to the inline MCP gateway so trusted metadata is stored, compared over time, and surfaced as first-sight review, schema drift, server drift, capability expansion, and same-name collision decisions
+- added drift-aware local API and dashboard detail views for event inspection, masked previews, identity diffs, evidence, safer alternatives, and incident review context
+- added masked incident bundle export for runtime events and drift records through the gateway API and the CLI export path
+- upgraded runtime explainability so every decision records a clearer reason, matched signature context, confidence, artifact hints, and preview data that is masked by default
+- added `config/tool-identity-policy.json` so drift severity can stay profile-driven without changing the module model
+- simplified and stabilized the gateway smoke suite around the PRD acceptance path for inline enforcement, identity drift, collisions, masked incident export, and response-side controls
+
 ## 4.1.1
 
 - stabilized the gateway smoke suite on Windows by making the older bulk-read prompt path best-effort in the integration test while keeping required request-prompt coverage on the newer deterministic egress-policy prompt flow

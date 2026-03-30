@@ -745,6 +745,12 @@ evaluate_policy_cmd() {
   local payload="${3:-}"
   local profile="balanced"
   local json_flag=false
+  local runtime=""
+  local agent_id=""
+  local subagent_id=""
+  local parent_agent_id=""
+  local session_id=""
+  local background=""
 
   [ -n "$event" ] || fail "event is required"
   [ -n "$matcher" ] || fail "matcher is required"
@@ -759,6 +765,36 @@ evaluate_policy_cmd() {
         shift
         [ "$#" -gt 0 ] || fail "missing value for --profile"
         profile="$1"
+        ;;
+      --runtime)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --runtime"
+        runtime="$1"
+        ;;
+      --agent-id)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --agent-id"
+        agent_id="$1"
+        ;;
+      --subagent-id)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --subagent-id"
+        subagent_id="$1"
+        ;;
+      --parent-agent-id)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --parent-agent-id"
+        parent_agent_id="$1"
+        ;;
+      --session-id)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --session-id"
+        session_id="$1"
+        ;;
+      --background)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --background"
+        background="$1"
         ;;
       *)
         fail "unknown evaluate option: $1"
@@ -780,6 +816,55 @@ evaluate_policy_cmd() {
   if [ "$json_flag" = "true" ]; then
     args+=(--json)
   fi
+  [ -n "$runtime" ] && args+=(--runtime "$runtime")
+  [ -n "$agent_id" ] && args+=(--agent-id "$agent_id")
+  [ -n "$subagent_id" ] && args+=(--subagent-id "$subagent_id")
+  [ -n "$parent_agent_id" ] && args+=(--parent-agent-id "$parent_agent_id")
+  [ -n "$session_id" ] && args+=(--session-id "$session_id")
+  [ -n "$background" ] && args+=(--background "$background")
+  "$PYTHON_BIN" "${args[@]}"
+}
+
+export_incident_cmd() {
+  local selector="${1:-}"
+  local output=""
+  local format_name="zip"
+
+  [ -n "$selector" ] || fail "selector is required"
+  shift || true
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --output)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --output"
+        output="$1"
+        ;;
+      --format)
+        shift
+        [ "$#" -gt 0 ] || fail "missing value for --format"
+        format_name="$1"
+        ;;
+      *)
+        fail "unknown export-incident option: $1"
+        ;;
+    esac
+    shift
+  done
+
+  case "$format_name" in
+    zip|json) ;;
+    *) fail "invalid format: $format_name" ;;
+  esac
+
+  require_python
+  local args=(
+    "$ROOT_DIR/scripts/runwall_forensics.py"
+    export
+    --root "$ROOT_DIR"
+    "$selector"
+    --format "$format_name"
+  )
+  [ -n "$output" ] && args+=(--output "$output")
   "$PYTHON_BIN" "${args[@]}"
 }
 
@@ -963,6 +1048,7 @@ Usage:
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
   bin/runwall evaluate <event> <matcher> <input> [--profile name] [--json]
+  bin/runwall export-incident <selector> [--output path] [--format zip|json]
   bin/runwall mcp serve [profile]
   bin/runwall gateway serve [profile] [--config path] [--api-port port]
 
@@ -1063,6 +1149,10 @@ case "$command" in
   evaluate)
     shift
     evaluate_policy_cmd "$@"
+    ;;
+  export-incident)
+    shift
+    export_incident_cmd "$@"
     ;;
   mcp)
     case "${2:-}" in

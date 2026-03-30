@@ -1,0 +1,17 @@
+{
+  "minimal": {
+    "server_drift": "warn",
+    "tool_drift": "warn",
+    "same_name_collision": "warn"
+  },
+  "balanced": {
+    "server_drift": "prompt",
+    "tool_drift": "prompt",
+    "same_name_collision": "prompt"
+  },
+  "strict": {
+    "server_drift": "block",
+    "tool_drift": "block",
+    "same_name_collision": "block"
+  }
+}

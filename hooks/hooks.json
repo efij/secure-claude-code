@@ -19,6 +19,60 @@
       ]
     },
     {
+      "matcher": "Read",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Read\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Write",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Edit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "MultiEdit",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Bash\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "mcp__.*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse mcp__generic\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
       "matcher": "Read|Bash",
       "hooks": [
         {
@@ -740,6 +794,78 @@
     }
   ],
   "PostToolUse": [
+    {
+      "matcher": "Read",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Read\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "WebFetch",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse WebFetch\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Bash\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Grep",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Grep\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Glob",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Glob\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "Task",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Task\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "mcp__.*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp__generic\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
+    {
+      "matcher": "mcp_.*",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp_generic\" \"$TOOL_INPUT\""
+        }
+      ]
+    },
     {
       "matcher": "Read|WebFetch|Bash|Grep|Glob|Task|mcp__.*|mcp_.*",
       "hooks": [

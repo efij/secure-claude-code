@@ -1,0 +1,51 @@
+{
+  "rules": [
+    {
+      "id": "subagent_bash_actions",
+      "decision": "prompt",
+      "reason": "Subagent or background shell execution should be reviewed.",
+      "requires_any_context": ["subagent_id"],
+      "background": true,
+      "matchers": ["Bash"]
+    },
+    {
+      "id": "subagent_write_actions",
+      "decision": "prompt",
+      "reason": "Subagent or background file mutation should be reviewed.",
+      "requires_any_context": ["subagent_id"],
+      "background": true,
+      "matchers": ["Write"]
+    },
+    {
+      "id": "subagent_outbound_mcp_actions",
+      "decision": "prompt",
+      "reason": "Subagent or background outbound MCP activity should be reviewed.",
+      "requires_any_context": ["subagent_id"],
+      "background": true,
+      "matcher_patterns": ["mcp__.*"],
+      "category_allowlist": ["external_call"]
+    },
+    {
+      "id": "active_chain_bash_actions",
+      "decision": "prompt",
+      "reason": "This session already hit a risky multi-step chain, so more shell execution should be reviewed.",
+      "requires_active_chain": true,
+      "matchers": ["Bash"]
+    },
+    {
+      "id": "active_chain_write_actions",
+      "decision": "prompt",
+      "reason": "This session already hit a risky multi-step chain, so more file mutation should be reviewed.",
+      "requires_active_chain": true,
+      "matchers": ["Write"]
+    },
+    {
+      "id": "active_chain_outbound_mcp_actions",
+      "decision": "prompt",
+      "reason": "This session already hit a risky multi-step chain, so additional outbound runtime activity should be reviewed.",
+      "requires_active_chain": true,
+      "matcher_patterns": ["mcp__.*"],
+      "category_allowlist": ["external_call", "privileged_tool", "write_file", "shell_exec"]
+    }
+  ]
+}

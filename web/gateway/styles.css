@@ -169,6 +169,10 @@ button {
   font-size: 0.92rem;
 }
 
+.detail-actions {
+  padding: 0 22px 14px;
+}
+
 .stack {
   display: grid;
   gap: 12px;
@@ -262,13 +266,135 @@ tbody tr.active {
 .decision-redact { background: rgba(47, 88, 112, 0.14); color: #2f5870; }
 
 .detail {
+  display: grid;
+  gap: 14px;
   margin: 0;
   padding: 0 22px 22px;
   color: var(--ink);
-  white-space: pre-wrap;
-  word-break: break-word;
   font-size: 0.86rem;
   line-height: 1.6;
+}
+
+.detail-hero {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(31, 26, 22, 0.04);
+  border: 1px solid var(--line);
+}
+
+.detail-kicker {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.detail-hero h3,
+.detail-section h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.detail-hero p {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.detail-metrics,
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.detail-metrics div,
+.detail-grid div {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--line);
+}
+
+.detail-metrics span,
+.detail-grid dt,
+.diff-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.detail-metrics strong,
+.detail-grid dd {
+  margin: 6px 0 0;
+}
+
+.detail-grid dd {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detail-section {
+  display: grid;
+  gap: 10px;
+}
+
+.detail pre,
+.diff-card pre,
+.evidence-card pre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(31, 26, 22, 0.04);
+  border: 1px solid var(--line);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.pill-list li {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(180, 64, 26, 0.08);
+  border: 1px solid rgba(180, 64, 26, 0.12);
+}
+
+.diff-list,
+.evidence-list {
+  display: grid;
+  gap: 12px;
+}
+
+.diff-card,
+.evidence-card {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid var(--line);
+}
+
+.diff-card p {
+  margin: 8px 0;
+  color: var(--muted);
+}
+
+.diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .empty-state {
@@ -278,6 +404,12 @@ tbody tr.active {
 @media (max-width: 1080px) {
   .hero,
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-metrics,
+  .detail-grid,
+  .diff-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -62,6 +62,30 @@
           <span>Tool</span>
           <input id="tool-filter" placeholder="search_notes" />
         </label>
+        <label>
+          <span>Session</span>
+          <input id="session-filter" placeholder="sess-42" />
+        </label>
+        <label>
+          <span>Agent</span>
+          <input id="agent-filter" placeholder="agent-1" />
+        </label>
+        <label>
+          <span>Subagent</span>
+          <input id="subagent-filter" placeholder="sub-3" />
+        </label>
+        <label>
+          <span>Chain</span>
+          <input id="chain-filter" placeholder="write_file_to_shell_exec" />
+        </label>
+        <label>
+          <span>Drift</span>
+          <input id="drift-filter" placeholder="schema_drift" />
+        </label>
+        <label>
+          <span>Search</span>
+          <input id="search-filter" placeholder="secret exfil prompt" />
+        </label>
         <button id="refresh-button" type="button">Refresh</button>
       </section>
 
@@ -87,6 +111,7 @@
                 <tr>
                   <th>Time</th>
                   <th>Decision</th>
+                  <th>Actor</th>
                   <th>Direction</th>
                   <th>Server</th>
                   <th>Tool</th>
@@ -101,9 +126,12 @@
         <div class="pane pane-detail">
           <div class="pane-head">
             <h2>Event Detail</h2>
-            <p>Request preview, response metadata, and matched signatures.</p>
+            <p>Why the gateway decided, what changed, what artifact was touched, and what to do next.</p>
           </div>
-          <pre id="event-detail" class="detail empty-state">Select an event to inspect it.</pre>
+          <div class="detail-actions">
+            <button id="export-incident-button" type="button" disabled>Export Incident Bundle</button>
+          </div>
+          <div id="event-detail" class="detail empty-state">Select an event to inspect it.</div>
         </div>
       </section>
     </main>

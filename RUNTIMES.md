@@ -34,8 +34,10 @@ Runwall now has four layers:
    - evaluates requests before upstream execution
    - evaluates responses before they reach the client
    - supports `allow`, `block`, `prompt`, and `redact`
+   - fingerprints trusted servers and tools so first-sight review, schema drift, capability expansion, and same-name collision become explicit runtime decisions
    - applies per-profile outbound destination policy before risky egress leaves the runtime
-   - exposes response redaction, response prompt, and egress decisions through the local API and dashboard
+   - exposes response redaction, response prompt, drift diffs, and egress decisions through the local API and dashboard
+   - exports masked incident bundles for events and drift investigations without needing a cloud control plane
 
    It also keeps the policy helper tools:
    - `preflight_bash`

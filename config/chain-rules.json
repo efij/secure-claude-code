@@ -1,0 +1,29 @@
+{
+  "retention_seconds": 86400,
+  "rules": [
+    {
+      "id": "secret_read_to_external_call",
+      "severity_score": 90,
+      "window_seconds": 900,
+      "steps": ["secret_read", "external_call"]
+    },
+    {
+      "id": "repo_traversal_to_archive_to_upload",
+      "severity_score": 85,
+      "window_seconds": 900,
+      "steps": ["repo_traversal", "archive_action", "upload_action"]
+    },
+    {
+      "id": "response_injection_to_privileged_tool",
+      "severity_score": 95,
+      "window_seconds": 900,
+      "steps": ["response_injection", "privileged_tool"]
+    },
+    {
+      "id": "write_file_to_shell_exec",
+      "severity_score": 80,
+      "window_seconds": 900,
+      "steps": ["write_file", "shell_exec"]
+    }
+  ]
+}
