@@ -250,6 +250,7 @@ def normalize_hit(
         "module": manifest["id"],
         "name": manifest.get("name", manifest["id"]),
         "category": manifest.get("category", "general"),
+        "family": manifest.get("family", manifest.get("category", "general")),
         "decision": decision,
         "exit_code": returncode,
         "output": output,
@@ -328,6 +329,7 @@ def _synthetic_hit(rule: dict[str, Any], decision: str, prior_active_chain_alert
         "module": module,
         "name": "Runwall Chain Escalation" if rule.get("requires_active_chain") else "Runwall Context Policy",
         "category": "runtime-context",
+        "family": "Quality & Workflow",
         "decision": decision,
         "exit_code": 0,
         "output": str(rule.get("reason", "")),
@@ -480,7 +482,7 @@ def print_pretty(result: dict[str, Any]) -> None:
     print(f"profile: {result['profile']}")
     print(f"event: {result['event']} / {result['matcher']}")
     for hit in result["hits"]:
-        print(f"- {hit['module']} [{hit['category']}/{hit['decision']}]")
+        print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:
             print(hit["output"])
 

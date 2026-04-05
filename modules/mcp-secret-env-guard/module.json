@@ -4,7 +4,10 @@
   "description": "Warns when high-value secret environment variables are forwarded into MCP server definitions.",
   "category": "mcp",
   "kind": "warn",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "tool-safety.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/mcp-secret-env-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

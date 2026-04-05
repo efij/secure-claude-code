@@ -4,7 +4,10 @@
   "description": "Blocks broad destructive delete patterns outside common generated-file cleanup directories.",
   "category": "integrity",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/mass-delete-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Quality & Workflow"
 }

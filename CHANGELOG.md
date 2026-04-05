@@ -1,5 +1,26 @@
 # Changelog
 
+## 5.0.0
+
+- added `local-tunnel-guard`
+- added `credential-helper-downgrade-guard`
+- added `secret-diff-guard`
+- added `token-broker-guard`
+- added `ssh-config-include-guard`
+- added `git-attributes-filter-guard`
+- added `git-submodule-source-swap-guard`
+- added `ci-artifact-secret-upload-guard`
+- added `kubectl-port-forward-prod-guard`
+- added `cluster-admin-binding-guard`
+- added `terraform-provider-source-swap-guard`
+- added `env-sample-secret-guard`
+- introduced guard `family` metadata across the full module registry without changing existing `category` behavior
+- grouped `runwall list protections` output by family so the live signature registry reads like a real engine instead of a flat list
+- added family-aware audit output in text, JSON, HTML, and SARIF while keeping existing category scoring stable for compatibility
+- regrouped `README.md`, `GUARDS.md`, and `SIGNATURES.md` around protection families so docs track the real runtime registry
+- expanded smoke coverage for every new guard, plus family-aware CLI and audit assertions
+- regenerated plugin hook output and release artifacts for the family-aware `5.0.0` release
+
 ## 4.4.0
 
 - added `browser-remote-debug-guard`

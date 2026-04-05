@@ -4,7 +4,10 @@
   "description": "Prompts when agent-driven device-code and browserless OAuth login flows try to mint delegated user access.",
   "category": "identity",
   "kind": "prompt",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "context-discipline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/oauth-device-flow-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }

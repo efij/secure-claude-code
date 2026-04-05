@@ -1,0 +1,5 @@
+(^|[[:space:][:punct:]])hashicorp/[a-z0-9_-]+([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])terraform\.io([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])registry\.terraform\.io([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])opentofu\.org([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])registry\.opentofu\.org([[:space:][:punct:]]|$)

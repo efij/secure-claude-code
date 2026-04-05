@@ -4,7 +4,10 @@
   "description": "Blocks recurring OS task, service, and launch-item registration that can be used for persistence.",
   "category": "persistence",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/scheduled-task-persistence-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Trust, Persistence & Evasion"
 }

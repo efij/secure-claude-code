@@ -4,7 +4,10 @@
   "description": "Blocks reads and exports of release signing keys and provenance key material.",
   "category": "secrets",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/release-key-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }

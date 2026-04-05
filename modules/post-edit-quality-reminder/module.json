@@ -4,7 +4,10 @@
   "description": "Suggests formatting, linting, and test commands based on the files the agent just touched.",
   "category": "quality",
   "kind": "assist",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "workflow.md",
     "context-discipline.md"
@@ -15,5 +18,6 @@
     "type": "command",
     "command": "bash ~/.runwall/hooks/post-edit-quality-reminder.sh \"$TOOL_INPUT\"",
     "async": true
-  }
+  },
+  "family": "Quality & Workflow"
 }

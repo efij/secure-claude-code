@@ -1,0 +1,22 @@
+{
+  "id": "cluster-admin-binding-guard",
+  "name": "Cluster Admin Binding Guard Pack",
+  "description": "Blocks creation or application of cluster-admin role bindings and equivalent high-trust RBAC grants.",
+  "category": "infra",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/cluster-admin-binding-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Infra & Production Access"
+}

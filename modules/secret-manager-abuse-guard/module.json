@@ -4,7 +4,10 @@
   "description": "Prompts when agents pull live secrets directly from Vault, cloud secret managers, or desktop password tooling.",
   "category": "secrets",
   "kind": "prompt",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "review-checklist.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/secret-manager-abuse-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }

@@ -4,7 +4,10 @@
   "description": "Blocks bulk repo packing and enumeration patterns that look ready for export or staging.",
   "category": "network",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "context-discipline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/repo-mass-harvest-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Runtime, Network & Egress"
 }

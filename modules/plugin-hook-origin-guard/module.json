@@ -4,7 +4,10 @@
   "description": "Blocks plugin hook commands that execute code from temp, download, scratch, or other paths outside the plugin trust boundary.",
   "category": "plugin",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/plugin-hook-origin-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

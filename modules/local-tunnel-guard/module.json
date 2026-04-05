@@ -1,0 +1,22 @@
+{
+  "id": "local-tunnel-guard",
+  "name": "Local Tunnel Exposure Guard Pack",
+  "description": "Blocks public exposure of local services through tunnel and reverse-port-forward tooling.",
+  "category": "network",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/local-tunnel-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Runtime, Network & Egress"
+}

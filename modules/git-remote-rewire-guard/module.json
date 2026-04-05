@@ -4,7 +4,10 @@
   "description": "Prompts when git remotes are repointed to unreviewed hosts or raw IPs.",
   "category": "git",
   "kind": "prompt",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/git-remote-rewire-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Git & Source Control"
 }

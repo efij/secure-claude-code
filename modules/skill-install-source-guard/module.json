@@ -4,7 +4,10 @@
   "description": "Blocks sideloaded or raw skill install sources outside a reviewed allowlist.",
   "category": "skills",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "tool-safety.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/skill-install-source-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

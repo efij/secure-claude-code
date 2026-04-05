@@ -1,131 +1,190 @@
 # Guard Registry
 
-Runwall is organized like a local YARA-style rule engine:
+Runwall is organized like a local YARA-style signature engine:
 
 - one guard pack equals one focused signature set
 - profiles enable groups of packs without changing code
 - plain-text regex and config files keep tuning simple
+- families keep the registry readable without changing enforcement behavior
 - hooks stay small and composable instead of becoming one giant script
 
 For the plain-English deep dive on every implemented signature, see [SIGNATURES.md](SIGNATURES.md).
 
 ## Implemented Guards
 
-- `abuse-chain-defense`: remote instruction writes, rule-override text, and secret-plus-transfer chains
-- `agent-session-secret-guard`: direct reads and exports of local auth, token, and session stores used by coding agents
-- `archive-and-upload-guard`: archive-plus-transfer chains involving secret or high-value material
-- `audit-evasion-guard`: shell history, event log, and Runwall audit trail clearing behavior
-- `binary-payload-guard`: downloaded or decoded executable payload staging
-- `block-dangerous-commands`: high-confidence dangerous shell patterns
-- `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
-- `browser-cookie-guard`: browser cookie, login, and session-store access
-- `browser-profile-export-guard`: copying or archiving full browser profiles with live sessions and saved credentials
-- `browser-remote-debug-guard`: browser launches that expose live sessions over remote debugging ports or pipes
-- `cloud-key-creation-guard`: creation of long-lived cloud access keys and service-account credentials
-- `cloud-credential-assume-guard`: cloud role assumption, token minting, and service-account impersonation flows that can widen access
-- `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
-- `ci-self-hosted-runner-guard`: self-hosted CI runners exposed to PR-triggered workflow execution
-- `clipboard-exfiltration-guard`: clipboard-based secret movement
-- `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
-- `config-secret-inline-guard`: live tokens, private keys, and secret literals pasted directly into app, deploy, or workflow config
-- `container-escape-guard`: privileged container runs, host namespace joins, and root filesystem mounts that break isolation boundaries
-- `docker-build-secret-leak-guard`: build-time secret leaks through `docker build`, `podman build`, or `nerdctl build` args and secret mounts
-- `container-socket-guard`: direct access to Docker, containerd, CRI-O, and Podman sockets
-- `credential-export-guard`: export of live credential material into files, clipboard, or transfers
-- `dangerous-migration-guard`: destructive schema and data-loss migration patterns
-- `devcontainer-trust-guard`: risky devcontainer isolation weakening and remote setup injection
-- `dependency-script-guard`: install-time and build-time dependency script abuse
-- `desktop-credential-store-guard`: direct access to OS-backed desktop credential stores such as Keychain, libsecret, and Windows Credential Manager
-- `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
-- `git-credential-store-guard`: plaintext git credential stores and credential-helper downgrade behavior
-- `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
-- `git-remote-rewire-guard`: git remotes repointed to unreviewed hosts or direct URLs
-- `hosts-file-tamper-guard`: hosts-file remaps for high-trust vendor and registry domains
-- `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
-- `instruction-source-dropper-guard`: remote content written directly into AGENTS, CLAUDE, skills, or Claude command files
-- `mcp-permission-guard`: wildcard or high-risk MCP permission grants
-- `mcp-upstream-swap-guard`: gateway upstream registry entries that switch to remote, sideloaded, or scratch-path server sources
-- `mcp-tool-impersonation-guard`: upstream MCP tools that spoof trusted Runwall or control-plane tool names
-- `mcp-tool-schema-widening-guard`: sensitive MCP tools that suddenly widen into free-form schemas
-- `mcp-parameter-smuggling-guard`: MCP tool arguments that hide prompt overrides, encoded blobs, or execution chains
-- `mcp-bulk-read-exfil-guard`: multi-target secret-like MCP reads that should pause for review
-- `mcp-egress-private-network-guard`: private IP, localhost, and link-local outbound MCP destinations
-- `mcp-egress-destination-class-guard`: webhook, paste, gist-like, and blob-style outbound MCP destinations
-- `mcp-egress-policy-guard`: per-profile allowlist or denylist enforcement for outbound MCP destinations
-- `mcp-secret-env-guard`: high-value secret environment variables forwarded into MCP server definitions
-- `mcp-server-command-chain-guard`: dangerous execution chains embedded in MCP server definitions
-- `mcp-response-secret-leak-guard`: upstream MCP responses that contain live secret or credential material
-- `mcp-response-prompt-smuggling-guard`: upstream MCP responses that contain hidden prompt injection or policy-override text
-- `mcp-binary-dropper-guard`: upstream MCP responses that look like executable, archive, or staged payload material
-- `mcp-response-suspicious-url-guard`: upstream MCP responses that contain risky outbound URLs and should pause for review
-- `mcp-response-shell-snippet-guard`: upstream MCP responses that contain fetch-and-execute or staged shell snippets
-- `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
-- `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
-- `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
-- `local-ca-trust-guard`: root certificate and trust-anchor store changes on the local machine
-- `log-poisoning-guard`: forged Runwall markers, secret dumps, and poisoned evidence written into logs, SARIF, or incident reports
-- `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
-- `network-exfiltration`: suspicious outbound transfers with sensitive material
-- `netrc-credential-guard`: direct reads and exports of `.netrc` credential files
-- `oauth-device-flow-guard`: browserless and device-code OAuth logins that mint delegated user sessions
-- `package-lock-source-swap-guard`: lockfile and package-source changes that point at unreviewed registries or raw artifact hosts
-- `package-manager-auth-inline-guard`: live tokens and auth material written into package-manager config files
-- `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
-- `package-publish-guard`: publish and release commands that leave the local review boundary
-- `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
-- `plugin-hook-origin-guard`: plugin hook commands that jump outside the plugin trust boundary
-- `plugin-manifest-guard`: risky plugin and extension manifest source edits
-- `plugin-update-source-swap-guard`: plugin update metadata that swaps reviewed release sources to raw, remote, or scratch locations
-- `plugin-surface-expansion-guard`: suspicious plugin hook coverage expansion onto sensitive lifecycle events or broad mutation-plus-shell combinations
-- `plugin-trust-boundary-tamper-guard`: plugin attempts to weaken Claude, MCP, or Runwall control files
-- `post-edit-quality-reminder`: post-edit lint/test reminders
-- `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
-- `production-shell-guard`: interactive shells into production-like workloads and containers
-- `prod-target-guard`: direct mutating commands against production-like targets
-- `prod-db-shell-guard`: direct shells into production-like databases, caches, and data stores
-- `prod-db-dump-guard`: dump and export commands aimed at production-like databases and customer data stores
-- `protect-secrets-read`: local secret file access
-- `protect-sensitive-files`: risky file-category edits
-- `protect-tests`: test weakening and quality suppression patterns
-- `remote-script-dropper-guard`: remote content dropped into executable or script paths
-- `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
-- `registry-target-guard`: publish and login flows that target unexpected registries
-- `public-artifact-secret-guard`: secret-bearing files copied into public, static, build, or release artifact paths
-- `secret-manager-abuse-guard`: agent-driven pulls from Vault, 1Password, and cloud secret-manager backends
-- `registry-credential-guard`: direct reads and exports of package and container registry credentials
-- `release-key-guard`: reads and exports of release-signing and provenance key material
-- `scheduled-task-persistence-guard`: cron, launchd, systemd, and scheduled-task persistence
-- `shell-profile-persistence-guard`: suspicious downloader or execution payloads added to shell profiles
-- `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
-- `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
-- `ssh-authorized-keys-guard`: agent-driven writes to SSH authorized keys and login trust material
-- `ssh-proxycommand-guard`: ProxyCommand and LocalCommand hooks that add covert execution to SSH flows
-- `ssh-trust-downgrade-guard`: host verification and known-host trust downgrades in SSH commands or config
-- `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
-- `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files
-- `skill-install-source-guard`: unreviewed raw, temp, or sideloaded skill install sources
-- `skill-multi-stage-dropper-guard`: trusted skill or instruction docs that embed fetch-save-execute or decode-then-run chains
-- `skill-trust-boundary-tamper-guard`: prompt-override and guard-bypass language added to trusted skill and command files
-- `test-fixture-secret-guard`: live secrets written into tests, fixtures, and snapshots
-- `token-paste-guard`: live API token and private-key paste detection
-- `tool-origin-guard`: risky MCP or tool origins in config files
-- `tool-capability-escalation-guard`: MCP tool definitions that combine broad shell, file, and network reach in one widened surface
-- `instruction-override-bridge-guard`: trusted instruction files that tell the runtime to bypass Runwall or trust tool output over local policy
-- `trusted-config-symlink-guard`: symlink redirection of trusted policy, plugin, MCP, and instruction files
-- `sudoers-tamper-guard`: edits that weaken sudo password and privilege policy
-- `terraform-destroy-guard`: destructive Terraform, OpenTofu, Terragrunt, and Pulumi teardown flows
-- `unexpected-registry-login-guard`: package and container logins or registry rewrites that target hosts outside the reviewed set
-- `workspace-boundary-guard`: system-path and deep-parent boundary escapes
+### Secrets & Identity
+
+Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.
+
+- `agent-session-secret-guard`: Blocks reads and exports of local auth, token, and session stores used by coding agents.
+- `browser-cookie-guard`: Blocks reads and exports of browser cookie, login, and session stores.
+- `browser-profile-export-guard`: Blocks copying or archiving full browser profiles that can contain sessions and saved credentials.
+- `browser-remote-debug-guard`: Blocks browser remote-debugging launches that expose live sessions and cookies to the runtime.
+- `clipboard-exfiltration-guard`: Blocks copying likely secrets and tokens into clipboard tools.
+- `cloud-credential-assume-guard`: Prompts when agents try to assume cloud roles or impersonate service accounts for fresh runtime credentials.
+- `cloud-key-creation-guard`: Blocks agent-driven creation of long-lived cloud access keys and service-account credentials.
+- `config-secret-inline-guard`: Blocks live tokens and private keys from being inlined into workflow, deployment, and application config files.
+- `credential-export-guard`: Blocks commands that export live credential material into files, clipboard channels, or outbound transfers.
+- `desktop-credential-store-guard`: Blocks direct access to OS-backed credential stores such as Keychain, libsecret, and Windows Credential Manager.
+- `env-sample-secret-guard`: Blocks real secrets from being written into samples, examples, and demo environment files.
+- `git-credential-store-guard`: Blocks plaintext git credential storage and direct reads of git credential stores.
+- `netrc-credential-guard`: Blocks direct reads and exports of .netrc credential files.
+- `oauth-device-flow-guard`: Prompts when agent-driven device-code and browserless OAuth login flows try to mint delegated user access.
+- `package-manager-auth-inline-guard`: Blocks live tokens and credentials pasted into package-manager auth files and config.
+- `pre-push-scan`: Scans source files for likely secrets, internal network data, and connection strings before push.
+- `protect-secrets-read`: Blocks reads and direct tool access to local secret files like .env, cloud credentials, SSH keys, and kube config.
+- `registry-credential-guard`: Blocks direct reads and exports of package and container registry credential files.
+- `release-key-guard`: Blocks reads and exports of release signing keys and provenance key material.
+- `secret-diff-guard`: Blocks live connection strings and auth-bearing config content before they become part of the working diff.
+- `secret-manager-abuse-guard`: Prompts when agents pull live secrets directly from Vault, cloud secret managers, or desktop password tooling.
+- `test-fixture-secret-guard`: Blocks live tokens and private keys from being written into tests, fixtures, or snapshots.
+- `token-broker-guard`: Prompts on live token minting, delegated session helpers, and cached auth-broker flows.
+- `token-paste-guard`: Blocks likely live API tokens and private keys from being pasted into tool inputs or file edits.
+
+### Supply Chain & Dependencies
+
+Guards that watch package, registry, CI, artifact, and provider trust boundaries before dependency and release workflows turn into compromise.
+
+- `artifact-poisoning-guard`: Blocks direct tampering with release artifacts, checksums, and signature material outside the normal packaging path.
+- `ci-artifact-secret-upload-guard`: Blocks CI artifact uploads and release bundles that include secret-bearing files.
+- `ci-secret-release-guard`: Blocks CI and release changes that widen token exposure, trust boundaries, or release permissions.
+- `ci-self-hosted-runner-guard`: Blocks high-risk workflow patterns that combine self-hosted runners with untrusted PR triggers.
+- `dependency-script-guard`: Blocks install-time and build-time dependency script changes that fetch or execute remote code.
+- `package-lock-source-swap-guard`: Prompts when lockfiles or package source config shift to unreviewed registries or raw artifact hosts.
+- `package-publish-guard`: Warns when the agent is about to publish packages, releases, or pushed artifacts outside the repo boundary.
+- `public-artifact-secret-guard`: Blocks copying secrets and key material into public, build, release, or artifact directories.
+- `registry-target-guard`: Blocks publish and login flows that target unexpected package or container registries.
+- `terraform-provider-source-swap-guard`: Prompts when Terraform or OpenTofu provider sources move to unreviewed registries or namespaces.
+
+### Git & Source Control
+
+Guards that protect repository integrity, provenance, remotes, hooks, and source-distribution trust in everyday git workflows.
+
+- `block-unsafe-git`: Blocks hook bypasses, force pushes to protected branches, and hard resets on protected branches.
+- `git-attributes-filter-guard`: Blocks filter, smudge, and clean hooks injected through git attributes or git config.
+- `git-history-rewrite-guard`: Blocks broad git history rewrite and purge flows that can destroy provenance and review context.
+- `git-hook-persistence-guard`: Blocks risky execution and network behavior being added to git hook persistence paths.
+- `git-remote-rewire-guard`: Prompts when git remotes are repointed to unreviewed hosts or raw IPs.
+- `git-submodule-source-swap-guard`: Prompts when git submodule URLs move to unreviewed hosts or raw sources.
+- `signed-commit-bypass-guard`: Blocks changes that disable commit or tag signing and weaken provenance checks.
+
+### MCP, Plugins & Skills
+
+Guards that keep MCP servers, tools, plugins, skills, and instruction files from becoming a hidden second control plane.
+
+- `abuse-chain-defense`: Blocks remote-instruction writes, rule-override language in control files, and secret-plus-transfer command chains.
+- `indirect-prompt-injection-guard`: Warns on hidden instructions, jailbreak text, encoded payloads, and smuggled prompt-injection content found in tool output.
+- `instruction-override-bridge-guard`: Blocks trusted instruction files that tell the runtime to bypass Runwall or trust tool output over local policy.
+- `instruction-source-dropper-guard`: Blocks remote content from being written directly into AGENTS, CLAUDE, skills, or Claude command files.
+- `mcp-binary-dropper-guard`: Redacts upstream MCP responses that look like executable, archive, or second-stage payload material.
+- `mcp-bulk-read-exfil-guard`: Prompts for review when an MCP tool call bundles multiple secret-like read targets into one request.
+- `mcp-egress-destination-class-guard`: Blocks or prompts on MCP requests that target webhooks, paste sites, gist-like hosts, or blob storage according to outbound policy.
+- `mcp-egress-policy-guard`: Prompts or blocks when an MCP request targets a destination outside the configured per-profile outbound policy.
+- `mcp-egress-private-network-guard`: Blocks or prompts on MCP requests that target private IP space, localhost, or link-local destinations according to outbound policy.
+- `mcp-install-source-allowlist`: Blocks MCP and plugin install sources outside a reviewed allowlist.
+- `mcp-parameter-smuggling-guard`: Blocks MCP tool-call arguments that hide prompt overrides, encoded payloads, or inline execution chains.
+- `mcp-permission-guard`: Blocks broad or high-risk MCP and tool permission grants in MCP control files.
+- `mcp-response-prompt-smuggling-guard`: Redacts upstream MCP responses that contain hidden prompt injection or policy-override text.
+- `mcp-response-secret-leak-guard`: Redacts upstream MCP responses that contain live secret or credential material.
+- `mcp-response-shell-snippet-guard`: Blocks upstream MCP responses that contain fetch-and-execute chains, encoded shells, or staged interpreter snippets.
+- `mcp-response-suspicious-url-guard`: Prompts for review when upstream MCP responses contain risky outbound URLs such as paste sites, webhooks, raw gists, or private endpoints.
+- `mcp-secret-env-guard`: Warns when high-value secret environment variables are forwarded into MCP server definitions.
+- `mcp-server-command-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains inside MCP server definitions.
+- `mcp-tool-impersonation-guard`: Blocks upstream MCP tools that spoof trusted Runwall or control-plane tool names.
+- `mcp-tool-schema-widening-guard`: Blocks sensitive MCP tools that suddenly widen into free-form schemas.
+- `mcp-upstream-swap-guard`: Blocks inline gateway upstream entries that switch to remote, sideloaded, or scratch-path server sources.
+- `plugin-exec-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains embedded in plugin hook and command definitions.
+- `plugin-hook-origin-guard`: Blocks plugin hook commands that execute code from temp, download, scratch, or other paths outside the plugin trust boundary.
+- `plugin-manifest-guard`: Blocks risky plugin and extension sources being added through manifest files.
+- `plugin-surface-expansion-guard`: Blocks plugins that widen their hook surface through sensitive lifecycle command hooks or broad shell-plus-mutation coverage.
+- `plugin-trust-boundary-tamper-guard`: Blocks plugins that try to weaken Claude, MCP, plugin, or Runwall control files after install.
+- `plugin-update-source-swap-guard`: Blocks plugin update metadata that swaps reviewed sources to risky remote or scratch locations.
+- `sideloaded-extension-guard`: Blocks sideloaded local plugin and extension installs from temp, download, archive, or unpacked paths outside reviewed sources.
+- `skill-exec-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files.
+- `skill-install-source-guard`: Blocks sideloaded or raw skill install sources outside a reviewed allowlist.
+- `skill-multi-stage-dropper-guard`: Blocks trusted skill or instruction docs that embed fetch-save-execute or decode-then-run chains.
+- `skill-trust-boundary-tamper-guard`: Blocks prompt-override and guard-bypass language being added to AGENTS, CLAUDE, skills, or Claude command files.
+- `tool-capability-escalation-guard`: Blocks MCP tool definitions that combine broad shell, file, and network reach in one widened capability surface.
+- `tool-origin-guard`: Blocks risky MCP or tool origins such as temp paths, shell-wrapper commands, and untrusted remote sources in tool config files.
+
+### Runtime, Network & Egress
+
+Guards that constrain outbound movement, runtime escape paths, droppers, and high-risk network behavior while staying quiet in normal dev work.
+
+- `archive-and-upload-guard`: Blocks archive-and-transfer command chains that package sensitive or high-value material for outbound upload.
+- `binary-payload-guard`: Blocks downloaded or decoded executable payloads from being staged for local execution.
+- `block-dangerous-commands`: Stops remote shell piping, destructive permission changes, and a few high-confidence destructive commands.
+- `cloud-metadata-guard`: Blocks access to cloud instance metadata endpoints that can expose credentials or identity context.
+- `dns-exfiltration-guard`: Blocks DNS queries and lookups that carry encoded or sensitive material out of the workspace.
+- `local-tunnel-guard`: Blocks public exposure of local services through tunnel and reverse-port-forward tooling.
+- `local-webhook-guard`: Blocks webhook-style outbound sinks when they are used to move secrets, archives, or repo material.
+- `network-exfiltration`: Blocks suspicious outbound transfer commands when they reference secret files, key material, or database dumps.
+- `remote-script-dropper-guard`: Blocks remote content being dropped into script or executable paths in preparation for local execution.
+- `repo-mass-harvest-guard`: Blocks bulk repo packing and enumeration patterns that look ready for export or staging.
+- `tunnel-beacon-guard`: Blocks reverse tunnels, local exposure tools, and beacon-style remote access setup.
+- `workspace-boundary-guard`: Blocks system-path and deep-parent traversal patterns that leave normal workspace boundaries.
+
+### Infra & Production Access
+
+Guards that make production, cluster, database, and infrastructure actions much harder to trigger accidentally or maliciously.
+
+- `cluster-admin-binding-guard`: Blocks creation or application of cluster-admin role bindings and equivalent high-trust RBAC grants.
+- `container-escape-guard`: Blocks privileged container launches, host mounts, and namespace abuse that turn containers into host escape paths.
+- `container-socket-guard`: Blocks direct access to Docker, containerd, CRI-O, and Podman sockets.
+- `dangerous-migration-guard`: Blocks destructive migration patterns such as data-loss flags, table drops, and reset flows.
+- `devcontainer-trust-guard`: Blocks devcontainer and Codespaces-style config changes that weaken isolation or add remote setup execution.
+- `docker-build-secret-leak-guard`: Blocks secret-bearing build args and secret-file mounts that would leak credentials into image builds or build logs.
+- `kube-exec-prod-guard`: Blocks direct exec, attach, and debug access into production-like Kubernetes targets.
+- `kube-secret-guard`: Blocks direct reads and edits of live Kubernetes secrets through kubectl command flows.
+- `kubectl-port-forward-prod-guard`: Blocks port-forwarding against production-like Kubernetes targets.
+- `prod-db-dump-guard`: Blocks dump and export commands aimed at production-like databases and customer data stores.
+- `prod-db-shell-guard`: Blocks direct interactive database shell access when the target looks like production or customer data.
+- `prod-target-guard`: Blocks direct mutating commands against production-like deploy and infrastructure targets.
+- `production-shell-guard`: Blocks interactive shell access into production-like workloads and targets.
+- `terraform-destroy-guard`: Blocks destructive infrastructure teardown commands before they hit Terraform, OpenTofu, Terragrunt, or Pulumi state.
+
+### Trust, Persistence & Evasion
+
+Guards that catch persistence, trust downgrades, log wiping, symlink hijacks, and other attempts to weaken the local security boundary first.
+
+- `audit-evasion-guard`: Blocks shell history, event log, and Runwall audit trail clearing behavior.
+- `config-tamper-guard`: Blocks edits that weaken Claude, MCP, or CI control files with bypass or wildcard-permission patterns.
+- `credential-helper-downgrade-guard`: Blocks auth-helper changes that fall back to plaintext credential stores or disabled secure keychains.
+- `hosts-file-tamper-guard`: Blocks local hosts-file remaps for high-trust infrastructure domains.
+- `local-ca-trust-guard`: Prompts when the runtime tries to add new root or trust-anchor certificates to the machine.
+- `log-poisoning-guard`: Blocks secret leaks and forged audit artifacts from being written into logs, reports, SARIF, or Runwall evidence files.
+- `sandbox-escape-guard`: Blocks host-mount, namespace, and privileged-runtime patterns associated with sandbox escape attempts.
+- `sandbox-policy-tamper-guard`: Blocks changes that weaken Docker, compose, and devcontainer isolation with privileged flags or host-linked options.
+- `scheduled-task-persistence-guard`: Blocks recurring OS task, service, and launch-item registration that can be used for persistence.
+- `shell-profile-persistence-guard`: Blocks suspicious downloader or execution payloads from being added to shell or PowerShell profile files.
+- `ssh-agent-abuse-guard`: Blocks agent forwarding and SSH agent extraction patterns that widen key trust boundaries.
+- `ssh-authorized-keys-guard`: Blocks agent-driven writes to authorized_keys and related SSH login trust material.
+- `ssh-config-include-guard`: Blocks SSH config includes and indirection to temp, download, or otherwise unreviewed paths.
+- `ssh-proxycommand-guard`: Blocks ProxyCommand, LocalCommand, and related SSH config hooks that create covert execution paths.
+- `ssh-trust-downgrade-guard`: Blocks SSH commands and config changes that disable host verification or known-host trust checks.
+- `sudoers-tamper-guard`: Blocks edits that weaken sudo policy or password requirements.
+- `trusted-config-symlink-guard`: Blocks symlink redirection of trusted config, policy, and instruction files.
+
+### Quality & Workflow
+
+Guards that keep workflow integrity intact so the runtime cannot quietly suppress tests, evade review, or blur accountability.
+
+- `context-chain-guard`: Adds subagent-aware runtime prompts and session-scoped risky chain detection without requiring whole-agent interception.
+- `mass-delete-guard`: Blocks broad destructive delete patterns outside common generated-file cleanup directories.
+- `post-edit-quality-reminder`: Suggests formatting, linting, and test commands based on the files the agent just touched.
+- `protect-sensitive-files`: Warns after edits to risky files like package manifests, env files, workflows, and deploy config.
+- `protect-tests`: Warns when the agent edits test files or introduces skip and focus markers that can silently reduce coverage.
+- `unexpected-registry-login-guard`: Prompts when agents try to log into or reconfigure package registries outside the reviewed default set.
 
 ## FFU Pipeline A
 
 - `mcp-secret-scope-guard`: block MCP configs that request secret scope outside declared need
-- `secret-diff-guard`: block secrets at edit time before they ever reach pre-push
-- `token-broker-guard`: block local token broker and cached SSO helper abuse outside reviewed flows
+- `oauth-token-exchange-guard`: block token exchange and delegated session minting flows that do not map to a reviewed identity broker
+- `secret-redaction-guard`: require redacted examples instead of live secret examples in docs, fixtures, and generated samples
 
 ## FFU Pipeline B
 
-- `local-tunnel-guard`: block ngrok, serveo, and localtunnel exposure paths
-- `oauth-token-exchange-guard`: block token exchange and delegated session minting flows
-- `secret-redaction-guard`: require redacted examples instead of live secret examples in docs and fixtures
-- `credential-helper-downgrade-guard`: block package and registry auth changes that fall back to plaintext helpers or files
+- `tool-reputation-freeze-guard`: pin reviewed tool identities locally and force review before a trusted tool source can rotate underneath the same name
+- `mcp-capability-overlay-guard`: detect when multiple MCP servers together create a toxic read-plus-exfil execution surface that no single server exposes alone
+- `skill-approval-path-guard`: require reviewed install or update paths for skill bundles even when the source host looks legitimate
+- `response-trust-escalation-guard`: stop tool output from convincing the runtime to treat newly returned hosts, binaries, or registries as trusted by default

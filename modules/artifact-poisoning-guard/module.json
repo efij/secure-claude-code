@@ -4,7 +4,10 @@
   "description": "Blocks direct tampering with release artifacts, checksums, and signature material outside the normal packaging path.",
   "category": "supply-chain",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/artifact-poisoning-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Supply Chain & Dependencies"
 }

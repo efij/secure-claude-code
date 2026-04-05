@@ -4,7 +4,10 @@
   "description": "Blocks agent-driven creation of long-lived cloud access keys and service-account credentials.",
   "category": "cloud",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/cloud-key-creation-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }

@@ -4,7 +4,10 @@
   "description": "Blocks plaintext git credential storage and direct reads of git credential stores.",
   "category": "secrets",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Read|Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/git-credential-store-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }

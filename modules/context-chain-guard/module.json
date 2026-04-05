@@ -4,7 +4,11 @@
   "description": "Adds subagent-aware runtime prompts and session-scoped risky chain detection without requiring whole-agent interception.",
   "category": "runtime",
   "kind": "prompt",
-  "default_profiles": ["minimal", "balanced", "strict"],
+  "default_profiles": [
+    "minimal",
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "workflow.md"
@@ -94,5 +98,6 @@
       "type": "command",
       "command": "bash ~/.runwall/hooks/context-chain-guard.sh PostToolUse mcp_generic \"$TOOL_INPUT\""
     }
-  ]
+  ],
+  "family": "Quality & Workflow"
 }

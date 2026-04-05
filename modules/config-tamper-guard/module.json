@@ -4,7 +4,10 @@
   "description": "Blocks edits that weaken Claude, MCP, or CI control files with bypass or wildcard-permission patterns.",
   "category": "config",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "review-checklist.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/config-tamper-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Trust, Persistence & Evasion"
 }

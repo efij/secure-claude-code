@@ -1,0 +1,22 @@
+{
+  "id": "token-broker-guard",
+  "name": "Token Broker Guard Pack",
+  "description": "Prompts on live token minting, delegated session helpers, and cached auth-broker flows.",
+  "category": "identity",
+  "kind": "prompt",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "context-discipline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/token-broker-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Secrets & Identity"
+}

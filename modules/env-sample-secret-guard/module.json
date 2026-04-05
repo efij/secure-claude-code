@@ -1,0 +1,22 @@
+{
+  "id": "env-sample-secret-guard",
+  "name": "Environment Sample Secret Guard Pack",
+  "description": "Blocks real secrets from being written into samples, examples, and demo environment files.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/env-sample-secret-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Secrets & Identity"
+}

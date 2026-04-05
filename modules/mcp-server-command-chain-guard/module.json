@@ -4,7 +4,10 @@
   "description": "Blocks dangerous download-and-execute or inline interpreter chains inside MCP server definitions.",
   "category": "mcp",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "tool-safety.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/mcp-server-command-chain-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

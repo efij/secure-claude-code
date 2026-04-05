@@ -4,7 +4,10 @@
   "description": "Blocks dangerous download-and-execute or inline interpreter chains embedded in plugin hook and command definitions.",
   "category": "plugin",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/plugin-exec-chain-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

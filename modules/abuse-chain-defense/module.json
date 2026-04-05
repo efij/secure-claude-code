@@ -4,7 +4,10 @@
   "description": "Blocks remote-instruction writes, rule-override language in control files, and secret-plus-transfer command chains.",
   "category": "abuse",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "change-safety.md"
@@ -14,6 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }
-

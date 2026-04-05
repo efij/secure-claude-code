@@ -4,7 +4,10 @@
   "description": "Blocks changes that disable commit or tag signing and weaken provenance checks.",
   "category": "integrity",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/signed-commit-bypass-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Git & Source Control"
 }

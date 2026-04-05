@@ -1,0 +1,22 @@
+{
+  "id": "secret-diff-guard",
+  "name": "Secret Diff Guard Pack",
+  "description": "Blocks live connection strings and auth-bearing config content before they become part of the working diff.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/secret-diff-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Secrets & Identity"
+}

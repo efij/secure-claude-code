@@ -4,7 +4,10 @@
   "description": "Blocks reads and direct tool access to local secret files like .env, cloud credentials, SSH keys, and kube config.",
   "category": "files",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "review-checklist.md"
@@ -14,6 +17,6 @@
     "matcher": "Read|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Secrets & Identity"
 }
-

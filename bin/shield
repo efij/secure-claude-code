@@ -605,16 +605,23 @@ import sys
 
 modules_dir = pathlib.Path(sys.argv[1])
 print("Protections:")
+grouped = {}
 for manifest_path in sorted(modules_dir.glob("*/module.json")):
     manifest = json.loads(manifest_path.read_text())
-    category = manifest.get("category", "general")
-    default_profiles = ",".join(manifest.get("default_profiles", []))
-    print(
-        f"  - {manifest['id']} [{category}] ({default_profiles or 'custom'})"
-    )
-    print(
-        f"    {manifest.get('name', manifest['id'])}: {manifest['description']}"
-    )
+    family = manifest.get("family") or manifest.get("category", "general")
+    grouped.setdefault(family, []).append(manifest)
+for family in sorted(grouped):
+    print(f"  {family}:")
+    for manifest in grouped[family]:
+        category = manifest.get("category", "general")
+        kind = manifest.get("kind", "guard")
+        default_profiles = ",".join(manifest.get("default_profiles", []))
+        print(
+            f"    - {manifest['id']} [{category}/{kind}] ({default_profiles or 'custom'})"
+        )
+        print(
+            f"      {manifest.get('name', manifest['id'])}: {manifest['description']}"
+        )
 PY
 }
 

@@ -1,0 +1,22 @@
+{
+  "id": "credential-helper-downgrade-guard",
+  "name": "Credential Helper Downgrade Guard Pack",
+  "description": "Blocks auth-helper changes that fall back to plaintext credential stores or disabled secure keychains.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/credential-helper-downgrade-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Trust, Persistence & Evasion"
+}

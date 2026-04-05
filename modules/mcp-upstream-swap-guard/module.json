@@ -4,7 +4,10 @@
   "description": "Blocks inline gateway upstream entries that switch to remote, sideloaded, or scratch-path server sources.",
   "category": "mcp",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "tool-safety.md"
@@ -14,5 +17,6 @@
     "matcher": "GatewayRegistry",
     "type": "command",
     "command": "bash ~/.runwall/hooks/mcp-upstream-swap-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "MCP, Plugins & Skills"
 }

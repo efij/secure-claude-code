@@ -1,0 +1,22 @@
+{
+  "id": "kubectl-port-forward-prod-guard",
+  "name": "Kubectl Port Forward Prod Guard Pack",
+  "description": "Blocks port-forwarding against production-like Kubernetes targets.",
+  "category": "infra",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/kubectl-port-forward-prod-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Infra & Production Access"
+}

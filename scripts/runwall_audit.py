@@ -84,6 +84,7 @@ class Finding:
     title: str
     severity: str
     category: str
+    family: str
     file: str
     line: int
     evidence: str
@@ -98,6 +99,7 @@ class Finding:
             "title": self.title,
             "severity": self.severity,
             "category": self.category,
+            "family": self.family,
             "file": self.file,
             "line": self.line,
             "evidence": self.evidence,
@@ -114,6 +116,7 @@ class AuditEngine:
         self.root = root
         self.profile = profile
         self.config_dir = pathlib.Path(__file__).resolve().parents[1] / "config"
+        self.guard_families = self._load_guard_families()
         self.findings: list[Finding] = []
         self.secret_patterns = self._compile_patterns("mcp-response-secrets.regex")
         self.prompt_patterns = self._compile_patterns(
@@ -146,6 +149,17 @@ class AuditEngine:
                 except re.error:
                     continue
         return patterns
+
+    def _load_guard_families(self) -> dict[str, str]:
+        manifests = pathlib.Path(__file__).resolve().parents[1] / "modules"
+        families: dict[str, str] = {}
+        for manifest_path in manifests.glob("*/module.json"):
+            try:
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            families[manifest["id"]] = manifest.get("family", manifest.get("category", "general"))
+        return families
 
     def walk_files(self) -> list[pathlib.Path]:
         paths: list[pathlib.Path] = []
@@ -192,6 +206,7 @@ class AuditEngine:
                 title=title,
                 severity=severity,
                 category=category,
+                family=self.guard_families.get(guard_id, "Unclassified"),
                 file=rel,
                 line=line,
                 evidence=evidence[:160],
@@ -360,8 +375,10 @@ class AuditEngine:
     def summary(self) -> dict[str, Any]:
         scores = self.category_scores()
         counts = {level: 0 for level in SEVERITY_WEIGHTS}
+        family_counts: dict[str, int] = {}
         for finding in self.findings:
             counts[finding.severity] += 1
+            family_counts[finding.family] = family_counts.get(finding.family, 0) + 1
         return {
             "path": str(self.root),
             "profile": self.profile,
@@ -370,6 +387,7 @@ class AuditEngine:
             "filesScanned": len(self.walk_files()),
             "findings": [finding.to_dict() for finding in self.findings],
             "counts": counts,
+            "familyBreakdown": family_counts,
             "scoreBreakdown": {
                 category: {"label": CATEGORY_LABELS[category], "score": value}
                 for category, value in scores.items()
@@ -388,6 +406,9 @@ def render_text(report: dict[str, Any]) -> str:
     for item in report["scoreBreakdown"].values():
         bar = "#" * item["score"] + "-" * (20 - item["score"])
         lines.append(f"{item['label']:<12} {bar} {item['score']}")
+    lines.extend(["", "Guard Families"])
+    for family, count in sorted(report.get("familyBreakdown", {}).items()):
+        lines.append(f"{family:<32} {count}")
     lines.extend(["", "Findings"])
     if not report["findings"]:
         lines.append("No findings.")
@@ -397,6 +418,7 @@ def render_text(report: dict[str, Any]) -> str:
                 f"- {finding['severity'].upper():8} {finding['title']} "
                 f"({finding['file']}:{finding['line']})"
             )
+            lines.append(f"  Family: {finding.get('family', 'Unclassified')}")
             lines.append(f"  Evidence: {finding['evidence']}")
             lines.append(f"  Guard: {finding['guardId']}")
             lines.append(f"  Fix: {finding['fix']}")
@@ -411,6 +433,7 @@ def render_html(report: dict[str, Any]) -> str:
             f"<div class='sev sev-{html.escape(finding['severity'])}'>{html.escape(finding['severity'].upper())}</div>"
             f"<h3>{html.escape(finding['title'])}</h3>"
             f"<p><strong>{html.escape(finding['file'])}:{finding['line']}</strong></p>"
+            f"<p><strong>Family:</strong> {html.escape(finding.get('family', 'Unclassified'))}</p>"
             f"<p>{html.escape(finding['description'])}</p>"
             f"<pre>{html.escape(finding['evidence'])}</pre>"
             f"<p><strong>Runtime guard:</strong> {html.escape(finding['guardId'])}</p>"
@@ -420,6 +443,10 @@ def render_html(report: dict[str, Any]) -> str:
     breakdown = "".join(
         f"<li><span>{html.escape(item['label'])}</span><strong>{item['score']}/20</strong></li>"
         for item in report["scoreBreakdown"].values()
+    )
+    family_breakdown = "".join(
+        f"<li><span>{html.escape(family)}</span><strong>{count}</strong></li>"
+        for family, count in sorted(report.get("familyBreakdown", {}).items())
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -462,6 +489,10 @@ def render_html(report: dict[str, Any]) -> str:
       </div>
     </section>
     <section class="card">
+      <h2>Guard Families</h2>
+      <ul>{family_breakdown or '<li><span>No findings</span><strong>0</strong></li>'}</ul>
+    </section>
+    <section class="card">
       <h2>Findings</h2>
       {''.join(items) if items else '<p class="sub">No findings.</p>'}
     </section>
@@ -483,7 +514,7 @@ def render_sarif(report: dict[str, Any]) -> str:
                     "name": finding["title"],
                     "shortDescription": {"text": finding["title"]},
                     "fullDescription": {"text": finding["description"]},
-                    "properties": {"category": finding["category"], "guardId": finding["guardId"]},
+                    "properties": {"category": finding["category"], "family": finding.get("family"), "guardId": finding["guardId"]},
                 }
             )
             seen.add(finding["id"])

@@ -4,7 +4,9 @@
   "description": "Stops remote shell piping, destructive permission changes, and a few high-confidence destructive commands.",
   "category": "shell",
   "kind": "block",
-  "default_profiles": ["strict"],
+  "default_profiles": [
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "change-safety.md"
@@ -14,5 +16,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/block-dangerous-commands.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Runtime, Network & Egress"
 }

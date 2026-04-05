@@ -4,7 +4,11 @@
   "description": "Blocks hook bypasses, force pushes to protected branches, and hard resets on protected branches.",
   "category": "git",
   "kind": "block",
-  "default_profiles": ["minimal", "balanced", "strict"],
+  "default_profiles": [
+    "minimal",
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "security-baseline.md",
     "workflow.md"
@@ -14,5 +18,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/block-unsafe-git.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Git & Source Control"
 }

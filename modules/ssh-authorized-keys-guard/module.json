@@ -4,7 +4,10 @@
   "description": "Blocks agent-driven writes to authorized_keys and related SSH login trust material.",
   "category": "persistence",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit|Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/ssh-authorized-keys-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Trust, Persistence & Evasion"
 }

@@ -4,7 +4,10 @@
   "description": "Warns after edits to risky files like package manifests, env files, workflows, and deploy config.",
   "category": "files",
   "kind": "warn",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "review-checklist.md"
@@ -14,5 +17,6 @@
     "matcher": "Write|Edit|MultiEdit",
     "type": "command",
     "command": "bash ~/.runwall/hooks/protect-sensitive-files.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Quality & Workflow"
 }

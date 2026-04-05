@@ -4,7 +4,10 @@
   "description": "Blocks broad git history rewrite and purge flows that can destroy provenance and review context.",
   "category": "git",
   "kind": "block",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "change-safety.md",
     "security-baseline.md"
@@ -14,5 +17,6 @@
     "matcher": "Bash",
     "type": "command",
     "command": "bash ~/.runwall/hooks/git-history-rewrite-guard.sh \"$TOOL_INPUT\""
-  }
+  },
+  "family": "Git & Source Control"
 }

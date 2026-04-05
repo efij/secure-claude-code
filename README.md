@@ -91,6 +91,25 @@ Runwall helps you:
 
 It works well on top of Claude Code sandbox mode too. Sandboxing helps contain damage. Runwall adds guard logic on top of that containment layer.
 
+## Protection Families
+
+Runwall now groups signatures into stable families so the product reads like a real signature engine instead of a flat list:
+
+- `Secrets & Identity`: tokens, sessions, credential stores, secret managers, and delegated auth flows
+- `Supply Chain & Dependencies`: registries, CI, artifacts, release paths, and provider trust
+- `Git & Source Control`: remotes, provenance, history safety, and hook-based repo abuse
+- `MCP, Plugins & Skills`: MCP servers, tools, plugins, skills, instruction files, and prompt-smuggling paths
+- `Runtime, Network & Egress`: droppers, tunnels, exfiltration, metadata, and outbound control
+- `Infra & Production Access`: clusters, databases, infrastructure tooling, and production break-glass behavior
+- `Trust, Persistence & Evasion`: persistence, trust downgrades, audit wiping, symlink hijack, and boundary tampering
+- `Quality & Workflow`: workflow integrity, context policy, test suppression, and destructive cleanup
+
+You can inspect the active registry by family with:
+
+```bash
+./bin/runwall list protections
+```
+
 ## Who It Is For
 
 - solo developers who want safer local AI coding
@@ -220,6 +239,8 @@ cd secure-claude-code
 ```bash
 ./bin/runwall list protections
 ```
+
+The output is grouped by guard family, then by guard id and action type.
 
 ### Review supported runtimes
 

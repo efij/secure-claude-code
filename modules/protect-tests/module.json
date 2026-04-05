@@ -4,7 +4,10 @@
   "description": "Warns when the agent edits test files or introduces skip and focus markers that can silently reduce coverage.",
   "category": "quality",
   "kind": "warn",
-  "default_profiles": ["balanced", "strict"],
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
   "rules": [
     "workflow.md",
     "review-checklist.md"
@@ -22,5 +25,6 @@
       "type": "command",
       "command": "bash ~/.runwall/hooks/protect-tests.sh \"$TOOL_INPUT\""
     }
-  ]
+  ],
+  "family": "Quality & Workflow"
 }

@@ -1,0 +1,22 @@
+{
+  "id": "ssh-config-include-guard",
+  "name": "SSH Config Include Guard Pack",
+  "description": "Blocks SSH config includes and indirection to temp, download, or otherwise unreviewed paths.",
+  "category": "trust",
+  "kind": "block",
+  "default_profiles": [
+    "balanced",
+    "strict"
+  ],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Write|Edit|MultiEdit|Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/ssh-config-include-guard.sh \"$TOOL_INPUT\""
+  },
+  "family": "Trust, Persistence & Evasion"
+}
