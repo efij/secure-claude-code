@@ -21,9 +21,13 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `browser-cookie-guard`: browser cookie, login, and session-store access
 - `browser-profile-export-guard`: copying or archiving full browser profiles with live sessions and saved credentials
 - `cloud-key-creation-guard`: creation of long-lived cloud access keys and service-account credentials
+- `cloud-credential-assume-guard`: cloud role assumption, token minting, and service-account impersonation flows that can widen access
 - `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
 - `clipboard-exfiltration-guard`: clipboard-based secret movement
 - `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
+- `config-secret-inline-guard`: live tokens, private keys, and secret literals pasted directly into app, deploy, or workflow config
+- `container-escape-guard`: privileged container runs, host namespace joins, and root filesystem mounts that break isolation boundaries
+- `docker-build-secret-leak-guard`: build-time secret leaks through `docker build`, `podman build`, or `nerdctl build` args and secret mounts
 - `container-socket-guard`: direct access to Docker, containerd, CRI-O, and Podman sockets
 - `credential-export-guard`: export of live credential material into files, clipboard, or transfers
 - `dangerous-migration-guard`: destructive schema and data-loss migration patterns
@@ -55,9 +59,11 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
+- `log-poisoning-guard`: forged Runwall markers, secret dumps, and poisoned evidence written into logs, SARIF, or incident reports
 - `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
 - `netrc-credential-guard`: direct reads and exports of `.netrc` credential files
+- `oauth-device-flow-guard`: browserless and device-code OAuth logins that mint delegated user sessions
 - `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
 - `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
@@ -70,12 +76,14 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `pre-push-scan`: push-time secret, internal-host, and connection-string scanning
 - `production-shell-guard`: interactive shells into production-like workloads and containers
 - `prod-target-guard`: direct mutating commands against production-like targets
+- `prod-db-shell-guard`: direct shells into production-like databases, caches, and data stores
 - `protect-secrets-read`: local secret file access
 - `protect-sensitive-files`: risky file-category edits
 - `protect-tests`: test weakening and quality suppression patterns
 - `remote-script-dropper-guard`: remote content dropped into executable or script paths
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
 - `registry-target-guard`: publish and login flows that target unexpected registries
+- `secret-manager-abuse-guard`: agent-driven pulls from Vault, 1Password, and cloud secret-manager backends
 - `registry-credential-guard`: direct reads and exports of package and container registry credentials
 - `release-key-guard`: reads and exports of release-signing and provenance key material
 - `scheduled-task-persistence-guard`: cron, launchd, systemd, and scheduled-task persistence
@@ -96,21 +104,19 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `instruction-override-bridge-guard`: trusted instruction files that tell the runtime to bypass Runwall or trust tool output over local policy
 - `trusted-config-symlink-guard`: symlink redirection of trusted policy, plugin, MCP, and instruction files
 - `sudoers-tamper-guard`: edits that weaken sudo password and privilege policy
+- `terraform-destroy-guard`: destructive Terraform, OpenTofu, Terragrunt, and Pulumi teardown flows
+- `unexpected-registry-login-guard`: package and container logins or registry rewrites that target hosts outside the reviewed set
 - `workspace-boundary-guard`: system-path and deep-parent boundary escapes
 
 ## FFU Pipeline A
 
 - `mcp-secret-scope-guard`: block MCP configs that request secret scope outside declared need
-- `cloud-credential-assume-guard`: block risky cloud role assumption and impersonation flows
 - `secret-diff-guard`: block secrets at edit time before they ever reach pre-push
-- `log-poisoning-guard`: block secret writes and forged entries in logs or reports
-- `oauth-device-flow-guard`: block abusive device-code and delegated auth flows
+- `token-broker-guard`: block local token broker and cached SSO helper abuse outside reviewed flows
 
 ## FFU Pipeline B
 
 - `local-tunnel-guard`: block ngrok, serveo, and localtunnel exposure paths
-- `terraform-destroy-guard`: block destructive Terraform and OpenTofu flows
-- `container-escape-guard`: block host-mount and privileged container escape patterns
 - `oauth-token-exchange-guard`: block token exchange and delegated session minting flows
 - `secret-redaction-guard`: require redacted examples instead of live secret examples in docs and fixtures
-- `unexpected-registry-login-guard`: block logins to unapproved package and container registries
+- `credential-helper-downgrade-guard`: block package and registry auth changes that fall back to plaintext helpers or files

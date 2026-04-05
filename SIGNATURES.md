@@ -70,12 +70,44 @@ This page is the plain-English deep dive for every implemented guard.
 - Example: `curl http://169.254.169.254/latest/meta-data/`
 - Action: block
 
+## cloud-credential-assume-guard
+
+- Purpose: require review before the runtime mints broader cloud access through role assumption or service-account impersonation.
+- Detects: `aws sts assume-role`, GCP impersonation flags, workload-identity credential config generation, and Azure service-principal or access-token minting flows.
+- Why it matters: these commands can quietly widen access far beyond the identity the runtime started with.
+- Example: `aws sts assume-role --role-arn arn:aws:iam::123456789012:role/Admin`
+- Action: prompt
+
 ## config-tamper-guard
 
 - Purpose: protect Claude, MCP, and security-relevant control files from weakening edits.
 - Detects: wildcard permissions, bypass phrases, and trust-boundary relaxations in security control files.
 - Why it matters: attackers often disable defenses before doing anything else.
 - Example: `.github/workflows/release.yml permissions: write-all`
+- Action: block
+
+## config-secret-inline-guard
+
+- Purpose: stop live secrets from being pasted directly into workflow, deploy, or application config.
+- Detects: real token patterns or private-key blocks inside workflow files, config files, compose files, and similar operational config.
+- Why it matters: inline secrets leak into repos, artifacts, dashboards, and downstream logs very quickly.
+- Example: `.github/workflows/deploy.yml ghp_abcdefghijklmnopqrstuvwxyz123456`
+- Action: block
+
+## container-escape-guard
+
+- Purpose: stop privileged container patterns that break the isolation boundary.
+- Detects: `--privileged`, host namespace joins, host root mounts, `docker.sock`, container runtime sockets, and `nsenter`-style escape paths.
+- Why it matters: a sandboxed agent becomes much more dangerous if it can jump back to the host.
+- Example: `docker run --privileged -v /:/host alpine sh`
+- Action: block
+
+## docker-build-secret-leak-guard
+
+- Purpose: stop live secrets from being injected into container builds.
+- Detects: secret-bearing `--build-arg` values and `--secret` sources pointing at `.env`, cloud credentials, SSH keys, or registry auth files.
+- Why it matters: build logs, layers, and cache paths are easy places for secrets to leak or persist.
+- Example: `docker build --build-arg AWS_SECRET_ACCESS_KEY=demo .`
 - Action: block
 
 ## credential-export-guard
@@ -142,6 +174,14 @@ This page is the plain-English deep dive for every implemented guard.
 - Example: `.mcp.json {"env":{"OPENAI_API_KEY":"$OPENAI_API_KEY"}}`
 - Action: warn
 
+## oauth-device-flow-guard
+
+- Purpose: pause delegated browserless login flows that mint fresh user sessions.
+- Detects: GitHub, Azure, GCP, AWS SSO, and generic OAuth device-code login patterns.
+- Why it matters: device flows create live user access that often sits outside the runtime’s original trust boundary.
+- Example: `gh auth login --web`
+- Action: prompt
+
 ## mcp-server-command-chain-guard
 
 - Purpose: stop dangerous execution chains inside MCP server definitions.
@@ -165,6 +205,14 @@ This page is the plain-English deep dive for every implemented guard.
 - Why it matters: publishing is a boundary crossing event even when the code itself is not malicious.
 - Example: `npm publish`
 - Action: warn
+
+## prod-db-shell-guard
+
+- Purpose: stop direct shells into production-like databases and data stores.
+- Detects: `psql`, `mysql`, `mongosh`, `redis-cli`, `sqlcmd`, and similar clients when the target looks like production, customer, primary, or billing infrastructure.
+- Why it matters: direct agent access to live data stores is a fast path to destructive mistakes or data exposure.
+- Example: `psql --host prod-db.internal --dbname billing`
+- Action: block
 
 ## post-edit-quality-reminder
 

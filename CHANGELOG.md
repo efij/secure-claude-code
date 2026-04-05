@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.3.0
+
+- added `oauth-device-flow-guard`
+- added `cloud-credential-assume-guard`
+- added `secret-manager-abuse-guard`
+- added `terraform-destroy-guard`
+- added `container-escape-guard`
+- added `docker-build-secret-leak-guard`
+- added `config-secret-inline-guard`
+- added `log-poisoning-guard`
+- added `unexpected-registry-login-guard`
+- added `prod-db-shell-guard`
+- expanded `balanced` and `strict` for delegated login abuse, cloud impersonation, secret-manager pulls, destructive infrastructure changes, privileged container escape, build-time secret leaks, inline config secrets, audit/report poisoning, unreviewed registry login, and direct production database shell access
+- expanded smoke coverage and generated plugin hook output for the new high-confidence guard pack set
+
 ## 4.2.0
 
 - added tool and server identity fingerprinting to the inline MCP gateway so trusted metadata is stored, compared over time, and surfaced as first-sight review, schema drift, server drift, capability expansion, and same-name collision decisions

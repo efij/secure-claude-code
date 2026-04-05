@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import argparse
 import copy
 import hashlib
@@ -1738,7 +1740,7 @@ class Gateway:
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "runwall-gateway", "version": "4.2.0"},
+                            "serverInfo": {"name": "runwall-gateway", "version": "4.3.0"},
                         },
                     },
                 )

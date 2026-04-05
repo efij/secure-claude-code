@@ -1,0 +1,18 @@
+{
+  "id": "docker-build-secret-leak-guard",
+  "name": "Docker Build Secret Leak Guard Pack",
+  "description": "Blocks secret-bearing build args and secret-file mounts that would leak credentials into image builds or build logs.",
+  "category": "containers",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/docker-build-secret-leak-guard.sh \"$TOOL_INPUT\""
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "unexpected-registry-login-guard",
+  "name": "Unexpected Registry Login Guard Pack",
+  "description": "Prompts when agents try to log into or reconfigure package registries outside the reviewed default set.",
+  "category": "supply-chain",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/unexpected-registry-login-guard.sh \"$TOOL_INPUT\""
+  }
+}

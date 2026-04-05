@@ -1,0 +1,18 @@
+{
+  "id": "cloud-credential-assume-guard",
+  "name": "Cloud Credential Assume Guard Pack",
+  "description": "Prompts when agents try to assume cloud roles or impersonate service accounts for fresh runtime credentials.",
+  "category": "identity",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/cloud-credential-assume-guard.sh \"$TOOL_INPUT\""
+  }
+}

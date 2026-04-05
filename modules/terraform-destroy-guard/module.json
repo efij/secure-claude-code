@@ -1,0 +1,18 @@
+{
+  "id": "terraform-destroy-guard",
+  "name": "Terraform Destroy Guard Pack",
+  "description": "Blocks destructive infrastructure teardown commands before they hit Terraform, OpenTofu, Terragrunt, or Pulumi state.",
+  "category": "infra",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "review-checklist.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/terraform-destroy-guard.sh \"$TOOL_INPUT\""
+  }
+}

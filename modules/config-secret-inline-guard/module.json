@@ -1,0 +1,26 @@
+{
+  "id": "config-secret-inline-guard",
+  "name": "Config Secret Inline Guard Pack",
+  "description": "Blocks live tokens and private keys from being inlined into workflow, deployment, and application config files.",
+  "category": "secrets",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "review-checklist.md",
+    "context-discipline.md"
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/config-secret-inline-guard.sh \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/config-secret-inline-guard.sh \"$TOOL_INPUT\""
+    }
+  ]
+}

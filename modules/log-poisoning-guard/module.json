@@ -1,0 +1,26 @@
+{
+  "id": "log-poisoning-guard",
+  "name": "Log Poisoning Guard Pack",
+  "description": "Blocks secret leaks and forged audit artifacts from being written into logs, reports, SARIF, or Runwall evidence files.",
+  "category": "defense-evasion",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "review-checklist.md"
+  ],
+  "hooks": [
+    {
+      "event": "PreToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/log-poisoning-guard.sh \"$TOOL_INPUT\""
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Bash",
+      "type": "command",
+      "command": "bash ~/.runwall/hooks/log-poisoning-guard.sh \"$TOOL_INPUT\""
+    }
+  ]
+}

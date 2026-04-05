@@ -1,0 +1,18 @@
+{
+  "id": "container-escape-guard",
+  "name": "Container Escape Guard Pack",
+  "description": "Blocks privileged container launches, host mounts, and namespace abuse that turn containers into host escape paths.",
+  "category": "runtime",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "tool-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/container-escape-guard.sh \"$TOOL_INPUT\""
+  }
+}

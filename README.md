@@ -29,6 +29,7 @@ That is also exactly why they need guardrails.
 Runwall helps reduce real-world risk around:
 
 - secret leakage
+- delegated OAuth logins, cloud impersonation, and secret-manager abuse
 - agent session theft and desktop credential store access
 - prompt injection and exfiltration paths
 - indirect prompt injection hidden in files, web pages, shell output, and MCP responses
@@ -41,6 +42,7 @@ Runwall helps reduce real-world risk around:
 - risky MCP and tool trust boundaries
 - malicious skill, command, and instruction-doc poisoning
 - cloud key creation and direct production shell access
+- inline config secret pastes, poisoned reports, unexpected registry logins, and direct prod database shells
 - weak local defaults in agent workflows
 
 It is practical, transparent, and built for real developer environments.
@@ -69,12 +71,15 @@ Runwall helps you:
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
 - protect secrets, keys, tokens, and sensitive files
 - block persistence through shell profiles, launch items, cron, systemd, and SSH authorized keys
+- stop delegated cloud login and role-assumption flows from silently minting broader access
+- catch secret-manager pulls, inline config secret drops, and build-time container secret leaks
 - protect trusted config and instruction files from symlink hijack or stealth cleanup
 - reduce dangerous shell, git, and repo behavior
 - stop local trust-boundary tampering such as hosts-file remaps and sudoers weakening
 - keep plaintext git, netrc, and registry credentials out of agent reach
+- flag unreviewed registry logins and block direct prod-database shell access
 - tighten MCP, plugin, skill, and tool trust boundaries
-- block cloud key creation and direct prod-shell break-glass behavior
+- block cloud key creation, destructive Terraform flows, privileged container escape, and prod-shell break-glass behavior
 - explain every runtime decision with masked previews, evidence, confidence, and a safer alternative
 - export masked incident bundles for review, triage, and post-incident handoff
 - apply a safer default profile quickly

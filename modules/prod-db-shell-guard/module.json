@@ -1,0 +1,18 @@
+{
+  "id": "prod-db-shell-guard",
+  "name": "Production Database Shell Guard Pack",
+  "description": "Blocks direct interactive database shell access when the target looks like production or customer data.",
+  "category": "infra",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/prod-db-shell-guard.sh \"$TOOL_INPUT\""
+  }
+}
