@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.4.0
+
+- added `browser-remote-debug-guard`
+- added `package-lock-source-swap-guard`
+- added `package-manager-auth-inline-guard`
+- added `git-remote-rewire-guard`
+- added `ci-self-hosted-runner-guard`
+- added `local-ca-trust-guard`
+- added `kube-exec-prod-guard`
+- added `prod-db-dump-guard`
+- added `public-artifact-secret-guard`
+- added `ssh-proxycommand-guard`
+- expanded `balanced` and `strict` for browser session exposure, supply-chain source swaps, inline package auth secrets, git remote rewrites, risky self-hosted CI exposure, local trust-store changes, production Kubernetes exec, production data dumps, artifact-path secret leaks, and SSH command-hook abuse
+- expanded smoke coverage and generated plugin hook output for the new high-confidence guard pack set
+
 ## 4.3.0
 
 - added `oauth-device-flow-guard`

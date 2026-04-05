@@ -1,0 +1,4 @@
+(^|[[:space:][:punct:]])github\.com([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])gitlab\.com([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])bitbucket\.org([[:space:][:punct:]]|$)
+(^|[[:space:][:punct:]])sourcehut\.org([[:space:][:punct:]]|$)

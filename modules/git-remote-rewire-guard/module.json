@@ -1,0 +1,18 @@
+{
+  "id": "git-remote-rewire-guard",
+  "name": "Git Remote Rewire Guard Pack",
+  "description": "Prompts when git remotes are repointed to unreviewed hosts or raw IPs.",
+  "category": "git",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/git-remote-rewire-guard.sh \"$TOOL_INPUT\""
+  }
+}

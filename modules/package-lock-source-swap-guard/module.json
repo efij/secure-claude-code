@@ -1,0 +1,18 @@
+{
+  "id": "package-lock-source-swap-guard",
+  "name": "Package Lock Source Swap Guard Pack",
+  "description": "Prompts when lockfiles or package source config shift to unreviewed registries or raw artifact hosts.",
+  "category": "supply-chain",
+  "kind": "prompt",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "security-baseline.md",
+    "change-safety.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/package-lock-source-swap-guard.sh \"$TOOL_INPUT\""
+  }
+}

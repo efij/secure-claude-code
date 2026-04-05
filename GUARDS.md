@@ -20,9 +20,11 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `block-unsafe-git`: hook bypasses, force-pushes, and hard resets on protected branches
 - `browser-cookie-guard`: browser cookie, login, and session-store access
 - `browser-profile-export-guard`: copying or archiving full browser profiles with live sessions and saved credentials
+- `browser-remote-debug-guard`: browser launches that expose live sessions over remote debugging ports or pipes
 - `cloud-key-creation-guard`: creation of long-lived cloud access keys and service-account credentials
 - `cloud-credential-assume-guard`: cloud role assumption, token minting, and service-account impersonation flows that can widen access
 - `ci-secret-release-guard`: CI and release changes that widen secret exposure or release power
+- `ci-self-hosted-runner-guard`: self-hosted CI runners exposed to PR-triggered workflow execution
 - `clipboard-exfiltration-guard`: clipboard-based secret movement
 - `config-tamper-guard`: bypass-oriented weakening of Claude, MCP, and CI control files
 - `config-secret-inline-guard`: live tokens, private keys, and secret literals pasted directly into app, deploy, or workflow config
@@ -37,6 +39,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `dns-exfiltration-guard`: DNS lookups and queries carrying encoded or sensitive material
 - `git-credential-store-guard`: plaintext git credential stores and credential-helper downgrade behavior
 - `git-history-rewrite-guard`: broad git history surgery and purge flows that destroy provenance
+- `git-remote-rewire-guard`: git remotes repointed to unreviewed hosts or direct URLs
 - `hosts-file-tamper-guard`: hosts-file remaps for high-trust vendor and registry domains
 - `indirect-prompt-injection-guard`: scans tool output for hidden prompt injection, jailbreak text, obfuscation, and instruction smuggling
 - `instruction-source-dropper-guard`: remote content written directly into AGENTS, CLAUDE, skills, or Claude command files
@@ -59,11 +62,14 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `mcp-install-source-allowlist`: unreviewed MCP and plugin marketplace install sources
 - `kube-secret-guard`: direct reads and edits of live Kubernetes secrets
 - `local-webhook-guard`: webhook-style outbound exfiltration of secrets, archives, and repo material
+- `local-ca-trust-guard`: root certificate and trust-anchor store changes on the local machine
 - `log-poisoning-guard`: forged Runwall markers, secret dumps, and poisoned evidence written into logs, SARIF, or incident reports
 - `mass-delete-guard`: broad destructive deletes outside common generated-file cleanup lanes
 - `network-exfiltration`: suspicious outbound transfers with sensitive material
 - `netrc-credential-guard`: direct reads and exports of `.netrc` credential files
 - `oauth-device-flow-guard`: browserless and device-code OAuth logins that mint delegated user sessions
+- `package-lock-source-swap-guard`: lockfile and package-source changes that point at unreviewed registries or raw artifact hosts
+- `package-manager-auth-inline-guard`: live tokens and auth material written into package-manager config files
 - `artifact-poisoning-guard`: direct tampering with release artifacts, checksums, and signature material
 - `package-publish-guard`: publish and release commands that leave the local review boundary
 - `plugin-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains inside plugin commands
@@ -77,12 +83,14 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `production-shell-guard`: interactive shells into production-like workloads and containers
 - `prod-target-guard`: direct mutating commands against production-like targets
 - `prod-db-shell-guard`: direct shells into production-like databases, caches, and data stores
+- `prod-db-dump-guard`: dump and export commands aimed at production-like databases and customer data stores
 - `protect-secrets-read`: local secret file access
 - `protect-sensitive-files`: risky file-category edits
 - `protect-tests`: test weakening and quality suppression patterns
 - `remote-script-dropper-guard`: remote content dropped into executable or script paths
 - `repo-mass-harvest-guard`: bulk repo packing and enumeration for export
 - `registry-target-guard`: publish and login flows that target unexpected registries
+- `public-artifact-secret-guard`: secret-bearing files copied into public, static, build, or release artifact paths
 - `secret-manager-abuse-guard`: agent-driven pulls from Vault, 1Password, and cloud secret-manager backends
 - `registry-credential-guard`: direct reads and exports of package and container registry credentials
 - `release-key-guard`: reads and exports of release-signing and provenance key material
@@ -91,6 +99,7 @@ For the plain-English deep dive on every implemented signature, see [SIGNATURES.
 - `sideloaded-extension-guard`: local plugin archives, unpacked extensions, and sideload paths outside reviewed sources
 - `ssh-agent-abuse-guard`: agent forwarding and key-agent extraction patterns
 - `ssh-authorized-keys-guard`: agent-driven writes to SSH authorized keys and login trust material
+- `ssh-proxycommand-guard`: ProxyCommand and LocalCommand hooks that add covert execution to SSH flows
 - `ssh-trust-downgrade-guard`: host verification and known-host trust downgrades in SSH commands or config
 - `signed-commit-bypass-guard`: commit-signing and tag-signing bypass changes
 - `skill-exec-chain-guard`: dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files

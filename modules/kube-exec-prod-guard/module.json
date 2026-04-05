@@ -1,0 +1,18 @@
+{
+  "id": "kube-exec-prod-guard",
+  "name": "Kubernetes Exec Prod Guard Pack",
+  "description": "Blocks direct exec, attach, and debug access into production-like Kubernetes targets.",
+  "category": "infra",
+  "kind": "block",
+  "default_profiles": ["balanced", "strict"],
+  "rules": [
+    "change-safety.md",
+    "security-baseline.md"
+  ],
+  "hook": {
+    "event": "PreToolUse",
+    "matcher": "Bash",
+    "type": "command",
+    "command": "bash ~/.runwall/hooks/kube-exec-prod-guard.sh \"$TOOL_INPUT\""
+  }
+}

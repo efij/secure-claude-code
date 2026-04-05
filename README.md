@@ -31,6 +31,7 @@ Runwall helps reduce real-world risk around:
 - secret leakage
 - delegated OAuth logins, cloud impersonation, and secret-manager abuse
 - agent session theft and desktop credential store access
+- browser remote-debugging exposure and local trust-store tampering
 - prompt injection and exfiltration paths
 - indirect prompt injection hidden in files, web pages, shell output, and MCP responses
 - unsafe shell execution
@@ -43,6 +44,7 @@ Runwall helps reduce real-world risk around:
 - malicious skill, command, and instruction-doc poisoning
 - cloud key creation and direct production shell access
 - inline config secret pastes, poisoned reports, unexpected registry logins, and direct prod database shells
+- git remote rewires, package source swaps, self-hosted CI runner exposure, and SSH command-hook abuse
 - weak local defaults in agent workflows
 
 It is practical, transparent, and built for real developer environments.
@@ -73,13 +75,15 @@ Runwall helps you:
 - block persistence through shell profiles, launch items, cron, systemd, and SSH authorized keys
 - stop delegated cloud login and role-assumption flows from silently minting broader access
 - catch secret-manager pulls, inline config secret drops, and build-time container secret leaks
+- catch browser session exposure through remote debugging, package auth secrets in config, and secret-bearing files entering public artifacts
 - protect trusted config and instruction files from symlink hijack or stealth cleanup
 - reduce dangerous shell, git, and repo behavior
 - stop local trust-boundary tampering such as hosts-file remaps and sudoers weakening
+- pause git remote rewires, package source swaps, and local CA trust changes before trust silently widens
 - keep plaintext git, netrc, and registry credentials out of agent reach
 - flag unreviewed registry logins and block direct prod-database shell access
 - tighten MCP, plugin, skill, and tool trust boundaries
-- block cloud key creation, destructive Terraform flows, privileged container escape, and prod-shell break-glass behavior
+- block cloud key creation, destructive Terraform flows, privileged container escape, prod-shell break-glass behavior, risky prod `kubectl exec`, and direct production data dumps
 - explain every runtime decision with masked previews, evidence, confidence, and a safer alternative
 - export masked incident bundles for review, triage, and post-incident handoff
 - apply a safer default profile quickly
