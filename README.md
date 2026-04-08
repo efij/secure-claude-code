@@ -68,6 +68,8 @@ Runwall helps you:
 - block staged shell snippets and risky response payloads before they turn into follow-on execution
 - fingerprint trusted MCP servers and tools over time instead of trusting same-name metadata forever
 - detect server drift, schema drift, capability expansion, and same-name tool collisions before trust quietly widens
+- fingerprint executed CLI tools and local scripts so raw command execution gets a trust plane too, not just MCP traffic
+- catch trusted-name shadowing, temp/download execution, first-seen unreviewed PATH tools, and tool drift over time
 - require local review for suspicious multi-target MCP requests
 - enforce outbound destination policy for private IPs, metadata endpoints, webhooks, paste sites, raw gist-style hosts, and non-allowlisted egress
 - warn when tool output itself contains hidden prompt injection or jailbreak bait
@@ -90,6 +92,28 @@ Runwall helps you:
 - keep security useful without turning the workflow into sludge
 
 It works well on top of Claude Code sandbox mode too. Sandboxing helps contain damage. Runwall adds guard logic on top of that containment layer.
+
+## Tool Trust Plane
+
+Runwall now treats executed CLIs as a second trust plane beside MCP.
+
+That matters because a lot of modern agent power flows through local tools, generated CLIs, wrapper scripts, and PATH-injected helpers that never show up as MCP servers.
+
+The built-in tool trust layer fingerprints executed tools, stores local trust state in Runwall state files, typically `~/.runwall/state/tools.json` when installed, and intervenes on a few high-confidence cases:
+
+- trusted-name shadowing like fake `git`, `gh`, `kubectl`, `terraform`, `claude`, or `codex`
+- execution from temp, cache, or download paths
+- first-seen unreviewed PATH tools
+- tool drift where a previously approved command changes path, hash, or wrapper shape
+
+You can inspect and manage that local trust state with:
+
+```bash
+./bin/runwall tools list
+./bin/runwall tools list --json
+./bin/runwall tools approve <name-or-path>
+./bin/runwall tools forget <name-or-path>
+```
 
 ## Protection Families
 

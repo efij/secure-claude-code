@@ -1,0 +1,52 @@
+{
+  "high_trust_names": [
+    "git",
+    "gh",
+    "kubectl",
+    "terraform",
+    "terragrunt",
+    "tofu",
+    "docker",
+    "claude",
+    "codex",
+    "python",
+    "python3",
+    "node",
+    "npm",
+    "pnpm",
+    "yarn",
+    "bun"
+  ],
+  "auto_trust_origins": [
+    "system",
+    "package-managed"
+  ],
+  "review_origins": [
+    "workspace-local",
+    "user-local",
+    "unknown"
+  ],
+  "block_origins": [
+    "temp",
+    "download",
+    "cache"
+  ],
+  "shadow_block_origins": [
+    "workspace-local",
+    "user-local",
+    "unknown",
+    "temp",
+    "download",
+    "cache"
+  ],
+  "wrapper_block_names": [
+    "git",
+    "gh",
+    "kubectl",
+    "terraform",
+    "terragrunt",
+    "tofu",
+    "claude",
+    "codex"
+  ]
+}

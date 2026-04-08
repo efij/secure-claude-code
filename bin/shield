@@ -493,6 +493,12 @@ validate_install() {
     check_warn "tamper phrase config missing"
   fi
 
+  if [ -f "$INSTALL_HOME/config/tool-trust-policy.json" ]; then
+    check_pass "tool trust policy present"
+  else
+    check_warn "tool trust policy missing"
+  fi
+
   local expected_config_count=0
   local installed_config_count=0
   expected_config_count="$(find "$ROOT_DIR/config" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')"
@@ -639,6 +645,25 @@ Runtimes:
 Aliases:
   - claude-cowork -> generic-mcp
 EOF
+}
+
+tools_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list)
+      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" list "$@"
+      ;;
+    approve)
+      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" approve "$@"
+      ;;
+    forget)
+      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" forget "$@"
+      ;;
+    *)
+      fail "unknown tools subcommand: $subcommand"
+      ;;
+  esac
 }
 
 generate_runtime_config() {
@@ -1051,6 +1076,9 @@ Usage:
   bin/runwall list modules
   bin/runwall list protections
   bin/runwall list runtimes
+  bin/runwall tools list [--json]
+  bin/runwall tools approve <name-or-path>
+  bin/runwall tools forget <name-or-path>
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
@@ -1183,6 +1211,10 @@ case "$command" in
         exit 1
         ;;
     esac
+    ;;
+  tools)
+    shift
+    tools_cmd "$@"
     ;;
   help|-h|--help|"")
     usage

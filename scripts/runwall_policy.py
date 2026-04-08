@@ -16,6 +16,7 @@ from typing import Any
 import runwall_chain
 import runwall_forensics
 import runwall_runtime
+import runwall_tools
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -380,6 +381,7 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "event": result["event"],
             "matcher": result["matcher"],
             "hits": result["hits"],
+            "tool_identity": result.get("tool_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
             "event_categories": result.get("event_categories", []),
@@ -419,6 +421,7 @@ def evaluate(
 ):
     results = []
     action = "allow"
+    tool_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
         {
@@ -432,6 +435,15 @@ def evaluate(
         merged_context,
         default_runtime=runwall_runtime.runtime_default(root),
     )
+
+    if event == "PreToolUse" and matcher == "Bash":
+        tool_assessment = runwall_tools.assess_command(root, payload)
+        tool_identity = tool_assessment.get("identity")
+        tool_hit = tool_assessment.get("hit")
+        if tool_hit:
+            if _DECISION_PRIORITY[tool_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = tool_hit["decision"]
+            results.append(tool_hit)
 
     for manifest, hook in iter_matching_hooks(root, profile, event, matcher):
         command = hook.get("command", "")
@@ -466,6 +478,7 @@ def evaluate(
         "action": action,
         "hits": results,
         "event_id": event_record["event_id"],
+        "tool_identity": tool_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
@@ -476,11 +489,17 @@ def evaluate(
 def print_pretty(result: dict[str, Any]) -> None:
     if result["allowed"] and not result["hits"]:
         print("allowed")
+        tool_identity = result.get("tool_identity") or {}
+        if tool_identity.get("resolved_path"):
+            print(f"tool: {tool_identity.get('display_name')} -> {tool_identity.get('resolved_path')} [{tool_identity.get('origin')}]")
         return
     print(f"allowed: {'yes' if result['allowed'] else 'no'}")
     print(f"action: {result['action']}")
     print(f"profile: {result['profile']}")
     print(f"event: {result['event']} / {result['matcher']}")
+    tool_identity = result.get("tool_identity") or {}
+    if tool_identity.get("resolved_path"):
+        print(f"tool: {tool_identity.get('display_name')} -> {tool_identity.get('resolved_path')} [{tool_identity.get('origin')}]")
     for hit in result["hits"]:
         print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:

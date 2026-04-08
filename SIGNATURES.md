@@ -6,6 +6,45 @@ Each signature focuses on one attack family or trust-boundary problem. That keep
 
 This page is the plain-English deep dive for every implemented guard, grouped by family so the registry reads like a real signature engine instead of a flat list.
 
+## Built-In Runtime Guards
+
+These are native Runwall trust-plane protections for raw CLI execution. They are not shipped as standalone hook modules because they operate on resolved executable identity, provenance, and drift over time.
+
+### command-shadowing-guard
+
+- Purpose: block trusted command names that resolve to unreviewed local paths instead of the expected reviewed tool locations.
+- Detects: fake or replaced `git`, `gh`, `kubectl`, `terraform`, `claude`, `codex`, and similar names resolving to user-local, workspace, temp, or unknown paths.
+- Why it matters: command shadowing is one of the cleanest ways to evade MCP monitoring while still looking like a trusted tool call.
+- Action: block
+
+### unknown-executable-guard
+
+- Purpose: require review before a first-seen PATH tool from an unreviewed local origin joins the trusted tool plane.
+- Detects: new bare command names that resolve to user-local, workspace-local, or otherwise unreviewed paths.
+- Why it matters: generated CLIs and wrapper tools often show up this way long before they are modeled as MCP servers.
+- Action: prompt
+
+### temp-download-exec-guard
+
+- Purpose: stop ad hoc execution from temp, cache, and download paths.
+- Detects: explicit or resolved command paths under temp directories, cache directories, and download folders.
+- Why it matters: fetched or unpacked tools should not become trusted execution surfaces just because they are present locally.
+- Action: block
+
+### tool-drift-guard
+
+- Purpose: surface tool identity drift after a command has already been observed or approved once.
+- Detects: same command name resolving to a new path, hash, or execution shape.
+- Why it matters: a trusted CLI that quietly changes underneath the same name is a major trust-boundary failure.
+- Action: prompt
+
+### interpreter-wrapper-guard
+
+- Purpose: block trusted tools that suddenly resolve through inline interpreters or suspicious wrapper chains.
+- Detects: high-trust command names that now execute through `bash -c`, `python -c`, PowerShell encoded commands, or a wrapper shape that did not exist before.
+- Why it matters: wrappers are a common way to hide malicious behavior behind a familiar tool name.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

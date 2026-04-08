@@ -10,6 +10,16 @@ Runwall is organized like a local YARA-style signature engine:
 
 For the plain-English deep dive on every implemented signature, see [SIGNATURES.md](SIGNATURES.md).
 
+## Built-In Runtime Guards
+
+These protections are implemented directly in the Tool Trust Plane instead of as standalone hook modules:
+
+- `command-shadowing-guard`: blocks trusted command names that resolve to unreviewed local paths instead of reviewed system or package-managed tools
+- `unknown-executable-guard`: prompts on first-seen PATH tools from unreviewed local origins
+- `temp-download-exec-guard`: blocks execution from temp, cache, and download locations
+- `tool-drift-guard`: prompts when a previously trusted tool changes path, hash, or execution shape
+- `interpreter-wrapper-guard`: blocks trusted tools that suddenly resolve through inline interpreters or wrapper chains
+
 ## Implemented Guards
 
 ### Secrets & Identity

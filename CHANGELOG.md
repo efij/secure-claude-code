@@ -1,5 +1,15 @@
 # Changelog
 
+## 6.0.0
+
+- added a local Tool Trust Plane for raw CLI execution so Runwall can reason about non-MCP tools, generated CLIs, wrapper scripts, and PATH-injected helpers
+- added executable resolution, provenance classification, and local trust state in `state/tools.json` without introducing a database
+- added high-confidence built-in protections for trusted-name shadowing, temp/download execution, first-seen unreviewed PATH tools, tool drift, and interpreter-wrapper drift
+- added `bin/runwall tools list`, `bin/runwall tools approve`, and `bin/runwall tools forget` for local trust inventory and approvals
+- exposed tool identity data in runtime evaluation and audit records so forensics can explain which path, hash, and origin triggered the decision
+- added `config/tool-trust-policy.json` for low-maintenance policy tuning of high-trust command names and origin classes
+- expanded smoke coverage for temp exec, command shadowing, first-seen local tools, approval flow, and drift after approval
+
 ## 5.0.0
 
 - added `local-tunnel-guard`

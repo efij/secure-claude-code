@@ -23,7 +23,8 @@ make_tempdir() {
 }
 
 TMP_BASE="$(make_tempdir)"
-trap 'rm -rf "$TMP_BASE"' EXIT
+REPO_TMP_CLEANUP=""
+trap 'rm -rf "$TMP_BASE" "$REPO_TMP_CLEANUP"' EXIT
 IS_WINDOWS=false
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*) IS_WINDOWS=true ;;
@@ -68,7 +69,7 @@ cd "$ROOT_DIR"
 bash -n bin/shield bin/runwall bin/secure-claude-code install.sh update.sh uninstall.sh scripts/*.sh hooks/*.sh hooks/lib/*.sh tests/smoke.sh
 python_bin="$(command -v python3 || command -v python)"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -190,6 +191,54 @@ assert_contains "$parent_allow_json" '"allowed": true'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"session_id":"cli-parent"'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"event_id":"'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"runtime":"codex"'
+
+tool_trust_home="$TMP_BASE/tool-trust-home"
+REPO_TMP_CLEANUP="$ROOT_DIR/tmp/tool-trust-smoke"
+rm -rf "$REPO_TMP_CLEANUP"
+tool_trust_user_home="$REPO_TMP_CLEANUP/home"
+tool_bin_a="$tool_trust_user_home/bin"
+tool_bin_b="$tool_trust_user_home/bin-v2"
+mkdir -p "$tool_trust_home" "$tool_bin_a" "$tool_bin_b"
+cat >"$tool_bin_a/demohelper" <<'EOF'
+#!/usr/bin/env bash
+echo demohelper
+EOF
+chmod +x "$tool_bin_a/demohelper"
+cat >"$tool_bin_a/git" <<'EOF'
+#!/usr/bin/env bash
+echo fake git
+EOF
+chmod +x "$tool_bin_a/git"
+tool_unknown_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_a:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'demohelper --version' --profile strict --json || true)"
+assert_contains "$tool_unknown_json" '"module": "unknown-executable-guard"'
+assert_contains "$tool_unknown_json" '"tool_identity"'
+
+tool_shadow_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_a:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'git status' --profile strict --json || true)"
+assert_contains "$tool_shadow_json" '"module": "command-shadowing-guard"'
+
+tool_temp_path="$TMP_BASE/tmp-fetch.sh"
+cat >"$tool_temp_path" <<'EOF'
+#!/usr/bin/env bash
+echo temp
+EOF
+chmod +x "$tool_temp_path"
+tool_temp_json="$(run_capture true env RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash \"$tool_temp_path\" --profile strict --json || true)"
+assert_contains "$tool_temp_json" '"module": "temp-download-exec-guard"'
+
+run_capture false env RUNWALL_HOME="$tool_trust_home" ./bin/runwall tools approve demohelper >/dev/null
+tool_allow_json="$(run_capture false env HOME="$tool_trust_user_home" PATH="$tool_bin_a:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'demohelper --version' --profile strict --json)"
+assert_contains "$tool_allow_json" '"allowed": true'
+
+tool_list_json="$(run_capture false env RUNWALL_HOME="$tool_trust_home" ./bin/runwall tools list --json)"
+assert_contains "$tool_list_json" '"alias_key": "demohelper"'
+
+cat >"$tool_bin_b/demohelper" <<'EOF'
+#!/usr/bin/env bash
+echo trusted-v2
+EOF
+chmod +x "$tool_bin_b/demohelper"
+tool_drift_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_b:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'demohelper --version' --profile strict --json || true)"
+assert_contains "$tool_drift_json" '"module": "tool-drift-guard"'
 
 chain_probe_output="$TMP_BASE/chain-probe.txt"
 "$python_bin" - "$ROOT_DIR" "$chain_probe_output" <<'PY'
