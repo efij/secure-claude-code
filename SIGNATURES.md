@@ -161,6 +161,157 @@ These are native Runwall trust-plane protections for hook-bearing workflow surfa
 - Why it matters: covert persistence is one of the main reasons piggyback hooks are dangerous even when they look small in review.
 - Action: block
 
+## Built-In Flow, Approval, Service, Browser, and Agent Guards
+
+These are native Runwall trust-plane protections that sit above raw signatures and watch how sessions, services, browser automation, and subagents behave over time.
+
+### sensitive-data-flow-guard
+
+- Purpose: block outbound transfer or publish behavior after the same session already touched sensitive data.
+- Detects: secret or production reads earlier in the session followed by upload, publish, webhook, blob, or release-style egress.
+- Why it matters: real exfiltration is often a chain, not a single obvious bad command.
+- Action: block
+
+### public-artifact-flow-guard
+
+- Purpose: block writes into public artifacts and release outputs after the same session touched sensitive or production data.
+- Detects: `dist/`, `build/`, artifact paths, release bundles, and similar public-output writes after secret or prod access.
+- Why it matters: a lot of leaks happen by contaminating build or artifact outputs instead of direct uploads.
+- Action: block
+
+### cross-agent-secret-flow-guard
+
+- Purpose: block cross-agent laundering of sensitive data inside the same session.
+- Detects: one agent reading sensitive data and a different agent later trying to export or publish from the same session.
+- Why it matters: capability splitting across agents is one of the cleanest ways to hide intent.
+- Action: block
+
+### clipboard-secret-flow-guard
+
+- Purpose: block clipboard bridges after the session already touched sensitive data.
+- Detects: `pbcopy`, `xclip`, `xsel`, `wl-copy`, `clip.exe`, and similar clipboard export paths after secret or browser-export labels are already present.
+- Why it matters: clipboard operations are a quiet bridge from local secrets into human or tool workflows that can bypass clearer egress surfaces.
+- Action: block
+
+### secret-archive-prep-guard
+
+- Purpose: block archive or encoding prep after a session already touched sensitive data.
+- Detects: `tar`, `zip`, `7z`, `base64`, `openssl enc`, `gpg -c`, `age -e`, and similar repacking steps after secret reads.
+- Why it matters: repacking is often the step just before exfiltration, and it is much easier to catch cleanly than every later upload variant.
+- Action: block
+
+### browser-session-upload-guard
+
+- Purpose: block outbound transfers after the same session already touched a sensitive authenticated browser session.
+- Detects: upload or publish actions later in a session that already triggered browser-session or browser-export labels.
+- Why it matters: a lot of modern theft comes from authenticated browser sessions, not only from local secret files.
+- Action: block
+
+### cross-agent-browser-export-guard
+
+- Purpose: block browser-export laundering across agents in the same session.
+- Detects: one agent capturing sensitive browser output and a different agent trying to upload or publish it later.
+- Why it matters: splitting browser capture and outbound transfer across actors is a clean way to hide intent unless the session graph is watched.
+- Action: block
+
+### local-admin-socket-guard
+
+- Purpose: block direct access to high-trust local sockets and service-control planes.
+- Detects: Docker and container runtime sockets, DBus, SSH agent sockets, and similar local IPC surfaces.
+- Why it matters: localhost and Unix sockets often bypass the visible network model but still grant powerful control.
+- Action: block
+
+### sensitive-local-service-guard
+
+- Purpose: require review before first use of sensitive localhost or private-service targets.
+- Detects: browser debug ports, local admin APIs, and suspicious localhost or RFC1918 service destinations.
+- Why it matters: not every localhost target is dangerous, but some are effectively local control planes.
+- Action: prompt
+
+### service-drift-guard
+
+- Purpose: surface local service identity drift over time.
+- Detects: previously seen local service targets that change class or identity unexpectedly.
+- Why it matters: a trusted localhost endpoint that silently changes underneath the same target is a real trust-boundary failure.
+- Action: prompt
+
+### metadata-endpoint-service-guard
+
+- Purpose: block access to metadata endpoints even when they look like local network calls.
+- Detects: `169.254.169.254`, `metadata.google.internal`, `100.100.100.200`, and similar platform metadata surfaces.
+- Why it matters: metadata endpoints often expose identity, tokens, or instance privileges and should not be treated like ordinary localhost traffic.
+- Action: block
+
+### local-kube-admin-guard
+
+- Purpose: block direct access to local or private Kubernetes control planes.
+- Detects: localhost or RFC1918 destinations on ports such as `6443` and `8443` that look like kube admin APIs.
+- Why it matters: cluster control planes are high-value local trust targets even when they sit behind loopback or private IPs.
+- Action: block
+
+### database-admin-service-guard
+
+- Purpose: require review before a runtime talks to local database and admin-service ports.
+- Detects: localhost or private destinations on ports such as `5432`, `3306`, `6379`, `27017`, and `9200`.
+- Why it matters: direct database or admin-port access can bypass the safer application-layer paths a team normally reviews.
+- Action: prompt
+
+### browser-sensitive-domain-guard
+
+- Purpose: require review before browser automation drives authenticated or high-value domains.
+- Detects: automation against domains like GitHub settings, cloud consoles, Stripe, Vercel, and similar control surfaces.
+- Why it matters: a browser session often carries more power than an API token because the user is already logged in.
+- Action: prompt
+
+### browser-sensitive-export-guard
+
+- Purpose: block browser automation that exports, screenshots, dumps, or downloads from sensitive authenticated domains.
+- Detects: Playwright, Puppeteer, Selenium, and similar flows that capture storage state, cookies, screenshots, PDFs, DOM dumps, or download artifacts.
+- Why it matters: browser session riding is one of the cleanest ways to harvest privileged data without touching local secret files directly.
+- Action: block
+
+### browser-session-cookie-guard
+
+- Purpose: block browser automation that exports cookies or live browser storage from sensitive domains.
+- Detects: `storageState`, cookie export, local storage export, and session storage export against sensitive logged-in domains.
+- Why it matters: a raw cookie or storage-state dump is often the shortest path to session hijacking.
+- Action: block
+
+### browser-bulk-capture-guard
+
+- Purpose: block large page-body capture from sensitive authenticated domains.
+- Detects: `page.content`, full DOM dumps, full-page screenshots, and broad “all pages” style capture requests.
+- Why it matters: bulk extraction from an authenticated browser session is often closer to scraping than to ordinary automation.
+- Action: block
+
+### browser-download-dropper-guard
+
+- Purpose: block browser automation that downloads executable or archive payloads from sensitive domains.
+- Detects: download flows targeting `.sh`, `.pkg`, `.dmg`, `.zip`, `.tar.gz`, `.exe`, `.msi`, and similar payload types while the browser is on a sensitive domain.
+- Why it matters: authenticated browser sessions should not quietly become a trusted software-delivery path for the runtime.
+- Action: block
+
+### isolated-agent-guard
+
+- Purpose: block actions from agents that were explicitly isolated for investigation or containment.
+- Detects: any action from an agent or subagent ID that is currently in the local isolation list.
+- Why it matters: once an agent looks compromised or suspicious, containment needs to be explicit and durable.
+- Action: block
+
+### isolated-parent-bridge-guard
+
+- Purpose: block child or delegated agents from executing around an isolated parent boundary.
+- Detects: a child or delegated actor acting while its parent agent is isolated.
+- Why it matters: isolation only works if subagents cannot keep operating as a laundering path around the parent boundary.
+- Action: block
+
+### agent-fanout-guard
+
+- Purpose: require review when a session fans out across many agents before an outbound action.
+- Detects: sessions with four or more actors that later try to upload, publish, or otherwise go outbound.
+- Why it matters: large agent fanout before an external action is a practical capability-laundering pattern even when each single step looks mild.
+- Action: prompt
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

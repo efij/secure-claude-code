@@ -14,10 +14,14 @@ from datetime import datetime, timezone
 from typing import Any
 
 import runwall_chain
+import runwall_flow
 import runwall_forensics
 import runwall_hooks
 import runwall_runtime
 import runwall_tools
+import runwall_services
+import runwall_browser
+import runwall_agents
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -384,6 +388,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "hits": result["hits"],
             "tool_identity": result.get("tool_identity"),
             "hook_identity": result.get("hook_identity"),
+            "service_identity": result.get("service_identity"),
+            "browser_identity": result.get("browser_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
             "event_categories": result.get("event_categories", []),
@@ -410,6 +416,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             },
             context=context,
         )
+    runwall_flow.observe_result(root, result, payload)
+    runwall_agents.observe_result(root, result, payload)
 
 
 def evaluate(
@@ -425,6 +433,8 @@ def evaluate(
     action = "allow"
     tool_identity: dict[str, Any] | None = None
     hook_identity: dict[str, Any] | None = None
+    service_identity: dict[str, Any] | None = None
+    browser_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
         {
@@ -439,7 +449,19 @@ def evaluate(
         default_runtime=runwall_runtime.runtime_default(root),
     )
 
+    agent_hit = runwall_agents.assess_context(root, merged_context)
+    if agent_hit:
+        if _DECISION_PRIORITY[agent_hit["decision"]] > _DECISION_PRIORITY[action]:
+            action = agent_hit["decision"]
+        results.append(agent_hit)
+
     if event == "PreToolUse" and matcher == "Bash":
+        flow_hit = runwall_flow.assess_preflight(root, event, matcher, payload, merged_context)
+        if flow_hit:
+            if _DECISION_PRIORITY[flow_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = flow_hit["decision"]
+            results.append(flow_hit)
+
         tool_assessment = runwall_tools.assess_command(root, payload)
         tool_identity = tool_assessment.get("identity")
         tool_hit = tool_assessment.get("hit")
@@ -447,6 +469,35 @@ def evaluate(
             if _DECISION_PRIORITY[tool_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = tool_hit["decision"]
             results.append(tool_hit)
+
+        service_assessment = runwall_services.assess_command(root, payload, merged_context)
+        service_identity = service_assessment.get("identity")
+        service_hit = service_assessment.get("hit")
+        if service_hit:
+            if _DECISION_PRIORITY[service_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = service_hit["decision"]
+            results.append(service_hit)
+
+        browser_assessment = runwall_browser.assess_command(root, payload, merged_context)
+        browser_identity = browser_assessment.get("identity")
+        browser_hit = browser_assessment.get("hit")
+        if browser_hit:
+            if _DECISION_PRIORITY[browser_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = browser_hit["decision"]
+            results.append(browser_hit)
+
+        agent_action_hit = runwall_agents.assess_action(root, payload, merged_context)
+        if agent_action_hit:
+            if _DECISION_PRIORITY[agent_action_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = agent_action_hit["decision"]
+            results.append(agent_action_hit)
+
+    if event == "PreToolUse" and matcher in {"Read", "Write", "Edit", "MultiEdit"}:
+        flow_hit = runwall_flow.assess_preflight(root, event, matcher, payload, merged_context)
+        if flow_hit:
+            if _DECISION_PRIORITY[flow_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = flow_hit["decision"]
+            results.append(flow_hit)
 
     if event == "PreToolUse" and matcher in {"Bash", "Write", "Edit", "MultiEdit"}:
         hook_assessment = runwall_hooks.assess_change(root, event, matcher, payload)
@@ -492,6 +543,8 @@ def evaluate(
         "event_id": event_record["event_id"],
         "tool_identity": tool_identity,
         "hook_identity": hook_identity,
+        "service_identity": service_identity,
+        "browser_identity": browser_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
@@ -511,6 +564,14 @@ def print_pretty(result: dict[str, Any]) -> None:
                 f"hook: {hook_identity.get('surface')} -> {hook_identity.get('location')} "
                 f"[{hook_identity.get('origin')}]"
             )
+        service_identity = result.get("service_identity") or {}
+        if service_identity.get("target"):
+            print(
+                f"service: {service_identity.get('service_class')} -> {service_identity.get('target')}"
+            )
+        browser_identity = result.get("browser_identity") or {}
+        if browser_identity.get("domains"):
+            print(f"browser: {', '.join(browser_identity.get('domains', []))}")
         return
     print(f"allowed: {'yes' if result['allowed'] else 'no'}")
     print(f"action: {result['action']}")
@@ -525,6 +586,12 @@ def print_pretty(result: dict[str, Any]) -> None:
             f"hook: {hook_identity.get('surface')} -> {hook_identity.get('location')} "
             f"[{hook_identity.get('origin')}]"
         )
+    service_identity = result.get("service_identity") or {}
+    if service_identity.get("target"):
+        print(f"service: {service_identity.get('service_class')} -> {service_identity.get('target')}")
+    browser_identity = result.get("browser_identity") or {}
+    if browser_identity.get("domains"):
+        print(f"browser: {', '.join(browser_identity.get('domains', []))}")
     for hit in result["hits"]:
         print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:

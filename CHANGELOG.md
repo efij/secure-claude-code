@@ -1,5 +1,16 @@
 # Changelog
 
+## 8.1.0
+
+- added a Sensitive Data Flow Plane with `sensitive-data-flow-guard`, `public-artifact-flow-guard`, `cross-agent-secret-flow-guard`, `clipboard-secret-flow-guard`, `secret-archive-prep-guard`, `browser-session-upload-guard`, and `cross-agent-browser-export-guard` so Runwall can carry secret and production sensitivity across multiple steps in the same session
+- added a scoped Approval Plane with local approval inventory, one-shot approvals, expiry pruning, and runtime-target matching for higher-friction trust exceptions
+- added a Local Service Trust Plane with `local-admin-socket-guard`, `sensitive-local-service-guard`, `service-drift-guard`, `metadata-endpoint-service-guard`, `local-kube-admin-guard`, and `database-admin-service-guard` for Docker sockets, browser debug ports, localhost admin APIs, DBus, metadata endpoints, local databases, and kube control planes
+- added a Browser Session Defense Plane with `browser-sensitive-domain-guard`, `browser-sensitive-export-guard`, `browser-session-cookie-guard`, `browser-bulk-capture-guard`, and `browser-download-dropper-guard` for automation against authenticated high-value domains
+- added an Agent Graph Plane with local graph inventory, agent isolation, `isolated-agent-guard`, `isolated-parent-bridge-guard`, and `agent-fanout-guard` for explicit containment and cross-agent review boundaries
+- added new CLI surfaces: `runwall approvals`, `runwall services`, `runwall browser`, `runwall flow`, and `runwall agents`
+- expanded smoke coverage for one-shot approvals, metadata and kube service blocking, database service review, browser cookie and bulk-capture export blocking, sensitive clipboard and archive-prep flow blocking, cross-agent browser-export laundering, parent isolation, and agent fanout review
+- updated the README, guard registry, and signature deep dive so the new trust planes read like first-class Runwall capabilities
+
 ## 7.1.0
 
 - expanded the Hook Trust Plane with five new built-in protections: `hook-secret-access-guard`, `hook-policy-tamper-guard`, `hook-archive-exfil-guard`, `hook-prod-breakglass-guard`, and `hook-review-bypass-guard`

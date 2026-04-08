@@ -41,6 +41,32 @@ These protections are implemented directly in the Hook Trust Plane instead of as
 - `hook-fanout-network-guard`: blocks hook-bearing surfaces that add outbound fetch, upload, webhook, or tunnel behavior
 - `hook-stealth-persistence-guard`: blocks stealthy background, delayed, or redirection-heavy persistence behavior hidden in hooks
 
+## Built-In Flow, Approval, Service, Browser, and Agent Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `sensitive-data-flow-guard`: blocks outbound transfers and publishes after the same session already touched sensitive data
+- `public-artifact-flow-guard`: blocks writes into public artifacts, build outputs, and release bundles after a session already touched sensitive or production data
+- `cross-agent-secret-flow-guard`: blocks one agent from exporting data that another agent in the same session already read from sensitive sources
+- `clipboard-secret-flow-guard`: blocks clipboard bridges after the same session already touched sensitive or browser-exported data
+- `secret-archive-prep-guard`: blocks archive or encoding prep after a session already touched sensitive data
+- `browser-session-upload-guard`: blocks outbound transfers after a session already touched a sensitive authenticated browser session
+- `cross-agent-browser-export-guard`: blocks one agent from uploading browser-captured output that another agent collected in the same session
+- `local-admin-socket-guard`: blocks direct access to Docker, container runtime, DBus, SSH agent, and similar high-trust local sockets
+- `sensitive-local-service-guard`: prompts before first use of sensitive localhost or private-service targets such as browser debug ports and local admin APIs
+- `service-drift-guard`: prompts when a previously seen local service changes identity unexpectedly
+- `metadata-endpoint-service-guard`: blocks access to cloud and platform metadata endpoints even when they do not look like normal public egress
+- `local-kube-admin-guard`: blocks direct access to local or private Kubernetes control-plane endpoints
+- `database-admin-service-guard`: prompts before first use of local database and admin-service ports that often bypass normal API review
+- `browser-sensitive-domain-guard`: prompts before browser automation drives sensitive authenticated domains
+- `browser-sensitive-export-guard`: blocks browser automation exports, captures, and downloads against sensitive authenticated domains
+- `browser-session-cookie-guard`: blocks browser automation that exports cookies, storage state, local storage, or session storage from sensitive domains
+- `browser-bulk-capture-guard`: blocks bulk DOM and full-page capture against sensitive authenticated domains
+- `browser-download-dropper-guard`: blocks browser automation that downloads executable or archive payloads from sensitive domains
+- `isolated-agent-guard`: blocks actions from agents that were explicitly isolated for review
+- `isolated-parent-bridge-guard`: blocks child or delegated agents from executing around an isolated parent boundary
+- `agent-fanout-guard`: prompts when many agents fan out inside one session before an outbound action
+
 ## Implemented Guards
 
 ### Secrets & Identity

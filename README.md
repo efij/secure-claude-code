@@ -156,6 +156,56 @@ You can inspect and manage that local trust state with:
 ./bin/runwall hooks forget <path-or-key>
 ```
 
+## Sensitive Flow, Services, Browser, and Agent Graph
+
+Runwall now adds four more native trust planes on top of tools and hooks:
+
+- `Sensitive Data Flow`: tracks when a session touches secrets or production data, then blocks exports, clipboard bridges, archive prep, public-artifact writes, browser-session uploads, and cross-agent laundering later in the same session
+- `Local Service Trust`: treats local sockets, localhost admin APIs, browser debug ports, Docker APIs, DBus, metadata endpoints, local databases, and kube control-plane targets as trust targets instead of invisible localhost traffic
+- `Browser Session Defense`: prompts or blocks browser automation against sensitive logged-in domains, especially when the flow exports cookies, screenshots, DOM dumps, bulk captures, or executable downloads
+- `Agent Graph & Isolation`: records parent/subagent relationships, lets you isolate risky agents, blocks cross-agent secret or browser-export laundering, and prompts when a session fans out across too many agents before outbound actions
+
+Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
+
+```bash
+./bin/runwall approvals list --json
+./bin/runwall approvals create --kind service --target browser-debug --value http://127.0.0.1:9222 --once
+./bin/runwall approvals revoke <id-or-value>
+./bin/runwall approvals prune
+
+./bin/runwall services list --json
+./bin/runwall services approve <target>
+./bin/runwall services diff <target>
+
+./bin/runwall browser sessions --json
+./bin/runwall browser allow github.com
+./bin/runwall browser policy --json
+
+./bin/runwall flow list --json
+./bin/runwall flow explain <session-id>
+./bin/runwall flow clear [session-id]
+
+./bin/runwall agents graph --json
+./bin/runwall agents explain <session-id>
+./bin/runwall agents isolate <agent-id>
+./bin/runwall agents unisolate <agent-id>
+```
+
+High-signal built-ins in these planes now include:
+
+- `clipboard-secret-flow-guard`
+- `secret-archive-prep-guard`
+- `browser-session-upload-guard`
+- `cross-agent-browser-export-guard`
+- `metadata-endpoint-service-guard`
+- `local-kube-admin-guard`
+- `database-admin-service-guard`
+- `browser-session-cookie-guard`
+- `browser-bulk-capture-guard`
+- `browser-download-dropper-guard`
+- `isolated-parent-bridge-guard`
+- `agent-fanout-guard`
+
 ## Protection Families
 
 Runwall now groups signatures into stable families so the product reads like a real signature engine instead of a flat list:

@@ -688,6 +688,74 @@ hooks_cmd() {
   esac
 }
 
+approvals_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|prune)
+      run_python "$ROOT_DIR/scripts/runwall_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    create|revoke)
+      run_python "$ROOT_DIR/scripts/runwall_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown approvals subcommand: $subcommand"
+      ;;
+  esac
+}
+
+services_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|approve|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_services.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown services subcommand: $subcommand"
+      ;;
+  esac
+}
+
+browser_cmd() {
+  local subcommand="${1:-sessions}"
+  shift || true
+  case "$subcommand" in
+    sessions|allow|revoke|policy)
+      run_python "$ROOT_DIR/scripts/runwall_browser.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown browser subcommand: $subcommand"
+      ;;
+  esac
+}
+
+flow_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|explain|clear)
+      run_python "$ROOT_DIR/scripts/runwall_flow.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown flow subcommand: $subcommand"
+      ;;
+  esac
+}
+
+agents_cmd() {
+  local subcommand="${1:-graph}"
+  shift || true
+  case "$subcommand" in
+    graph|explain|isolate|unisolate)
+      run_python "$ROOT_DIR/scripts/runwall_agents.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown agents subcommand: $subcommand"
+      ;;
+  esac
+}
+
 generate_runtime_config() {
   local runtime="${1:-}"
   local profile="${2:-balanced}"
@@ -1105,6 +1173,25 @@ Usage:
   bin/runwall hooks approve <path-or-key>
   bin/runwall hooks forget <path-or-key>
   bin/runwall hooks diff <path-or-key>
+  bin/runwall approvals list [--json]
+  bin/runwall approvals create --kind K --target T --value V [--runtime name] [--agent-id id] [--once] [--ttl-hours H]
+  bin/runwall approvals revoke <id-or-value>
+  bin/runwall approvals prune
+  bin/runwall services list [--json]
+  bin/runwall services approve <target>
+  bin/runwall services forget <target>
+  bin/runwall services diff <target>
+  bin/runwall browser sessions [--json]
+  bin/runwall browser allow <domain>
+  bin/runwall browser revoke <domain>
+  bin/runwall browser policy [--json]
+  bin/runwall flow list [--json]
+  bin/runwall flow explain <session-id>
+  bin/runwall flow clear [session-id]
+  bin/runwall agents graph [--json]
+  bin/runwall agents explain <session-id>
+  bin/runwall agents isolate <agent-id>
+  bin/runwall agents unisolate <agent-id>
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
@@ -1245,6 +1332,26 @@ case "$command" in
   hooks)
     shift
     hooks_cmd "$@"
+    ;;
+  approvals)
+    shift
+    approvals_cmd "$@"
+    ;;
+  services)
+    shift
+    services_cmd "$@"
+    ;;
+  browser)
+    shift
+    browser_cmd "$@"
+    ;;
+  flow)
+    shift
+    flow_cmd "$@"
+    ;;
+  agents)
+    shift
+    agents_cmd "$@"
     ;;
   help|-h|--help|"")
     usage
