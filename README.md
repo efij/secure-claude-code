@@ -167,6 +167,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Memory Trust`: treats persistent agent and project memory stores as reviewed trust surfaces instead of letting poisoned memory silently persist across sessions
 - `Knowledge / RAG Trust`: treats vaults, Obsidian-style notes, RAG caches, mirrored issues, and imported knowledge docs as a separate trust plane with quarantine and drift controls
 - `SaaS Action Trust`: prompts or blocks only on high-risk authenticated control-plane actions such as token minting, secret admin, role grants, prod deploys, webhook changes, and destructive deletes
+- `Approval Integrity`: narrows risky exceptions so one-shot approvals cannot be replayed, approvals do not drift silently across runtimes or repos, and broad wildcard approvals are surfaced before they turn into policy bypass
+- `Safety-Control Trust`: protects the things attackers disable first: audit trails, rollback scripts, backups, monitoring, alert sinks, incident bundles, and release safety checks
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -175,6 +177,8 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall approvals create --kind service --target browser-debug --value http://127.0.0.1:9222 --once
 ./bin/runwall approvals revoke <id-or-value>
 ./bin/runwall approvals prune
+./bin/runwall approvals diff <id-or-value>
+./bin/runwall approvals explain <id-or-value>
 
 ./bin/runwall services list --json
 ./bin/runwall services approve <target>
@@ -206,6 +210,10 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall apps list --json
 ./bin/runwall apps explain <event-id>
 ./bin/runwall apps policy --json
+
+./bin/runwall safety list --json
+./bin/runwall safety diff <path-or-surface>
+./bin/runwall safety forget <path-or-surface>
 ```
 
 High-signal built-ins in these planes now include:

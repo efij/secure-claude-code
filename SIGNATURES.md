@@ -533,6 +533,154 @@ These are native Runwall trust-plane protections for persistent memory stores, i
 - Why it matters: browser sessions often carry privileged state that looks very different from CLI auth but is just as dangerous.
 - Action: prompt
 
+## Built-In Approval Integrity Guards
+
+These are native Runwall trust-plane protections for approval reuse, scope drift, and one-shot exception hygiene.
+
+### approval-broad-scope-guard
+
+- Purpose: stop wildcard or overly broad approvals from silently becoming policy bypasses.
+- Detects: approvals with `*` values or dangerously unscoped matching against risky app, browser, service, tool, or hook actions.
+- Why it matters: a broad approval is often just a permanent bypass with a friendlier name.
+- Action: prompt
+
+### approval-expiry-guard
+
+- Purpose: force fresh review when an approval already expired.
+- Detects: approval matches that would have succeeded except for TTL expiry.
+- Why it matters: stale approvals are easy to forget and easy to abuse.
+- Action: prompt
+
+### approval-runtime-mismatch-guard
+
+- Purpose: stop approvals from one runtime adapter being silently reused by another.
+- Detects: approvals scoped to one runtime, like Codex, being reused from another, like Claude Code.
+- Why it matters: runtime boundaries are real trust boundaries.
+- Action: prompt
+
+### approval-repo-mismatch-guard
+
+- Purpose: stop approvals from drifting across repositories and workspaces.
+- Detects: approvals tied to another repo path being reused in the current workspace.
+- Why it matters: an approval that was safe in one repo may be dangerous in another.
+- Action: prompt
+
+### approval-parent-child-mismatch-guard
+
+- Purpose: stop one agent or subagent from laundering another actor's approval.
+- Detects: agent- or subagent-scoped approvals reused from a different actor context.
+- Why it matters: parent/child agent boundaries are part of the modern review boundary.
+- Action: prompt
+
+### approval-scope-mismatch-guard
+
+- Purpose: stop similar-but-not-the-same approvals from silently matching.
+- Detects: same kind and target with a different app, destination, or reviewed value than the current request.
+- Why it matters: “close enough” approvals are a common path to exception sprawl.
+- Action: prompt
+
+### approval-drift-invalidation-guard
+
+- Purpose: invalidate approvals when the reviewed fingerprint no longer matches the current request.
+- Detects: fingerprint mismatches on reviewed approvals where the underlying request changed.
+- Why it matters: review should bind to the thing that was reviewed, not to a stale label.
+- Action: prompt
+
+### approval-destination-drift-guard
+
+- Purpose: invalidate approvals when a reviewed local destination or browser target changes underneath the same value.
+- Detects: service or browser approvals whose reviewed identity no longer matches the current endpoint fingerprint.
+- Why it matters: local admin surfaces and browser-session targets can drift into very different risk profiles.
+- Action: prompt
+
+### approval-tool-identity-drift-guard
+
+- Purpose: invalidate approvals when a reviewed tool no longer resolves to the same identity.
+- Detects: tool approvals whose path, hash, or wrapper fingerprint changed since review.
+- Why it matters: tool trust is only as good as the identity it was attached to.
+- Action: prompt
+
+### approval-replay-guard
+
+- Purpose: block attempts to reuse already consumed one-shot approvals.
+- Detects: a request identical to one that already consumed a once-only approval.
+- Why it matters: without replay protection, “one-shot” approvals are fake.
+- Action: block
+
+## Built-In Safety-Control Guards
+
+These are native Runwall trust-plane protections for audit trails, rollback paths, monitoring, and recovery controls.
+
+### audit-disable-guard
+
+- Purpose: stop disabling audit and evidence collection.
+- Detects: commands or config changes that stop auditd, clear event logs, stop CloudTrail, or disable logging.
+- Why it matters: attackers often blind the environment before taking louder actions.
+- Action: block
+
+### backup-disable-guard
+
+- Purpose: stop disabling backups and snapshot retention.
+- Detects: snapshot deletion, backup disable flags, and zero-retention style changes.
+- Why it matters: recovery gets much harder once backups are quietly removed.
+- Action: block
+
+### rollback-tamper-guard
+
+- Purpose: stop edits that neuter rollback and restore logic.
+- Detects: rollback-disable language, forced success stubs, and similar restore-path weakening.
+- Why it matters: breaking rollback first makes later destructive changes harder to undo.
+- Action: block
+
+### monitoring-disable-guard
+
+- Purpose: stop disabling monitoring, telemetry, and alerting.
+- Detects: stopping Prometheus-style agents, deleting alerting workloads, or config that disables monitoring.
+- Why it matters: observability is part of the safety boundary, not just ops convenience.
+- Action: block
+
+### alert-sink-rewire-guard
+
+- Purpose: surface changes that reroute alert and escalation traffic.
+- Detects: webhook or alert-destination rewires in monitoring and alerting surfaces.
+- Why it matters: silently rewiring alerts can be as bad as disabling them.
+- Action: prompt
+
+### runwall-state-wipe-guard
+
+- Purpose: stop deletion or truncation of Runwall state and audit evidence.
+- Detects: commands that remove `.runwall/state`, `audit.jsonl`, approvals, or other native Runwall state.
+- Why it matters: deleting the local evidence trail is a direct defense-evasion move.
+- Action: block
+
+### forensics-bundle-delete-guard
+
+- Purpose: stop deletion of incident, evidence, provenance, and forensics artifacts.
+- Detects: destructive commands against incident bundles, SARIF, provenance, SBOM, or evidence files.
+- Why it matters: these are the artifacts humans depend on for review and recovery.
+- Action: block
+
+### incident-runbook-automation-tamper-guard
+
+- Purpose: surface edits that weaken incident response or escalation runbooks.
+- Detects: “do not page,” “no approval required,” “disable escalation,” and similar tamper language in runbook surfaces.
+- Why it matters: attackers increasingly target the human-response layer as well as the technical one.
+- Action: prompt
+
+### release-safety-check-disable-guard
+
+- Purpose: stop disabling release verification, signing, provenance, and safety checks.
+- Detects: `SKIP_SECURITY=1`, `--no-verify`, and explicit disable language around SBOM, provenance, attestation, or verification.
+- Why it matters: supply-chain attacks often begin by weakening release gates.
+- Action: block
+
+### recovery-script-destroy-guard
+
+- Purpose: stop deleting, truncating, or de-executable changes against recovery scripts.
+- Detects: destructive `rm`, `chmod -x`, or overwrite behavior targeting backup, restore, rollback, and recovery scripts.
+- Why it matters: once recovery scripts are gone, the window for safe rollback closes quickly.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

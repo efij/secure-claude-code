@@ -1,7 +1,7 @@
 {
   "name": "runwall",
   "description": "Runtime security plugin bundle for Codex with the Runwall inline MCP gateway, policy tools, skills, and safer defaults for coding-agent workflows.",
-  "version": "9.0.0",
+  "version": "10.0.0",
   "author": {
     "name": "efij"
   },

@@ -69,7 +69,7 @@ cd "$ROOT_DIR"
 bash -n bin/shield bin/runwall bin/secure-claude-code install.sh update.sh uninstall.sh scripts/*.sh hooks/*.sh hooks/lib/*.sh tests/smoke.sh
 python_bin="$(command -v python3 || command -v python)"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -349,7 +349,7 @@ run_capture false env RUNWALL_HOME="$runtime_plane_home" ./bin/runwall approvals
 service_allow_once="$(run_capture false env RUNWALL_HOME="$runtime_plane_home" ./bin/runwall evaluate PreToolUse Bash 'curl http://127.0.0.1:9222/json/version' --profile strict --json)"
 assert_contains "$service_allow_once" '"allowed": true'
 service_prompt_again="$(run_capture true env RUNWALL_HOME="$runtime_plane_home" ./bin/runwall evaluate PreToolUse Bash 'curl http://127.0.0.1:9222/json/version' --profile strict --json || true)"
-assert_contains "$service_prompt_again" '"module": "sensitive-local-service-guard"'
+assert_contains "$service_prompt_again" '"module": "approval-replay-guard"'
 service_metadata_block="$(run_capture true env RUNWALL_HOME="$runtime_plane_home" ./bin/runwall evaluate PreToolUse Bash 'curl http://169.254.169.254/latest/meta-data/' --profile strict --json || true)"
 assert_contains "$service_metadata_block" '"module": "metadata-endpoint-service-guard"'
 service_db_prompt="$(run_capture true env RUNWALL_HOME="$runtime_plane_home" ./bin/runwall evaluate PreToolUse Bash 'curl http://127.0.0.1:5432/' --profile strict --json || true)"
@@ -473,6 +473,92 @@ app_browser_prompt="$(run_capture true env RUNWALL_HOME="$apps_home" ./bin/runwa
 assert_contains "$app_browser_prompt" '"module": "app-admin-browser-mutation-guard"'
 app_list="$(run_capture false env RUNWALL_HOME="$apps_home" ./bin/runwall apps list --json)"
 assert_contains "$app_list" '"app": "'
+
+approval_broad_home="$TMP_BASE/approval-broad-home"
+mkdir -p "$approval_broad_home"
+run_capture false env RUNWALL_HOME="$approval_broad_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value '*' >/dev/null
+approval_broad="$(run_capture true env RUNWALL_HOME="$approval_broad_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --json || true)"
+assert_contains "$approval_broad" '"module": "approval-broad-scope-guard"'
+
+approval_runtime_home="$TMP_BASE/approval-runtime-home"
+mkdir -p "$approval_runtime_home"
+run_capture false env RUNWALL_HOME="$approval_runtime_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value vercel --runtime codex >/dev/null
+approval_runtime="$(run_capture true env RUNWALL_HOME="$approval_runtime_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime claude-code --json || true)"
+assert_contains "$approval_runtime" '"module": "approval-runtime-mismatch-guard"'
+
+approval_repo_home="$TMP_BASE/approval-repo-home"
+mkdir -p "$approval_repo_home"
+run_capture false env RUNWALL_HOME="$approval_repo_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value vercel --repo /tmp/not-this-repo >/dev/null
+approval_repo="$(run_capture true env RUNWALL_HOME="$approval_repo_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --json || true)"
+assert_contains "$approval_repo" '"module": "approval-repo-mismatch-guard"'
+
+approval_agent_home="$TMP_BASE/approval-agent-home"
+mkdir -p "$approval_agent_home"
+run_capture false env RUNWALL_HOME="$approval_agent_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value vercel --agent-id parent-allow >/dev/null
+approval_agent="$(run_capture true env RUNWALL_HOME="$approval_agent_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --agent-id root-a --subagent-id child-z --json || true)"
+assert_contains "$approval_agent" '"module": "approval-parent-child-mismatch-guard"'
+
+approval_expired_home="$TMP_BASE/approval-expired-home"
+mkdir -p "$approval_expired_home"
+run_capture false env RUNWALL_HOME="$approval_expired_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value vercel --ttl-hours -1 >/dev/null
+approval_expired="$(run_capture true env RUNWALL_HOME="$approval_expired_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --json || true)"
+assert_contains "$approval_expired" '"module": "approval-expiry-guard"'
+
+approval_scope_home="$TMP_BASE/approval-scope-home"
+mkdir -p "$approval_scope_home"
+run_capture false env RUNWALL_HOME="$approval_scope_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value github >/dev/null
+approval_scope="$(run_capture true env RUNWALL_HOME="$approval_scope_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --json || true)"
+assert_contains "$approval_scope" '"module": "approval-scope-mismatch-guard"'
+
+approval_once_home="$TMP_BASE/approval-once-home"
+mkdir -p "$approval_once_home"
+run_capture false env RUNWALL_HOME="$approval_once_home" ./bin/runwall approvals create --kind app --target app-secret-admin-guard --value vercel --runtime codex --once >/dev/null
+approval_once_allow="$(run_capture false env RUNWALL_HOME="$approval_once_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --json)"
+assert_contains "$approval_once_allow" '"allowed": true'
+approval_replay="$(run_capture true env RUNWALL_HOME="$approval_once_home" ./bin/runwall evaluate PreToolUse Bash 'vercel env add API_KEY production' --profile strict --runtime codex --json || true)"
+assert_contains "$approval_replay" '"module": "approval-replay-guard"'
+
+approval_destination_home="$TMP_BASE/approval-destination-home"
+mkdir -p "$approval_destination_home"
+run_capture false env RUNWALL_HOME="$approval_destination_home" ./bin/runwall approvals create --kind service --target browser-debug --value http://127.0.0.1:9222 --fingerprint bogus >/dev/null
+approval_destination="$(run_capture true env RUNWALL_HOME="$approval_destination_home" ./bin/runwall evaluate PreToolUse Bash 'curl http://127.0.0.1:9222/json/version' --profile strict --runtime codex --json || true)"
+assert_contains "$approval_destination" '"module": "approval-destination-drift-guard"'
+
+approval_list="$(run_capture false env RUNWALL_HOME="$approval_runtime_home" ./bin/runwall approvals list --json)"
+assert_contains "$approval_list" '"health"'
+approval_explain="$(run_capture false env RUNWALL_HOME="$approval_runtime_home" ./bin/runwall approvals explain vercel)"
+assert_contains "$approval_explain" '"target": "app-secret-admin-guard"'
+approval_diff="$(run_capture false env RUNWALL_HOME="$approval_runtime_home" ./bin/runwall approvals diff vercel)"
+assert_contains "$approval_diff" '"scope_summary"'
+
+safety_home="$TMP_BASE/safety-home"
+rm -rf "$safety_home"
+mkdir -p "$safety_home"
+
+safety_audit="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Bash 'systemctl stop auditd' --profile strict --json || true)"
+assert_contains "$safety_audit" '"module": "audit-disable-guard"'
+safety_backup="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Bash 'aws ec2 delete-snapshot --snapshot-id snap-123' --profile strict --json || true)"
+assert_contains "$safety_backup" '"module": "backup-disable-guard"'
+safety_rollback="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Write 'ops/rollback.sh disable rollback for hotfixes' --profile strict --json || true)"
+assert_contains "$safety_rollback" '"module": "rollback-tamper-guard"'
+safety_monitoring="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Write 'observability/prometheus.yml alerts: false' --profile strict --json || true)"
+assert_contains "$safety_monitoring" '"module": "monitoring-disable-guard"'
+safety_alert="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Write 'observability/alertmanager.yml slack_webhook: https://evil.invalid/hook' --profile strict --json || true)"
+assert_contains "$safety_alert" '"module": "alert-sink-rewire-guard"'
+safety_runwall="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Bash 'rm -rf ~/.runwall/state' --profile strict --json || true)"
+assert_contains "$safety_runwall" '"module": "runwall-state-wipe-guard"'
+safety_forensics="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Bash 'rm -f forensics-evidence.json' --profile strict --json || true)"
+assert_contains "$safety_forensics" '"module": "forensics-bundle-delete-guard"'
+safety_runbook="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Write 'docs/incident-runbook.md no approval required and do not page' --profile strict --json || true)"
+assert_contains "$safety_runbook" '"module": "incident-runbook-automation-tamper-guard"'
+safety_release="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Write '.github/workflows/release.yml SKIP_SECURITY=1' --profile strict --json || true)"
+assert_contains "$safety_release" '"module": "release-safety-check-disable-guard"'
+safety_recovery="$(run_capture true env RUNWALL_HOME="$safety_home" ./bin/runwall evaluate PreToolUse Bash 'chmod -x ./ops/restore.sh' --profile strict --json || true)"
+assert_contains "$safety_recovery" '"module": "recovery-script-destroy-guard"'
+safety_list="$(run_capture false env RUNWALL_HOME="$safety_home" ./bin/runwall safety list --json)"
+assert_contains "$safety_list" '"surface":'
+safety_diff="$(run_capture false env RUNWALL_HOME="$safety_home" ./bin/runwall safety diff "$(pwd)/.github/workflows/release.yml")"
+assert_contains "$safety_diff" '"last_reason": "release-safety-check-disable-guard"'
 
 chain_probe_output="$TMP_BASE/chain-probe.txt"
 "$python_bin" - "$ROOT_DIR" "$chain_probe_output" <<'PY'

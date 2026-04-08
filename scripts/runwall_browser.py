@@ -109,6 +109,7 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
     allowed = {_normalize_domain(item) for item in store.get("allowlist", []) if isinstance(item, str)}
     runtime = (context or {}).get("runtime")
     agent_id = (context or {}).get("subagent_id") or (context or {}).get("agent_id")
+    repo = str(root.resolve(strict=False))
     identity = {
         "domains": domains,
         "sensitive_domains": [domain for domain in domains if domain in SENSITIVE_DOMAINS],
@@ -123,14 +124,17 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
     save_store(root, store)
 
     for domain in identity["sensitive_domains"]:
-        approval = runwall_approvals.match_approval(
+        approval_assessment = runwall_approvals.assess_match(
             root,
             kind="browser",
             target="domain",
             value=domain,
             runtime=str(runtime) if runtime else None,
+            repo=repo,
             agent_id=str(agent_id) if agent_id else None,
         )
+        approval = approval_assessment.get("approval")
+        approval_hit = approval_assessment.get("hit")
         if identity["has_cookie_export"]:
             return {
                 "identity": identity,
@@ -175,6 +179,8 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
                     f"Review the browser task and run `./bin/runwall browser allow {domain}` only if exporting from that session is expected.",
                 ),
             }
+        if approval_hit:
+            return {"identity": identity, "hit": approval_hit}
         if domain in allowed or approval:
             continue
         return {
@@ -206,7 +212,13 @@ def allow_domain(root: pathlib.Path, domain: str) -> None:
     allowlist.add(normalized)
     store["allowlist"] = sorted(allowlist)
     save_store(root, store)
-    runwall_approvals.create_approval(root, kind="browser", target="domain", value=normalized)
+    runwall_approvals.create_approval(
+        root,
+        kind="browser",
+        target="domain",
+        value=normalized,
+        repo=str(root.resolve(strict=False)),
+    )
 
 
 def revoke_domain(root: pathlib.Path, domain: str) -> bool:

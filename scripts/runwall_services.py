@@ -139,23 +139,30 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
         return {"identity": None, "hit": None}
     runtime = (context or {}).get("runtime")
     agent_id = (context or {}).get("subagent_id") or (context or {}).get("agent_id")
+    repo = str(root.resolve(strict=False))
     target = str(identity["target"])
     fingerprint = _fingerprint(target, str(identity["kind"]))
-    approval = runwall_approvals.match_approval(
+    approval_assessment = runwall_approvals.assess_match(
         root,
         kind="service",
         target=str(identity["service_class"]),
         value=target,
         runtime=str(runtime) if runtime else None,
+        repo=repo,
         agent_id=str(agent_id) if agent_id else None,
         fingerprint=fingerprint,
     )
+    approval = approval_assessment.get("approval")
+    approval_hit = approval_assessment.get("hit")
     store = load_store(root)
     existing = store.setdefault("services", {}).get(target)
     trust_state = "observed"
     hit = None
     if approval:
         trust_state = "approved"
+    elif approval_hit:
+        trust_state = "prompted"
+        hit = approval_hit
     elif identity["service_class"] == "metadata-service":
         trust_state = "blocked"
         hit = _hit(
@@ -251,6 +258,7 @@ def approve_service(root: pathlib.Path, selector: str) -> bool:
         kind="service",
         target=str(record.get("service_class")),
         value=str(record.get("target")),
+        repo=str(root.resolve(strict=False)),
         fingerprint=str(record.get("fingerprint")),
     )
     record["trust_state"] = "approved"

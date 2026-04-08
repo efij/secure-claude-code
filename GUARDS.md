@@ -103,6 +103,37 @@ These protections are implemented directly in native Runwall trust planes instea
 - `app-member-invite-guard`: prompts on membership and collaborator invites
 - `app-admin-browser-mutation-guard`: prompts when browser automation tries to perform high-risk admin mutations on sensitive domains
 
+## Built-In Approval Integrity Guards
+
+These protections are implemented directly in the Approval Integrity Plane instead of standalone hook modules:
+
+- `approval-broad-scope-guard`: prompts when a wildcard or overly broad approval would otherwise silently match a high-risk action
+- `approval-expiry-guard`: prompts when a previously valid approval has expired and should not be reused
+- `approval-runtime-mismatch-guard`: prompts when an approval was issued for a different runtime adapter
+- `approval-repo-mismatch-guard`: prompts when an approval from another workspace or repo is being reused
+- `approval-parent-child-mismatch-guard`: prompts when an approval from one agent or subagent is being reused by another
+- `approval-scope-mismatch-guard`: prompts when a similar approval exists, but for a different value or destination
+- `approval-drift-invalidation-guard`: prompts when the reviewed approval fingerprint no longer matches the current request
+- `approval-destination-drift-guard`: prompts when a reviewed local service or destination changed underneath the same approval
+- `approval-tool-identity-drift-guard`: prompts when a reviewed tool approval no longer matches the current tool identity
+- `approval-replay-guard`: blocks attempts to reuse a consumed one-shot approval
+- `approval-unbounded-lifetime-guard`: surfaces risky approvals that have no expiry and no one-shot boundary in approval inventory views
+
+## Built-In Safety-Control Guards
+
+These protections are implemented directly in the Safety-Control Trust Plane instead of standalone hook modules:
+
+- `audit-disable-guard`: blocks disabling audit, logging, or cloud-trail style evidence collection
+- `backup-disable-guard`: blocks disabling backups, deleting snapshots, or setting retention to zero
+- `rollback-tamper-guard`: blocks edits and commands that neuter rollback or restore paths
+- `monitoring-disable-guard`: blocks disabling monitoring, telemetry, or alerting surfaces
+- `alert-sink-rewire-guard`: prompts before rewiring alert or escalation destinations
+- `runwall-state-wipe-guard`: blocks deletion or truncation of Runwall audit and state files
+- `forensics-bundle-delete-guard`: blocks deletion of incident, evidence, provenance, SARIF, or forensics artifacts
+- `incident-runbook-automation-tamper-guard`: prompts when incident-response or escalation guidance is weakened
+- `release-safety-check-disable-guard`: blocks disabling SBOM, provenance, attestation, signing, or release verification steps
+- `recovery-script-destroy-guard`: blocks deletion, truncation, or de-executable changes against backup, restore, rollback, and recovery scripts
+
 ## Implemented Guards
 
 ### Secrets & Identity

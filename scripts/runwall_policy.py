@@ -25,6 +25,7 @@ import runwall_services
 import runwall_browser
 import runwall_agents
 import runwall_apps
+import runwall_safety
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -396,6 +397,7 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "memory_identity": result.get("memory_identity"),
             "knowledge_identity": result.get("knowledge_identity"),
             "app_identity": result.get("app_identity"),
+            "safety_identity": result.get("safety_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
             "event_categories": result.get("event_categories", []),
@@ -445,6 +447,7 @@ def evaluate(
     memory_identity: dict[str, Any] | None = None
     knowledge_identity: dict[str, Any] | None = None
     app_identity: dict[str, Any] | None = None
+    safety_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
         {
@@ -504,6 +507,14 @@ def evaluate(
                 action = app_hit["decision"]
             results.append(app_hit)
 
+        safety_assessment = runwall_safety.assess_action(root, event, matcher, payload, merged_context)
+        safety_identity = safety_assessment.get("identity")
+        safety_hit = safety_assessment.get("hit")
+        if safety_hit:
+            if _DECISION_PRIORITY[safety_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = safety_hit["decision"]
+            results.append(safety_hit)
+
         agent_action_hit = runwall_agents.assess_action(root, payload, merged_context)
         if agent_action_hit:
             if _DECISION_PRIORITY[agent_action_hit["decision"]] > _DECISION_PRIORITY[action]:
@@ -532,6 +543,14 @@ def evaluate(
             if _DECISION_PRIORITY[knowledge_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = knowledge_hit["decision"]
             results.append(knowledge_hit)
+
+        safety_assessment = runwall_safety.assess_action(root, event, matcher, payload, merged_context)
+        safety_identity = safety_assessment.get("identity")
+        safety_hit = safety_assessment.get("hit")
+        if safety_hit:
+            if _DECISION_PRIORITY[safety_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = safety_hit["decision"]
+            results.append(safety_hit)
 
     if event == "PreToolUse" and matcher in {"Bash", "Write", "Edit", "MultiEdit"}:
         hook_assessment = runwall_hooks.assess_change(root, event, matcher, payload)
@@ -582,6 +601,7 @@ def evaluate(
         "memory_identity": memory_identity,
         "knowledge_identity": knowledge_identity,
         "app_identity": app_identity,
+        "safety_identity": safety_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
@@ -618,6 +638,9 @@ def print_pretty(result: dict[str, Any]) -> None:
         app_identity = result.get("app_identity") or {}
         if app_identity.get("app"):
             print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+        safety_identity = result.get("safety_identity") or {}
+        if safety_identity.get("path"):
+            print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")
         return
     print(f"allowed: {'yes' if result['allowed'] else 'no'}")
     print(f"action: {result['action']}")
@@ -647,6 +670,9 @@ def print_pretty(result: dict[str, Any]) -> None:
     app_identity = result.get("app_identity") or {}
     if app_identity.get("app"):
         print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+    safety_identity = result.get("safety_identity") or {}
+    if safety_identity.get("path"):
+        print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")
     for hit in result["hits"]:
         print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:

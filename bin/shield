@@ -692,7 +692,7 @@ approvals_cmd() {
   local subcommand="${1:-list}"
   shift || true
   case "$subcommand" in
-    list|prune)
+    list|prune|diff|explain)
       run_python "$ROOT_DIR/scripts/runwall_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     create|revoke)
@@ -700,6 +700,19 @@ approvals_cmd() {
       ;;
     *)
       fail "unknown approvals subcommand: $subcommand"
+      ;;
+  esac
+}
+
+safety_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|diff|forget)
+      run_python "$ROOT_DIR/scripts/runwall_safety.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown safety subcommand: $subcommand"
       ;;
   esac
 }
@@ -1216,10 +1229,15 @@ Usage:
   bin/runwall approvals create --kind K --target T --value V [--runtime name] [--agent-id id] [--once] [--ttl-hours H]
   bin/runwall approvals revoke <id-or-value>
   bin/runwall approvals prune
+  bin/runwall approvals diff <id-or-value>
+  bin/runwall approvals explain <id-or-value>
   bin/runwall services list [--json]
   bin/runwall services approve <target>
   bin/runwall services forget <target>
   bin/runwall services diff <target>
+  bin/runwall safety list [--json]
+  bin/runwall safety diff <path-or-surface>
+  bin/runwall safety forget <path-or-surface>
   bin/runwall browser sessions [--json]
   bin/runwall browser allow <domain>
   bin/runwall browser revoke <domain>
@@ -1392,6 +1410,10 @@ case "$command" in
   services)
     shift
     services_cmd "$@"
+    ;;
+  safety)
+    shift
+    safety_cmd "$@"
     ;;
   browser)
     shift

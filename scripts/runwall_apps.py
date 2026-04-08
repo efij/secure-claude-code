@@ -99,18 +99,16 @@ def _hit(module: str, decision: str, identity: dict[str, Any], reason: str, safe
     }
 
 
-def _maybe_allow(root: pathlib.Path, module: str, app: str, context: dict[str, Any] | None) -> bool:
+def _approval_assessment(root: pathlib.Path, module: str, app: str, context: dict[str, Any] | None) -> dict[str, Any]:
     ctx = context or {}
-    return (
-        runwall_approvals.match_approval(
-            root,
-            kind="app",
-            target=module,
-            value=app,
-            runtime=str(ctx.get("runtime")) if ctx.get("runtime") else None,
-            agent_id=str(ctx.get("subagent_id") or ctx.get("agent_id")) if (ctx.get("subagent_id") or ctx.get("agent_id")) else None,
-        )
-        is not None
+    return runwall_approvals.assess_match(
+        root,
+        kind="app",
+        target=module,
+        value=app,
+        runtime=str(ctx.get("runtime")) if ctx.get("runtime") else None,
+        repo=str(root.resolve(strict=False)),
+        agent_id=str(ctx.get("subagent_id") or ctx.get("agent_id")) if (ctx.get("subagent_id") or ctx.get("agent_id")) else None,
     )
 
 
@@ -131,13 +129,21 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
     ]
     for module, decision, regex, reason, safer in checks:
         if regex.search(payload):
-            if _maybe_allow(root, module, app, context):
+            approval_assessment = _approval_assessment(root, module, app, context)
+            approval_hit = approval_assessment.get("hit")
+            if approval_hit:
+                return {"identity": _identity(app, payload, module), "hit": approval_hit}
+            if approval_assessment.get("approval"):
                 return {"identity": _identity(app, payload, module), "hit": None}
             return {"identity": _identity(app, payload, module), "hit": _hit(module, decision, _identity(app, payload, module), f"{reason} App={app}.", safer)}
 
     if AUTOMATION_RE.search(payload) and _app_from_payload(payload) and BROWSER_MUTATION_RE.search(payload):
         module = "app-admin-browser-mutation-guard"
-        if _maybe_allow(root, module, app, context):
+        approval_assessment = _approval_assessment(root, module, app, context)
+        approval_hit = approval_assessment.get("hit")
+        if approval_hit:
+            return {"identity": _identity(app, payload, module), "hit": approval_hit}
+        if approval_assessment.get("approval"):
             return {"identity": _identity(app, payload, module), "hit": None}
         return {
             "identity": _identity(app, payload, module),

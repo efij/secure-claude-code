@@ -1,5 +1,15 @@
 # Changelog
 
+## 10.0.0
+
+- added an `Approval Integrity Plane` so risky exceptions are no longer treated like permanent bypasses, with native protections for `approval-broad-scope-guard`, `approval-expiry-guard`, `approval-runtime-mismatch-guard`, `approval-repo-mismatch-guard`, `approval-parent-child-mismatch-guard`, `approval-scope-mismatch-guard`, `approval-drift-invalidation-guard`, `approval-destination-drift-guard`, `approval-tool-identity-drift-guard`, `approval-replay-guard`, and `approval-unbounded-lifetime-guard`
+- added `runwall approvals diff` and `runwall approvals explain`, plus richer approval health output so reviewers can see exactly why an approval is considered broad, stale, drifted, or consumed
+- added a `Safety-Control Trust Plane` with native protections for `audit-disable-guard`, `backup-disable-guard`, `rollback-tamper-guard`, `monitoring-disable-guard`, `alert-sink-rewire-guard`, `runwall-state-wipe-guard`, `forensics-bundle-delete-guard`, `incident-runbook-automation-tamper-guard`, `release-safety-check-disable-guard`, and `recovery-script-destroy-guard`
+- added `runwall safety list`, `runwall safety diff`, and `runwall safety forget` so recovery, audit, monitoring, and release-control surfaces are visible as first-class local state instead of opaque regex-only behavior
+- extended policy evaluation, pretty output, and audit emission so safety identities now show up alongside tools, hooks, services, browser sessions, memory, knowledge, and app actions
+- expanded smoke coverage for approval replay, runtime mismatch, repo mismatch, actor mismatch, expiry, destination drift, audit disable, backup sabotage, release-check tamper, and forensics deletion paths
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `10.0.0` trust-plane upgrade
+
 ## 9.0.0
 
 - added a `Memory Trust Plane` with local inventory, trust, quarantine, diff, and native guards for `memory-source-review-guard`, `memory-drift-guard`, `memory-remote-ingest-guard`, `memory-prompt-smuggling-guard`, `memory-policy-override-guard`, `memory-secret-harvest-instruction-guard`, `memory-exfil-instruction-guard`, `memory-hidden-encoding-guard`, `memory-tool-trust-override-guard`, and `memory-quarantine-bypass-guard`
