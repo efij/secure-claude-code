@@ -25,6 +25,17 @@ These protections are implemented directly in the Tool Trust Plane instead of as
 - `generated-tool-chain-guard`: prompts when a newly created local executable is run before it has been reviewed
 - `symlink-tool-swap-guard`: blocks trusted or approved local tools that suddenly resolve through a symlinked swap target
 
+## Built-In Hook Trust Guards
+
+These protections are implemented directly in the Hook Trust Plane instead of as standalone hook modules:
+
+- `hook-review-boundary-guard`: prompts on first-seen git hooks, package install scripts, and plugin hook surfaces before they become trusted recurring execution paths
+- `hook-drift-guard`: prompts when a previously observed or approved hook-bearing surface changes its body
+- `hook-origin-guard`: blocks hook bodies that jump to temp, download, cache, or remote execution sources
+- `hook-wrapper-escalation-guard`: blocks inline shell or interpreter wrapper execution inside hook-bearing surfaces
+- `hook-fanout-network-guard`: blocks hook-bearing surfaces that add outbound fetch, upload, webhook, or tunnel behavior
+- `hook-stealth-persistence-guard`: blocks stealthy background, delayed, or redirection-heavy persistence behavior hidden in hooks
+
 ## Implemented Guards
 
 ### Secrets & Identity

@@ -15,6 +15,7 @@ from typing import Any
 
 import runwall_chain
 import runwall_forensics
+import runwall_hooks
 import runwall_runtime
 import runwall_tools
 
@@ -382,6 +383,7 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "matcher": result["matcher"],
             "hits": result["hits"],
             "tool_identity": result.get("tool_identity"),
+            "hook_identity": result.get("hook_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
             "event_categories": result.get("event_categories", []),
@@ -422,6 +424,7 @@ def evaluate(
     results = []
     action = "allow"
     tool_identity: dict[str, Any] | None = None
+    hook_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
         {
@@ -444,6 +447,15 @@ def evaluate(
             if _DECISION_PRIORITY[tool_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = tool_hit["decision"]
             results.append(tool_hit)
+
+    if event == "PreToolUse" and matcher in {"Bash", "Write", "Edit", "MultiEdit"}:
+        hook_assessment = runwall_hooks.assess_change(root, event, matcher, payload)
+        hook_identity = hook_assessment.get("identity")
+        hook_hit = hook_assessment.get("hit")
+        if hook_hit:
+            if _DECISION_PRIORITY[hook_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = hook_hit["decision"]
+            results.append(hook_hit)
 
     for manifest, hook in iter_matching_hooks(root, profile, event, matcher):
         command = hook.get("command", "")
@@ -479,6 +491,7 @@ def evaluate(
         "hits": results,
         "event_id": event_record["event_id"],
         "tool_identity": tool_identity,
+        "hook_identity": hook_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
@@ -492,6 +505,12 @@ def print_pretty(result: dict[str, Any]) -> None:
         tool_identity = result.get("tool_identity") or {}
         if tool_identity.get("resolved_path"):
             print(f"tool: {tool_identity.get('display_name')} -> {tool_identity.get('resolved_path')} [{tool_identity.get('origin')}]")
+        hook_identity = result.get("hook_identity") or {}
+        if hook_identity.get("location"):
+            print(
+                f"hook: {hook_identity.get('surface')} -> {hook_identity.get('location')} "
+                f"[{hook_identity.get('origin')}]"
+            )
         return
     print(f"allowed: {'yes' if result['allowed'] else 'no'}")
     print(f"action: {result['action']}")
@@ -500,6 +519,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     tool_identity = result.get("tool_identity") or {}
     if tool_identity.get("resolved_path"):
         print(f"tool: {tool_identity.get('display_name')} -> {tool_identity.get('resolved_path')} [{tool_identity.get('origin')}]")
+    hook_identity = result.get("hook_identity") or {}
+    if hook_identity.get("location"):
+        print(
+            f"hook: {hook_identity.get('surface')} -> {hook_identity.get('location')} "
+            f"[{hook_identity.get('origin')}]"
+        )
     for hit in result["hits"]:
         print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:

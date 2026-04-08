@@ -1,5 +1,15 @@
 # Changelog
 
+## 7.0.0
+
+- added a Hook Trust Plane for piggyback workflow hooks so Runwall can reason about git hooks, package install scripts, plugin hook manifests, and other hook-bearing surfaces as first-class trust objects
+- added built-in hook protections: `hook-review-boundary-guard`, `hook-drift-guard`, `hook-origin-guard`, `hook-wrapper-escalation-guard`, `hook-fanout-network-guard`, and `hook-stealth-persistence-guard`
+- added `bin/runwall hooks list`, `bin/runwall hooks diff`, `bin/runwall hooks approve`, and `bin/runwall hooks forget` for local hook inventory, drift review, and approvals
+- added local hook trust state in `state/hooks.json` and tuning in `config/hook-trust-policy.json` without introducing a database
+- exposed hook identity data in runtime evaluation and audit records so forensics can explain which surface, location, and drift state triggered a decision
+- expanded smoke coverage for first-seen review, approval flow, drift, temp-or-remote hook origins, wrapper escalation, network fanout, and stealth persistence
+- updated the README, guard registry, and signature deep dive so Hook Trust Plane behavior is documented as a native Runwall capability instead of an ad hoc collection of regexes
+
 ## 6.5.0
 
 - expanded the Tool Trust Plane with five new built-in protections: `path-prepend-hijack-guard`, `shell-alias-hijack-guard`, `package-runner-wrapper-guard`, `generated-tool-chain-guard`, and `symlink-tool-swap-guard`

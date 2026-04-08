@@ -120,6 +120,37 @@ You can inspect and manage that local trust state with:
 ./bin/runwall tools forget <name-or-path>
 ```
 
+## Hook Trust Plane
+
+Runwall now treats piggyback hooks as a third trust plane beside MCP and raw tool execution.
+
+That matters because a lot of quiet hijack paths do not look like “new malware.” They look like small edits to normal workflow triggers:
+
+- git hooks
+- package install scripts like `preinstall` and `prepare`
+- plugin hook manifests
+- shell startup files
+- CI and editor task glue
+
+The built-in hook trust layer keeps a local registry in Runwall state files, typically `~/.runwall/state/hooks.json` when installed, and intervenes on a few high-confidence cases:
+
+- first-seen review for hook-bearing surfaces that can execute during normal workflows
+- hook drift after a previously reviewed hook changes its body
+- hook origins that jump to temp, download, cache, or remote execution paths
+- hook wrapper escalation through inline `bash -c`, `python -c`, `node -e`, or encoded PowerShell
+- hook fanout that adds outbound network, upload, or tunnel behavior to an implicit trigger
+- stealthy background or delayed persistence hidden inside hooks
+
+You can inspect and manage that local trust state with:
+
+```bash
+./bin/runwall hooks list
+./bin/runwall hooks list --json
+./bin/runwall hooks diff <path-or-key>
+./bin/runwall hooks approve <path-or-key>
+./bin/runwall hooks forget <path-or-key>
+```
+
 ## Protection Families
 
 Runwall now groups signatures into stable families so the product reads like a real signature engine instead of a flat list:

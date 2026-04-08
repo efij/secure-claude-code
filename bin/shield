@@ -666,6 +666,28 @@ tools_cmd() {
   esac
 }
 
+hooks_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list)
+      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" list "$@"
+      ;;
+    approve)
+      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" approve "$@"
+      ;;
+    forget)
+      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" forget "$@"
+      ;;
+    diff)
+      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" diff "$@"
+      ;;
+    *)
+      fail "unknown hooks subcommand: $subcommand"
+      ;;
+  esac
+}
+
 generate_runtime_config() {
   local runtime="${1:-}"
   local profile="${2:-balanced}"
@@ -1079,6 +1101,10 @@ Usage:
   bin/runwall tools list [--json]
   bin/runwall tools approve <name-or-path>
   bin/runwall tools forget <name-or-path>
+  bin/runwall hooks list [--json]
+  bin/runwall hooks approve <path-or-key>
+  bin/runwall hooks forget <path-or-key>
+  bin/runwall hooks diff <path-or-key>
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
@@ -1215,6 +1241,10 @@ case "$command" in
   tools)
     shift
     tools_cmd "$@"
+    ;;
+  hooks)
+    shift
+    hooks_cmd "$@"
     ;;
   help|-h|--help|"")
     usage

@@ -80,6 +80,52 @@ These are native Runwall trust-plane protections for raw CLI execution. They are
 - Why it matters: symlinks are a low-friction way to replace the real target behind the same command name.
 - Action: block
 
+## Built-In Hook Trust Guards
+
+These are native Runwall trust-plane protections for hook-bearing workflow surfaces. They are not shipped as standalone hook modules because they operate on local hook identity, drift, origin, and approval state over time.
+
+### hook-review-boundary-guard
+
+- Purpose: require review before first-seen hook-bearing surfaces become trusted recurring execution paths.
+- Detects: new git hooks, package install scripts, and plugin hook definitions before they are locally approved.
+- Why it matters: piggyback hooks often look harmless at first because they hide inside routine developer triggers that run later without much visibility.
+- Action: prompt
+
+### hook-drift-guard
+
+- Purpose: surface changes to a hook-bearing surface after it was already observed or approved.
+- Detects: changed hook content hashes and execution-shape changes on the same hook location.
+- Why it matters: a reviewed hook that quietly changes later is a trust-boundary failure, not “just another file edit.”
+- Action: prompt
+
+### hook-origin-guard
+
+- Purpose: block hooks that jump to temp, download, cache, or remote execution sources.
+- Detects: hook bodies that call `/tmp`, Downloads, cache paths, or direct URLs from git hooks, package scripts, and plugin hooks.
+- Why it matters: this is a low-friction way to piggyback unreviewed code onto a trusted workflow trigger.
+- Action: block
+
+### hook-wrapper-escalation-guard
+
+- Purpose: block hook-bearing surfaces that escalate into inline interpreter or shell wrapper execution.
+- Detects: `bash -c`, `python -c`, `node -e`, encoded PowerShell, and similar wrapper shapes embedded in hook content.
+- Why it matters: wrappers hide the real execution body and make provenance much weaker than reviewed scripts.
+- Action: block
+
+### hook-fanout-network-guard
+
+- Purpose: block hooks that add outbound network, upload, webhook, or tunnel behavior to routine local triggers.
+- Detects: fetch, upload, webhook, tunnel, and remote-network patterns inside hook-bearing surfaces.
+- Why it matters: a normal local action should not quietly turn into exfiltration, staging, or remote signaling.
+- Action: block
+
+### hook-stealth-persistence-guard
+
+- Purpose: block stealthy, delayed, or background persistence hidden inside hook-bearing surfaces.
+- Detects: `nohup`, `disown`, delayed launch, background execution, and stealth-heavy redirection in hooks.
+- Why it matters: covert persistence is one of the main reasons piggyback hooks are dangerous even when they look small in review.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

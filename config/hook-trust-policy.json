@@ -1,0 +1,21 @@
+{
+  "review_surfaces": [
+    "git-hook",
+    "package-install-script",
+    "plugin-hook"
+  ],
+  "block_origins": [
+    "temp",
+    "download",
+    "cache"
+  ],
+  "high_risk_surfaces": [
+    "git-hook",
+    "package-install-script",
+    "plugin-hook",
+    "ci-workflow",
+    "editor-task",
+    "shell-startup",
+    "task-runner"
+  ]
+}
