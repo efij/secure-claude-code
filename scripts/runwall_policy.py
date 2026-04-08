@@ -17,8 +17,10 @@ import runwall_chain
 import runwall_flow
 import runwall_forensics
 import runwall_hooks
+import runwall_exec
 import runwall_knowledge
 import runwall_memory
+import runwall_promotion
 import runwall_runtime
 import runwall_tools
 import runwall_services
@@ -394,8 +396,10 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "hook_identity": result.get("hook_identity"),
             "service_identity": result.get("service_identity"),
             "browser_identity": result.get("browser_identity"),
+            "exec_identity": result.get("exec_identity"),
             "memory_identity": result.get("memory_identity"),
             "knowledge_identity": result.get("knowledge_identity"),
+            "promotion_identity": result.get("promotion_identity"),
             "app_identity": result.get("app_identity"),
             "safety_identity": result.get("safety_identity"),
             "chain_alerts": result.get("chain_alerts", []),
@@ -444,8 +448,10 @@ def evaluate(
     hook_identity: dict[str, Any] | None = None
     service_identity: dict[str, Any] | None = None
     browser_identity: dict[str, Any] | None = None
+    exec_identity: dict[str, Any] | None = None
     memory_identity: dict[str, Any] | None = None
     knowledge_identity: dict[str, Any] | None = None
+    promotion_identity: dict[str, Any] | None = None
     app_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
@@ -499,6 +505,14 @@ def evaluate(
                 action = browser_hit["decision"]
             results.append(browser_hit)
 
+        exec_assessment = runwall_exec.assess_command(root, payload, merged_context)
+        exec_identity = exec_assessment.get("identity")
+        exec_hit = exec_assessment.get("hit")
+        if exec_hit:
+            if _DECISION_PRIORITY[exec_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = exec_hit["decision"]
+            results.append(exec_hit)
+
         app_assessment = runwall_apps.assess_command(root, payload, merged_context)
         app_identity = app_assessment.get("identity")
         app_hit = app_assessment.get("hit")
@@ -543,6 +557,14 @@ def evaluate(
             if _DECISION_PRIORITY[knowledge_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = knowledge_hit["decision"]
             results.append(knowledge_hit)
+
+        promotion_assessment = runwall_promotion.assess_fileop(root, event, matcher, payload, merged_context)
+        promotion_identity = promotion_assessment.get("identity")
+        promotion_hit = promotion_assessment.get("hit")
+        if promotion_hit:
+            if _DECISION_PRIORITY[promotion_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = promotion_hit["decision"]
+            results.append(promotion_hit)
 
         safety_assessment = runwall_safety.assess_action(root, event, matcher, payload, merged_context)
         safety_identity = safety_assessment.get("identity")
@@ -598,8 +620,10 @@ def evaluate(
         "hook_identity": hook_identity,
         "service_identity": service_identity,
         "browser_identity": browser_identity,
+        "exec_identity": exec_identity,
         "memory_identity": memory_identity,
         "knowledge_identity": knowledge_identity,
+        "promotion_identity": promotion_identity,
         "app_identity": app_identity,
         "safety_identity": safety_identity,
         "event_categories": session_result["categories"],
@@ -629,12 +653,18 @@ def print_pretty(result: dict[str, Any]) -> None:
         browser_identity = result.get("browser_identity") or {}
         if browser_identity.get("domains"):
             print(f"browser: {', '.join(browser_identity.get('domains', []))}")
+        exec_identity = result.get("exec_identity") or {}
+        if exec_identity.get("surface"):
+            print(f"exec: {exec_identity.get('surface')}")
         memory_identity = result.get("memory_identity") or {}
         if memory_identity.get("path"):
             print(f"memory: {memory_identity.get('path')}")
         knowledge_identity = result.get("knowledge_identity") or {}
         if knowledge_identity.get("path"):
             print(f"knowledge: {knowledge_identity.get('path')}")
+        promotion_identity = result.get("promotion_identity") or {}
+        if promotion_identity.get("path"):
+            print(f"promotion: {promotion_identity.get('surface')} -> {promotion_identity.get('path')}")
         app_identity = result.get("app_identity") or {}
         if app_identity.get("app"):
             print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
@@ -661,12 +691,18 @@ def print_pretty(result: dict[str, Any]) -> None:
     browser_identity = result.get("browser_identity") or {}
     if browser_identity.get("domains"):
         print(f"browser: {', '.join(browser_identity.get('domains', []))}")
+    exec_identity = result.get("exec_identity") or {}
+    if exec_identity.get("surface"):
+        print(f"exec: {exec_identity.get('surface')}")
     memory_identity = result.get("memory_identity") or {}
     if memory_identity.get("path"):
         print(f"memory: {memory_identity.get('path')}")
     knowledge_identity = result.get("knowledge_identity") or {}
     if knowledge_identity.get("path"):
         print(f"knowledge: {knowledge_identity.get('path')}")
+    promotion_identity = result.get("promotion_identity") or {}
+    if promotion_identity.get("path"):
+        print(f"promotion: {promotion_identity.get('surface')} -> {promotion_identity.get('path')}")
     app_identity = result.get("app_identity") or {}
     if app_identity.get("app"):
         print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")

@@ -681,6 +681,143 @@ These are native Runwall trust-plane protections for audit trails, rollback path
 - Why it matters: once recovery scripts are gone, the window for safe rollback closes quickly.
 - Action: block
 
+## Built-In Fileless and Promotion Guards
+
+These are native Runwall trust-plane protections for fileless execution shapes and remote content promotion into trusted local authority surfaces.
+
+### inline-fetch-exec-guard
+
+- Purpose: stop remote fetch-and-execute chains hidden inside inline execution.
+- Detects: `bash -c`, `python -c`, `node -e`, or process-substitution chains that fetch remote content and execute it directly.
+- Why it matters: this is the cleanest way to bypass executable identity because nothing stable has to land on disk first.
+- Action: block
+
+### inline-encoded-loader-guard
+
+- Purpose: stop decode-and-run behavior in inline execution.
+- Detects: base64, PowerShell `-enc`, OpenSSL, GPG, or similar decode paths combined with inline interpreters or heredocs.
+- Why it matters: encoded loader chains are strongly attackerish and make review much harder.
+- Action: block
+
+### inline-process-substitution-guard
+
+- Purpose: stop sourcing fetched content through process substitution.
+- Detects: `<(...)` execution patterns that wrap fetch-and-exec or remote-content evaluation.
+- Why it matters: process substitution is a neat way to hide fetch-and-run behavior without creating a file.
+- Action: block
+
+### inline-heredoc-dropper-guard
+
+- Purpose: stop heredoc bodies that act like droppers or exfiltration helpers.
+- Detects: heredocs that include fetch, upload, persistence, or executable staging behavior.
+- Why it matters: heredocs are common in legitimate dev work, so Runwall only blocks the ones that clearly act like staged payloads.
+- Action: block
+
+### inline-eval-secret-guard
+
+- Purpose: stop inline `eval` or `source` chains that combine secret access with loader or outbound behavior.
+- Detects: `eval`, `source`, or `.` combined with secret-bearing paths and upload or fetch primitives.
+- Why it matters: this is a compact way to turn secret-bearing local content into executable or exfiltrated runtime behavior.
+- Action: block
+
+### inline-env-payload-guard
+
+- Purpose: stop inline execution driven by hidden environment payloads.
+- Detects: payload variables like `PAYLOAD`, `CODE`, `SCRIPT`, or `DATA` being executed through shell or interpreter one-liners.
+- Why it matters: env-based loaders hide the real code away from the visible command line.
+- Action: block
+
+### inline-python-loader-guard
+
+- Purpose: stop risky `python -c` loader behavior.
+- Detects: `python -c` chains that fetch, decode, `exec`, or immediately touch secret or outbound primitives.
+- Why it matters: inline Python is legitimate in moderation, but loader-style Python one-liners are a common bypass path.
+- Action: block
+
+### inline-node-loader-guard
+
+- Purpose: stop risky `node -e` loader behavior.
+- Detects: `node -e` chains that fetch, `eval`, spawn child processes, decode blobs, or touch secret or outbound primitives.
+- Why it matters: inline JavaScript can impersonate a harmless tool invocation while actually acting like a loader.
+- Action: block
+
+### inline-shell-persistence-guard
+
+- Purpose: stop inline execution from creating persistence.
+- Detects: inline shells or interpreters that write shell profiles, schedulers, login items, or SSH startup surfaces.
+- Why it matters: one-line persistence is quiet, effective, and rarely needed in normal runtime workflows.
+- Action: block
+
+### inline-policy-bypass-guard
+
+- Purpose: stop inline execution that disables Runwall or review boundaries.
+- Detects: `HUSKY=0`, `--no-verify`, `ignore runwall`, `disable runwall`, or similar bypass phrasing inside inline execution.
+- Why it matters: if the runtime can hide policy bypass inside one-liners, it can step around a lot of other protections.
+- Action: block
+
+### remote-to-memory-promotion-guard
+
+- Purpose: stop remote content from becoming persistent memory in one step.
+- Detects: URLs, raw hosts, or pasted external content written directly into memory surfaces.
+- Why it matters: long-lived memory becomes a hidden policy plane once external content is allowed to land there unreviewed.
+- Action: block
+
+### remote-to-knowledge-promotion-guard
+
+- Purpose: stop remote content promotion into knowledge, vault, and RAG surfaces.
+- Detects: direct writes from remote or mirrored sources into knowledge caches, vaults, and imported note stores.
+- Why it matters: poisoned knowledge often returns later looking trusted because it already sits in a “documentation” surface.
+- Action: block
+
+### remote-to-hook-promotion-guard
+
+- Purpose: stop remote content promotion into hook-bearing surfaces.
+- Detects: fetched or pasted content being written into git hooks, plugin hook manifests, or similar triggerable hook surfaces.
+- Why it matters: this turns remote text into executable behavior with almost no review boundary.
+- Action: block
+
+### remote-to-policy-promotion-guard
+
+- Purpose: stop remote content promotion into policy and config surfaces.
+- Detects: fetched or pasted content being written into `.mcp.json`, plugin manifests, Runwall config, settings, or similar control files.
+- Why it matters: remote content should not get to redefine trust boundaries in one write.
+- Action: block
+
+### remote-to-script-promotion-guard
+
+- Purpose: stop remote content promotion into scripts and workflows.
+- Detects: fetched or pasted content being written into `bin/`, `scripts/`, hook scripts, or CI workflow files.
+- Why it matters: it is a direct supply-chain bridge from remote content to executable local behavior.
+- Action: block
+
+### remote-to-agent-doc-promotion-guard
+
+- Purpose: stop remote content promotion into agent instruction files.
+- Detects: fetched or pasted content being written into `CLAUDE.md`, `AGENTS.md`, or similar agent-control docs.
+- Why it matters: agent docs are part of the local trust boundary, so remote content should not become first-class instructions automatically.
+- Action: block
+
+### raw-host-promotion-guard
+
+- Purpose: stop promotion from raw file hosts and paste sites.
+- Detects: raw GitHub content hosts, gist raw endpoints, paste sites, and similar hosts being written into trusted local authority surfaces.
+- Why it matters: raw hosts are a common delivery vehicle for quick malicious content promotion.
+- Action: block
+
+### paste-to-trusted-surface-guard
+
+- Purpose: require review before pasted external content becomes trusted local authority.
+- Detects: “paste this exactly,” “mirror this output,” and similar language when writing to trusted memory, knowledge, hook, policy, or instruction surfaces.
+- Why it matters: some abuse paths rely on socially engineered copy-paste rather than obvious remote URLs.
+- Action: prompt
+
+### promotion-quarantine-bypass-guard
+
+- Purpose: stop reads or edits of promoted sources that were already quarantined.
+- Detects: access to promotion-tracked surfaces that were explicitly marked quarantined in the local store.
+- Why it matters: quarantine only works if the runtime cannot keep consuming the poisoned source anyway.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

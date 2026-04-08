@@ -1,5 +1,14 @@
 # Changelog
 
+## 11.0.0
+
+- added a `Fileless / Inline Execution Trust Plane` with native protections for `inline-fetch-exec-guard`, `inline-encoded-loader-guard`, `inline-process-substitution-guard`, `inline-heredoc-dropper-guard`, `inline-eval-secret-guard`, `inline-env-payload-guard`, `inline-python-loader-guard`, `inline-node-loader-guard`, `inline-shell-persistence-guard`, and `inline-policy-bypass-guard`
+- added a `Remote Content Promotion Trust Plane` with native protections for `remote-to-memory-promotion-guard`, `remote-to-knowledge-promotion-guard`, `remote-to-hook-promotion-guard`, `remote-to-policy-promotion-guard`, `remote-to-script-promotion-guard`, `remote-to-agent-doc-promotion-guard`, `raw-host-promotion-guard`, `paste-to-trusted-surface-guard`, and `promotion-quarantine-bypass-guard`
+- added new CLI surfaces: `runwall exec` and `runwall promotion`
+- extended policy evaluation, pretty output, and audit emission so inline-exec and promotion identities show up beside the other trust planes
+- expanded smoke coverage for inline fetch-and-exec blocking, encoded loaders, safe inline one-liners, remote content promotion into memory and policy surfaces, quarantine enforcement, and trusted-surface promotion inspection
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `11.0.0` trust-plane upgrade
+
 ## 10.0.0
 
 - added an `Approval Integrity Plane` so risky exceptions are no longer treated like permanent bypasses, with native protections for `approval-broad-scope-guard`, `approval-expiry-guard`, `approval-runtime-mismatch-guard`, `approval-repo-mismatch-guard`, `approval-parent-child-mismatch-guard`, `approval-scope-mismatch-guard`, `approval-drift-invalidation-guard`, `approval-destination-drift-guard`, `approval-tool-identity-drift-guard`, `approval-replay-guard`, and `approval-unbounded-lifetime-guard`

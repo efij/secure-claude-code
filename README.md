@@ -169,6 +169,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `SaaS Action Trust`: prompts or blocks only on high-risk authenticated control-plane actions such as token minting, secret admin, role grants, prod deploys, webhook changes, and destructive deletes
 - `Approval Integrity`: narrows risky exceptions so one-shot approvals cannot be replayed, approvals do not drift silently across runtimes or repos, and broad wildcard approvals are surfaced before they turn into policy bypass
 - `Safety-Control Trust`: protects the things attackers disable first: audit trails, rollback scripts, backups, monitoring, alert sinks, incident bundles, and release safety checks
+- `Fileless / Inline Execution Trust`: blocks remote fetch-and-exec, encoded loaders, env-driven payloads, inline persistence, and policy-bypass chains that try to avoid leaving a normal executable on disk
+- `Remote Content Promotion Trust`: blocks remote or pasted content from being promoted directly into trusted memory, knowledge, hook, policy, script, and agent-instruction surfaces
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -202,10 +204,19 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall memory quarantine <path>
 ./bin/runwall memory diff <path>
 
+./bin/runwall exec list --json
+./bin/runwall exec explain <event-id-or-module>
+./bin/runwall exec policy --json
+
 ./bin/runwall knowledge list --json
 ./bin/runwall knowledge trust <path>
 ./bin/runwall knowledge quarantine <path>
 ./bin/runwall knowledge diff <path>
+
+./bin/runwall promotion list --json
+./bin/runwall promotion trust <path>
+./bin/runwall promotion quarantine <path>
+./bin/runwall promotion diff <path>
 
 ./bin/runwall apps list --json
 ./bin/runwall apps explain <event-id>
@@ -261,6 +272,16 @@ High-signal built-ins in these planes now include:
 - `app-webhook-admin-guard`
 - `app-member-invite-guard`
 - `app-admin-browser-mutation-guard`
+- `inline-fetch-exec-guard`
+- `inline-encoded-loader-guard`
+- `inline-env-payload-guard`
+- `inline-policy-bypass-guard`
+- `remote-to-memory-promotion-guard`
+- `remote-to-knowledge-promotion-guard`
+- `remote-to-hook-promotion-guard`
+- `remote-to-policy-promotion-guard`
+- `remote-to-script-promotion-guard`
+- `raw-host-promotion-guard`
 
 ## Protection Families
 
@@ -276,6 +297,8 @@ Runwall now groups signatures into stable families so the product reads like a r
 - `Quality & Workflow`: workflow integrity, context policy, test suppression, and destructive cleanup
 - `Memory & Knowledge`: persistent memory, imported notes, vaults, RAG caches, and mirrored knowledge surfaces
 - `SaaS & Control Planes`: authenticated control-plane actions against GitHub, Vercel, Stripe, Supabase, cloud consoles, and similar admin surfaces
+- `Fileless & Inline Execution`: inline shells, interpreter one-liners, process substitution, heredoc loaders, and other fileless execution shapes
+- `Remote Content Promotion`: remote or pasted content being promoted into trusted local authority surfaces such as memory, hooks, policy, scripts, and agent docs
 
 You can inspect the active registry by family with:
 

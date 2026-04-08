@@ -666,6 +666,19 @@ tools_cmd() {
   esac
 }
 
+exec_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|explain|policy)
+      run_python "$ROOT_DIR/scripts/runwall_exec.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown exec subcommand: $subcommand"
+      ;;
+  esac
+}
+
 hooks_cmd() {
   local subcommand="${1:-list}"
   shift || true
@@ -684,6 +697,19 @@ hooks_cmd() {
       ;;
     *)
       fail "unknown hooks subcommand: $subcommand"
+      ;;
+  esac
+}
+
+promotion_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|trust|quarantine|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_promotion.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown promotion subcommand: $subcommand"
       ;;
   esac
 }
@@ -1221,10 +1247,18 @@ Usage:
   bin/runwall tools list [--json]
   bin/runwall tools approve <name-or-path>
   bin/runwall tools forget <name-or-path>
+  bin/runwall exec list [--json]
+  bin/runwall exec explain <event-id-or-module>
+  bin/runwall exec policy [--json]
   bin/runwall hooks list [--json]
   bin/runwall hooks approve <path-or-key>
   bin/runwall hooks forget <path-or-key>
   bin/runwall hooks diff <path-or-key>
+  bin/runwall promotion list [--json]
+  bin/runwall promotion trust <path>
+  bin/runwall promotion quarantine <path>
+  bin/runwall promotion forget <path>
+  bin/runwall promotion diff <path>
   bin/runwall approvals list [--json]
   bin/runwall approvals create --kind K --target T --value V [--runtime name] [--agent-id id] [--once] [--ttl-hours H]
   bin/runwall approvals revoke <id-or-value>
@@ -1399,9 +1433,17 @@ case "$command" in
     shift
     tools_cmd "$@"
     ;;
+  exec)
+    shift
+    exec_cmd "$@"
+    ;;
   hooks)
     shift
     hooks_cmd "$@"
+    ;;
+  promotion)
+    shift
+    promotion_cmd "$@"
     ;;
   approvals)
     shift

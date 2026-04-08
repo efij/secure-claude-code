@@ -134,6 +134,30 @@ These protections are implemented directly in the Safety-Control Trust Plane ins
 - `release-safety-check-disable-guard`: blocks disabling SBOM, provenance, attestation, signing, or release verification steps
 - `recovery-script-destroy-guard`: blocks deletion, truncation, or de-executable changes against backup, restore, rollback, and recovery scripts
 
+## Built-In Fileless and Promotion Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `inline-fetch-exec-guard`: blocks remote fetch-and-execute chains hidden inside inline shell or interpreter execution
+- `inline-encoded-loader-guard`: blocks encoded loader and decode-and-run behavior inside inline shells, Python, Node, and PowerShell
+- `inline-process-substitution-guard`: blocks process-substitution chains that source or execute fetched content
+- `inline-heredoc-dropper-guard`: blocks heredoc execution that stages loaders, exfiltration, or persistence
+- `inline-eval-secret-guard`: blocks inline `eval` and `source` chains that combine secret access with loaders or outbound behavior
+- `inline-env-payload-guard`: blocks inline execution driven by hidden environment payload variables
+- `inline-python-loader-guard`: blocks risky `python -c` loader behavior with fetch, exec, secret, or outbound primitives
+- `inline-node-loader-guard`: blocks risky `node -e` loader behavior with fetch, exec, secret, or outbound primitives
+- `inline-shell-persistence-guard`: blocks inline execution that edits login, scheduler, or persistence surfaces
+- `inline-policy-bypass-guard`: blocks inline execution that tries to disable Runwall or step around local review boundaries
+- `remote-to-memory-promotion-guard`: blocks remote content promotion into persistent memory surfaces
+- `remote-to-knowledge-promotion-guard`: blocks remote content promotion into knowledge, vault, and RAG surfaces
+- `remote-to-hook-promotion-guard`: blocks remote content promotion into hook-bearing surfaces
+- `remote-to-policy-promotion-guard`: blocks remote content promotion into policy, settings, and plugin control surfaces
+- `remote-to-script-promotion-guard`: blocks remote content promotion into scripts, workflow files, and executable bins
+- `remote-to-agent-doc-promotion-guard`: blocks remote content promotion into `CLAUDE.md`, `AGENTS.md`, and similar agent instruction files
+- `raw-host-promotion-guard`: blocks promotion of content from raw file hosts and paste sites into trusted local authority surfaces
+- `paste-to-trusted-surface-guard`: prompts before pasted external content is promoted into a trusted surface
+- `promotion-quarantine-bypass-guard`: blocks reads or writes against promoted sources that were explicitly quarantined
+
 ## Implemented Guards
 
 ### Secrets & Identity
