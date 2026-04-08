@@ -67,6 +67,42 @@ These protections are implemented directly in native Runwall trust planes instea
 - `isolated-parent-bridge-guard`: blocks child or delegated agents from executing around an isolated parent boundary
 - `agent-fanout-guard`: prompts when many agents fan out inside one session before an outbound action
 
+## Built-In Memory, Knowledge, and App Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `memory-source-review-guard`: prompts before a new persistent memory surface becomes trusted
+- `memory-drift-guard`: prompts when a trusted memory source changes
+- `memory-remote-ingest-guard`: blocks remote or pasted external content from being written directly into persistent memory
+- `memory-prompt-smuggling-guard`: blocks override or system-priority prompt language in memory
+- `memory-policy-override-guard`: blocks memory content that tells the runtime to ignore Runwall or local policy
+- `memory-secret-harvest-instruction-guard`: blocks memory instructions that tell the runtime to collect local or cloud secrets
+- `memory-exfil-instruction-guard`: blocks memory instructions that stage upload, webhook, or publish behavior
+- `memory-hidden-encoding-guard`: blocks encoded or hidden instruction bodies in memory surfaces
+- `memory-tool-trust-override-guard`: blocks memory that silently widens tool or plugin trust boundaries
+- `memory-quarantine-bypass-guard`: blocks reads or edits of memory sources that were explicitly quarantined
+- `knowledge-source-review-guard`: prompts before a new vault, Obsidian, RAG, or mirrored knowledge surface becomes trusted
+- `knowledge-drift-guard`: prompts when a trusted knowledge source changes
+- `knowledge-remote-ingest-guard`: blocks remote or pasted external content from being written directly into trusted knowledge sources
+- `knowledge-prompt-smuggling-guard`: blocks override and instruction-smuggling content inside vaults and RAG sources
+- `knowledge-policy-override-guard`: blocks knowledge sources that attempt to weaken Runwall or local policy
+- `knowledge-secret-harvest-instruction-guard`: blocks knowledge sources that instruct the runtime to collect secrets
+- `knowledge-exfil-instruction-guard`: blocks knowledge sources that instruct outbound upload or publish behavior
+- `knowledge-hidden-encoding-guard`: blocks encoded or hidden instruction bodies in trusted knowledge
+- `knowledge-rag-cache-dropper-guard`: blocks staged shell, interpreter, or fetch-exec payloads in RAG and imported knowledge caches
+- `knowledge-tool-install-bridge-guard`: blocks knowledge sources that try to bridge directly into tool, plugin, or MCP trust
+- `knowledge-quarantine-bypass-guard`: blocks reads or edits of quarantined knowledge sources
+- `app-token-mint-guard`: prompts on token or credential minting against authenticated control-plane apps
+- `app-secret-admin-guard`: prompts on secret and environment administration against sensitive apps
+- `app-role-grant-guard`: prompts on collaborator, role, and IAM-style grants
+- `app-prod-deploy-guard`: prompts on production deployments and promotions through control-plane apps
+- `app-bulk-export-guard`: prompts on bulk export from control-plane apps
+- `app-protection-disable-guard`: blocks disabling branch protection, audit, rulesets, or similar safety controls
+- `app-destroy-action-guard`: blocks destructive delete and teardown actions in control-plane apps
+- `app-webhook-admin-guard`: prompts on webhook creation or mutation
+- `app-member-invite-guard`: prompts on membership and collaborator invites
+- `app-admin-browser-mutation-guard`: prompts when browser automation tries to perform high-risk admin mutations on sensitive domains
+
 ## Implemented Guards
 
 ### Secrets & Identity

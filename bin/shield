@@ -756,6 +756,45 @@ agents_cmd() {
   esac
 }
 
+memory_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|trust|quarantine|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_memory.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown memory subcommand: $subcommand"
+      ;;
+  esac
+}
+
+knowledge_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|trust|quarantine|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_knowledge.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown knowledge subcommand: $subcommand"
+      ;;
+  esac
+}
+
+apps_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|explain|policy)
+      run_python "$ROOT_DIR/scripts/runwall_apps.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown apps subcommand: $subcommand"
+      ;;
+  esac
+}
+
 generate_runtime_config() {
   local runtime="${1:-}"
   local profile="${2:-balanced}"
@@ -1192,6 +1231,19 @@ Usage:
   bin/runwall agents explain <session-id>
   bin/runwall agents isolate <agent-id>
   bin/runwall agents unisolate <agent-id>
+  bin/runwall memory list [--json]
+  bin/runwall memory trust <path>
+  bin/runwall memory quarantine <path>
+  bin/runwall memory forget <path>
+  bin/runwall memory diff <path>
+  bin/runwall knowledge list [--json]
+  bin/runwall knowledge trust <path>
+  bin/runwall knowledge quarantine <path>
+  bin/runwall knowledge forget <path>
+  bin/runwall knowledge diff <path>
+  bin/runwall apps list [--json]
+  bin/runwall apps explain <event-id>
+  bin/runwall apps policy [--json]
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
@@ -1352,6 +1404,18 @@ case "$command" in
   agents)
     shift
     agents_cmd "$@"
+    ;;
+  memory)
+    shift
+    memory_cmd "$@"
+    ;;
+  knowledge)
+    shift
+    knowledge_cmd "$@"
+    ;;
+  apps)
+    shift
+    apps_cmd "$@"
     ;;
   help|-h|--help|"")
     usage

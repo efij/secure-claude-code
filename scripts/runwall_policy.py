@@ -17,11 +17,14 @@ import runwall_chain
 import runwall_flow
 import runwall_forensics
 import runwall_hooks
+import runwall_knowledge
+import runwall_memory
 import runwall_runtime
 import runwall_tools
 import runwall_services
 import runwall_browser
 import runwall_agents
+import runwall_apps
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -390,6 +393,9 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "hook_identity": result.get("hook_identity"),
             "service_identity": result.get("service_identity"),
             "browser_identity": result.get("browser_identity"),
+            "memory_identity": result.get("memory_identity"),
+            "knowledge_identity": result.get("knowledge_identity"),
+            "app_identity": result.get("app_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
             "event_categories": result.get("event_categories", []),
@@ -418,6 +424,7 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
         )
     runwall_flow.observe_result(root, result, payload)
     runwall_agents.observe_result(root, result, payload)
+    runwall_apps.record_action(root, result, payload)
 
 
 def evaluate(
@@ -435,6 +442,9 @@ def evaluate(
     hook_identity: dict[str, Any] | None = None
     service_identity: dict[str, Any] | None = None
     browser_identity: dict[str, Any] | None = None
+    memory_identity: dict[str, Any] | None = None
+    knowledge_identity: dict[str, Any] | None = None
+    app_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
         {
@@ -486,6 +496,14 @@ def evaluate(
                 action = browser_hit["decision"]
             results.append(browser_hit)
 
+        app_assessment = runwall_apps.assess_command(root, payload, merged_context)
+        app_identity = app_assessment.get("identity")
+        app_hit = app_assessment.get("hit")
+        if app_hit:
+            if _DECISION_PRIORITY[app_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = app_hit["decision"]
+            results.append(app_hit)
+
         agent_action_hit = runwall_agents.assess_action(root, payload, merged_context)
         if agent_action_hit:
             if _DECISION_PRIORITY[agent_action_hit["decision"]] > _DECISION_PRIORITY[action]:
@@ -498,6 +516,22 @@ def evaluate(
             if _DECISION_PRIORITY[flow_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = flow_hit["decision"]
             results.append(flow_hit)
+
+        memory_assessment = runwall_memory.assess_fileop(root, event, matcher, payload, merged_context)
+        memory_identity = memory_assessment.get("identity")
+        memory_hit = memory_assessment.get("hit")
+        if memory_hit:
+            if _DECISION_PRIORITY[memory_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = memory_hit["decision"]
+            results.append(memory_hit)
+
+        knowledge_assessment = runwall_knowledge.assess_fileop(root, event, matcher, payload, merged_context)
+        knowledge_identity = knowledge_assessment.get("identity")
+        knowledge_hit = knowledge_assessment.get("hit")
+        if knowledge_hit:
+            if _DECISION_PRIORITY[knowledge_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = knowledge_hit["decision"]
+            results.append(knowledge_hit)
 
     if event == "PreToolUse" and matcher in {"Bash", "Write", "Edit", "MultiEdit"}:
         hook_assessment = runwall_hooks.assess_change(root, event, matcher, payload)
@@ -545,6 +579,9 @@ def evaluate(
         "hook_identity": hook_identity,
         "service_identity": service_identity,
         "browser_identity": browser_identity,
+        "memory_identity": memory_identity,
+        "knowledge_identity": knowledge_identity,
+        "app_identity": app_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
@@ -572,6 +609,15 @@ def print_pretty(result: dict[str, Any]) -> None:
         browser_identity = result.get("browser_identity") or {}
         if browser_identity.get("domains"):
             print(f"browser: {', '.join(browser_identity.get('domains', []))}")
+        memory_identity = result.get("memory_identity") or {}
+        if memory_identity.get("path"):
+            print(f"memory: {memory_identity.get('path')}")
+        knowledge_identity = result.get("knowledge_identity") or {}
+        if knowledge_identity.get("path"):
+            print(f"knowledge: {knowledge_identity.get('path')}")
+        app_identity = result.get("app_identity") or {}
+        if app_identity.get("app"):
+            print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
         return
     print(f"allowed: {'yes' if result['allowed'] else 'no'}")
     print(f"action: {result['action']}")
@@ -592,6 +638,15 @@ def print_pretty(result: dict[str, Any]) -> None:
     browser_identity = result.get("browser_identity") or {}
     if browser_identity.get("domains"):
         print(f"browser: {', '.join(browser_identity.get('domains', []))}")
+    memory_identity = result.get("memory_identity") or {}
+    if memory_identity.get("path"):
+        print(f"memory: {memory_identity.get('path')}")
+    knowledge_identity = result.get("knowledge_identity") or {}
+    if knowledge_identity.get("path"):
+        print(f"knowledge: {knowledge_identity.get('path')}")
+    app_identity = result.get("app_identity") or {}
+    if app_identity.get("app"):
+        print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
     for hit in result["hits"]:
         print(f"- {hit['module']} [{hit.get('family', hit['category'])} • {hit['category']}/{hit['decision']}]")
         if hit["output"]:

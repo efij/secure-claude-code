@@ -312,6 +312,227 @@ These are native Runwall trust-plane protections that sit above raw signatures a
 - Why it matters: large agent fanout before an external action is a practical capability-laundering pattern even when each single step looks mild.
 - Action: prompt
 
+## Built-In Memory, Knowledge, and App Guards
+
+These are native Runwall trust-plane protections for persistent memory stores, imported knowledge surfaces, and authenticated control-plane actions.
+
+### memory-source-review-guard
+
+- Purpose: require review before a new persistent memory surface becomes trusted.
+- Detects: first-seen writes to memory surfaces like `memory.md`, project memory stores, and runtime memory directories.
+- Why it matters: poisoned memory only becomes dangerous once the runtime starts trusting it automatically.
+- Action: prompt
+
+### memory-drift-guard
+
+- Purpose: surface changes to trusted persistent memory.
+- Detects: fingerprint changes on memory sources previously marked trusted.
+- Why it matters: a memory file that silently changes later can become a hidden second policy plane.
+- Action: prompt
+
+### memory-remote-ingest-guard
+
+- Purpose: block direct ingestion of remote content into persistent memory.
+- Detects: URLs, raw content hosts, or pasted external sources combined with “remember” or persistence language in memory writes.
+- Why it matters: unreviewed remote content should not become long-lived runtime memory in one step.
+- Action: block
+
+### memory-prompt-smuggling-guard
+
+- Purpose: block override and system-priority language in memory.
+- Detects: “ignore previous instructions,” “new system prompt,” and similar instruction-priority payloads in memory writes.
+- Why it matters: memory should hold workflow state, not hidden prompt-control material.
+- Action: block
+
+### memory-policy-override-guard
+
+- Purpose: block memory that tries to weaken Runwall or local runtime policy.
+- Detects: “disable Runwall,” “ignore local policy,” or similar bypass language in persistent memory.
+- Why it matters: if memory can disable guards, it becomes a stealth persistence path for policy erosion.
+- Action: block
+
+### memory-secret-harvest-instruction-guard
+
+- Purpose: block memory instructions that tell the runtime to gather local or cloud secrets.
+- Detects: verbs like read, dump, copy, or collect combined with `.env`, cloud creds, SSH keys, kube config, or session stores.
+- Why it matters: persistent memory should never silently convert into a secret collection checklist.
+- Action: block
+
+### memory-exfil-instruction-guard
+
+- Purpose: block outbound upload or publish instructions stored in memory.
+- Detects: curl, scp, webhook, paste, release upload, and similar export language in memory writes.
+- Why it matters: memory should not become a deferred exfiltration plan.
+- Action: block
+
+### memory-hidden-encoding-guard
+
+- Purpose: block encoded or hidden instruction bodies in memory.
+- Detects: base64, rot13, HTML comments, zero-width text, and similar hiding patterns in memory content.
+- Why it matters: hidden instructions make review harder and are strongly attackerish in persistent memory.
+- Action: block
+
+### memory-tool-trust-override-guard
+
+- Purpose: block memory that silently widens trust for tools, plugins, skills, or MCP servers.
+- Detects: “install this plugin,” “add this MCP server,” or “trust tool output” style bridge instructions in memory.
+- Why it matters: memory should not become a backdoor for changing trust boundaries outside normal config review.
+- Action: block
+
+### memory-quarantine-bypass-guard
+
+- Purpose: block reads or edits of memory sources that were explicitly quarantined.
+- Detects: any read or write against a memory path currently in quarantine.
+- Why it matters: quarantine only works if the runtime cannot casually consume the poisoned source anyway.
+- Action: block
+
+### knowledge-source-review-guard
+
+- Purpose: require review before a new knowledge, vault, or RAG surface becomes trusted.
+- Detects: first-seen writes to Obsidian-style vaults, knowledge docs, mirrored issue stores, and RAG caches.
+- Why it matters: imported knowledge often feels harmless even when it later acts like a hidden prompt source.
+- Action: prompt
+
+### knowledge-drift-guard
+
+- Purpose: surface drift in trusted knowledge sources.
+- Detects: fingerprint changes on previously trusted knowledge and vault files.
+- Why it matters: the most dangerous knowledge poisoning often happens after the source already looked legitimate once.
+- Action: prompt
+
+### knowledge-remote-ingest-guard
+
+- Purpose: block direct ingestion of remote content into trusted knowledge sources.
+- Detects: URLs, raw hosts, pasted external content, or mirrored exports written directly into vaults and RAG stores.
+- Why it matters: unreviewed external content should not become trusted local knowledge in one step.
+- Action: block
+
+### knowledge-prompt-smuggling-guard
+
+- Purpose: block override and instruction-smuggling content in trusted knowledge.
+- Detects: instruction-priority phrases, “system prompt” language, and tool-output-priority tricks inside knowledge files.
+- Why it matters: knowledge surfaces are especially dangerous when they look factual but secretly control runtime behavior.
+- Action: block
+
+### knowledge-policy-override-guard
+
+- Purpose: block knowledge sources that try to weaken local policy.
+- Detects: “disable Runwall,” “ignore safety,” and similar bypass language in vault or RAG content.
+- Why it matters: imported knowledge should not be able to silently redefine the local security boundary.
+- Action: block
+
+### knowledge-secret-harvest-instruction-guard
+
+- Purpose: block knowledge sources that instruct the runtime to collect secrets.
+- Detects: secret-read verbs combined with `.env`, cloud creds, SSH keys, session stores, and similar material.
+- Why it matters: vaults and mirrored issue stores are a plausible place to hide harvest instructions because they look like ordinary notes.
+- Action: block
+
+### knowledge-exfil-instruction-guard
+
+- Purpose: block knowledge sources that instruct outbound transfer or publish behavior.
+- Detects: upload, webhook, publish, and paste language inside knowledge content.
+- Why it matters: knowledge surfaces should not double as delayed exfiltration plans.
+- Action: block
+
+### knowledge-hidden-encoding-guard
+
+- Purpose: block encoded or hidden instruction bodies in trusted knowledge.
+- Detects: base64, rot13, HTML comment payloads, and similar hiding techniques in knowledge files.
+- Why it matters: hidden content is especially risky in RAG and note surfaces because humans often skim them.
+- Action: block
+
+### knowledge-rag-cache-dropper-guard
+
+- Purpose: block staged execution payloads in RAG and imported knowledge caches.
+- Detects: `curl|bash`, `wget|sh`, `python -c`, `node -e`, and similar dropper or inline-exec snippets in knowledge content.
+- Why it matters: a poisoned RAG cache can turn normal retrieval into a malware delivery path.
+- Action: block
+
+### knowledge-tool-install-bridge-guard
+
+- Purpose: block knowledge that tries to bridge directly into tool, plugin, or MCP trust.
+- Detects: instructions to add plugins, load extensions, install raw MCP servers, or trust fetched output.
+- Why it matters: knowledge should not be able to self-upgrade into runtime authority.
+- Action: block
+
+### knowledge-quarantine-bypass-guard
+
+- Purpose: block reads or edits of quarantined knowledge sources.
+- Detects: any read or write against a knowledge path currently marked quarantined.
+- Why it matters: poisoned vault or RAG content should stay inert until a human explicitly clears it.
+- Action: block
+
+### app-token-mint-guard
+
+- Purpose: require review before creating fresh app credentials or access tokens.
+- Detects: token creation, PAT creation, access-key creation, and similar credential minting against GitHub, cloud, and control-plane apps.
+- Why it matters: minting fresh credentials is one of the fastest ways for an agent to widen its reach.
+- Action: prompt
+
+### app-secret-admin-guard
+
+- Purpose: require review before reading or mutating secrets in control-plane apps.
+- Detects: secret set, secret create, env add, env pull, and get-secret-value style commands.
+- Why it matters: authenticated app secrets are often production-bearing and higher impact than local `.env` files.
+- Action: prompt
+
+### app-role-grant-guard
+
+- Purpose: require review before changing membership, collaborator, or IAM-style roles.
+- Detects: add-member, invite user, add collaborator, attach-user-policy, and similar role-grant verbs.
+- Why it matters: permission expansion in SaaS and cloud control planes is a modern high-impact damage path.
+- Action: prompt
+
+### app-prod-deploy-guard
+
+- Purpose: require review before production deploy or promotion actions through control-plane apps.
+- Detects: `--prod`, deploy prod, promote to production, and similar high-risk deployment verbs.
+- Why it matters: production deployment is often legitimate, but it deserves an explicit review boundary.
+- Action: prompt
+
+### app-bulk-export-guard
+
+- Purpose: require review before large-scale export from control-plane apps.
+- Detects: export-all, dump-all, download-all, and high-limit listing patterns in app tooling.
+- Why it matters: bulk export from authenticated apps is a common real-world theft path that does not look like classic malware.
+- Action: prompt
+
+### app-protection-disable-guard
+
+- Purpose: block disabling rulesets, branch protection, audit, or similar safety controls in control-plane apps.
+- Detects: delete-protection, disable rules, bypass checks, and similar safety-control removal.
+- Why it matters: attackers often remove guardrails first so later mutations look normal.
+- Action: block
+
+### app-destroy-action-guard
+
+- Purpose: block destructive delete and teardown actions in authenticated control-plane apps.
+- Detects: repo delete, project delete, organization delete, forced remove, and similar destructive actions.
+- Why it matters: these actions are high impact and have little room for “silent automation.”
+- Action: block
+
+### app-webhook-admin-guard
+
+- Purpose: require review before creating or changing webhooks in control-plane apps.
+- Detects: webhook create, webhook update, hook add, and similar endpoint-management actions.
+- Why it matters: webhook changes can create covert data paths that outlive the original action.
+- Action: prompt
+
+### app-member-invite-guard
+
+- Purpose: require review before inviting users or adding collaborators through control-plane apps.
+- Detects: invite-member, invite-user, add-member, and collaborator-add actions.
+- Why it matters: adding people or identities to trusted control planes is sensitive even when it is not obviously destructive.
+- Action: prompt
+
+### app-admin-browser-mutation-guard
+
+- Purpose: require review before browser automation performs high-risk admin mutations on sensitive domains.
+- Detects: browser automation plus verbs like create token, invite, delete, disable protection, or export all on sensitive control-plane domains.
+- Why it matters: browser sessions often carry privileged state that looks very different from CLI auth but is just as dangerous.
+- Action: prompt
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

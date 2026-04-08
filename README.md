@@ -164,6 +164,9 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Local Service Trust`: treats local sockets, localhost admin APIs, browser debug ports, Docker APIs, DBus, metadata endpoints, local databases, and kube control-plane targets as trust targets instead of invisible localhost traffic
 - `Browser Session Defense`: prompts or blocks browser automation against sensitive logged-in domains, especially when the flow exports cookies, screenshots, DOM dumps, bulk captures, or executable downloads
 - `Agent Graph & Isolation`: records parent/subagent relationships, lets you isolate risky agents, blocks cross-agent secret or browser-export laundering, and prompts when a session fans out across too many agents before outbound actions
+- `Memory Trust`: treats persistent agent and project memory stores as reviewed trust surfaces instead of letting poisoned memory silently persist across sessions
+- `Knowledge / RAG Trust`: treats vaults, Obsidian-style notes, RAG caches, mirrored issues, and imported knowledge docs as a separate trust plane with quarantine and drift controls
+- `SaaS Action Trust`: prompts or blocks only on high-risk authenticated control-plane actions such as token minting, secret admin, role grants, prod deploys, webhook changes, and destructive deletes
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -189,6 +192,20 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall agents explain <session-id>
 ./bin/runwall agents isolate <agent-id>
 ./bin/runwall agents unisolate <agent-id>
+
+./bin/runwall memory list --json
+./bin/runwall memory trust <path>
+./bin/runwall memory quarantine <path>
+./bin/runwall memory diff <path>
+
+./bin/runwall knowledge list --json
+./bin/runwall knowledge trust <path>
+./bin/runwall knowledge quarantine <path>
+./bin/runwall knowledge diff <path>
+
+./bin/runwall apps list --json
+./bin/runwall apps explain <event-id>
+./bin/runwall apps policy --json
 ```
 
 High-signal built-ins in these planes now include:
@@ -205,6 +222,37 @@ High-signal built-ins in these planes now include:
 - `browser-download-dropper-guard`
 - `isolated-parent-bridge-guard`
 - `agent-fanout-guard`
+- `memory-source-review-guard`
+- `memory-drift-guard`
+- `memory-remote-ingest-guard`
+- `memory-prompt-smuggling-guard`
+- `memory-policy-override-guard`
+- `memory-secret-harvest-instruction-guard`
+- `memory-exfil-instruction-guard`
+- `memory-hidden-encoding-guard`
+- `memory-tool-trust-override-guard`
+- `memory-quarantine-bypass-guard`
+- `knowledge-source-review-guard`
+- `knowledge-drift-guard`
+- `knowledge-remote-ingest-guard`
+- `knowledge-prompt-smuggling-guard`
+- `knowledge-policy-override-guard`
+- `knowledge-secret-harvest-instruction-guard`
+- `knowledge-exfil-instruction-guard`
+- `knowledge-hidden-encoding-guard`
+- `knowledge-rag-cache-dropper-guard`
+- `knowledge-tool-install-bridge-guard`
+- `knowledge-quarantine-bypass-guard`
+- `app-token-mint-guard`
+- `app-secret-admin-guard`
+- `app-role-grant-guard`
+- `app-prod-deploy-guard`
+- `app-bulk-export-guard`
+- `app-protection-disable-guard`
+- `app-destroy-action-guard`
+- `app-webhook-admin-guard`
+- `app-member-invite-guard`
+- `app-admin-browser-mutation-guard`
 
 ## Protection Families
 
@@ -218,6 +266,8 @@ Runwall now groups signatures into stable families so the product reads like a r
 - `Infra & Production Access`: clusters, databases, infrastructure tooling, and production break-glass behavior
 - `Trust, Persistence & Evasion`: persistence, trust downgrades, audit wiping, symlink hijack, and boundary tampering
 - `Quality & Workflow`: workflow integrity, context policy, test suppression, and destructive cleanup
+- `Memory & Knowledge`: persistent memory, imported notes, vaults, RAG caches, and mirrored knowledge surfaces
+- `SaaS & Control Planes`: authenticated control-plane actions against GitHub, Vercel, Stripe, Supabase, cloud consoles, and similar admin surfaces
 
 You can inspect the active registry by family with:
 

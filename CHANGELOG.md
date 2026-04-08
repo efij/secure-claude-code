@@ -1,5 +1,15 @@
 # Changelog
 
+## 9.0.0
+
+- added a `Memory Trust Plane` with local inventory, trust, quarantine, diff, and native guards for `memory-source-review-guard`, `memory-drift-guard`, `memory-remote-ingest-guard`, `memory-prompt-smuggling-guard`, `memory-policy-override-guard`, `memory-secret-harvest-instruction-guard`, `memory-exfil-instruction-guard`, `memory-hidden-encoding-guard`, `memory-tool-trust-override-guard`, and `memory-quarantine-bypass-guard`
+- added a `Knowledge / RAG Trust Plane` with local inventory, trust, quarantine, diff, and native guards for `knowledge-source-review-guard`, `knowledge-drift-guard`, `knowledge-remote-ingest-guard`, `knowledge-prompt-smuggling-guard`, `knowledge-policy-override-guard`, `knowledge-secret-harvest-instruction-guard`, `knowledge-exfil-instruction-guard`, `knowledge-hidden-encoding-guard`, `knowledge-rag-cache-dropper-guard`, `knowledge-tool-install-bridge-guard`, and `knowledge-quarantine-bypass-guard`
+- added a `SaaS Action Trust Plane` with recent-action inventory and native guards for `app-token-mint-guard`, `app-secret-admin-guard`, `app-role-grant-guard`, `app-prod-deploy-guard`, `app-bulk-export-guard`, `app-protection-disable-guard`, `app-destroy-action-guard`, `app-webhook-admin-guard`, `app-member-invite-guard`, and `app-admin-browser-mutation-guard`
+- added new CLI surfaces: `runwall memory`, `runwall knowledge`, and `runwall apps`
+- extended policy evaluation, pretty output, audit emission, and event recording so memory, knowledge, and app identities now show up like other first-class trust planes
+- expanded smoke coverage for memory poisoning, knowledge/RAG poisoning, quarantine enforcement, SaaS token minting, secret admin, role grants, production deploy review, destructive app actions, and browser-based admin mutation
+- updated the README, guard registry, signature deep dive, and release metadata so the new trust planes read like major Runwall capabilities instead of side features
+
 ## 8.1.0
 
 - added a Sensitive Data Flow Plane with `sensitive-data-flow-guard`, `public-artifact-flow-guard`, `cross-agent-secret-flow-guard`, `clipboard-secret-flow-guard`, `secret-archive-prep-guard`, `browser-session-upload-guard`, and `cross-agent-browser-export-guard` so Runwall can carry secret and production sensitivity across multiple steps in the same session
