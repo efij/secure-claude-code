@@ -64,6 +64,22 @@ STEALTH_RE = re.compile(
 EXTERNAL_RE = re.compile(
     r"(?i)https?://|(?:^|[\s'\"=])(?:/tmp/|/var/tmp/|/private/tmp/|~?/downloads/|%temp%|%tmp%|[A-Z]:\\Users\\[^\\]+\\Downloads\\|[A-Z]:\\Users\\[^\\]+\\AppData\\Local\\Temp\\)"
 )
+SECRET_ACCESS_RE = re.compile(
+    r"(?i)(?:\.env(?:\.[A-Za-z0-9._-]+)?|\.aws/(?:credentials|config)|id_(?:rsa|ed25519)|known_hosts|authorized_keys|\.npmrc|\.pypirc|kubeconfig|\.kube/config|gh[ _-]?auth|copilot_token|codex[._-]?auth|claude[._-]?auth)"
+)
+POLICY_TAMPER_RE = re.compile(
+    r"(?i)(?:CLAUDE\.md|AGENTS\.md|\.mcp\.json|hooks/hooks\.json|\.claude-plugin/|\.codex-plugin/|\.runwall/|settings\.json|disable hooks|ignore runwall|trust tool output over local policy)"
+)
+ARCHIVE_RE = re.compile(r"(?i)\b(?:tar|zip|7z|rar|bsdtar)\b|\.tar(?:\.gz)?|\.zip\b|\.7z\b")
+UPLOAD_RE = re.compile(
+    r"(?i)\b(?:curl|wget|scp|rsync|aws\s+s3\s+cp|gsutil\s+cp|az\s+storage\s+blob\s+upload)\b|https?://|hooks\.slack\.com|pastebin\.com|github\.com/.+/gists?"
+)
+PROD_BREAKGLASS_RE = re.compile(
+    r"(?i)(?:kubectl(?:[^\n\r]{0,160})(?:--context\s+(?:prod|production)|-n\s+prod|exec\s+-it|port-forward))|(?:psql|pg_dump|mysqldump)(?:[^\n\r]{0,120})(?:prod|production|internal)|terraform\s+destroy|tofu\s+destroy"
+)
+REVIEW_BYPASS_RE = re.compile(
+    r"(?i)(?:--no-verify\b|HUSKY\s*=\s*0\b|SKIP(?:_[A-Z_]+)?\s*=\s*1\b|disable hooks|ignore runwall|bypass runwall|unset RUNWALL_HOME)"
+)
 GIT_HOOK_PATH_RE = re.compile(r"(?P<path>(?:^|[\s'\"=])(?:[^\s'\"=]*?(?:\.git/hooks|\.githooks)/[A-Za-z0-9._-]+))")
 PACKAGE_SCRIPT_RE = re.compile(
     r"(?i)scripts\.(?P<trigger>preinstall|install|postinstall|prepare|prepublish|prepublishonly|prepack|postpack)\b"
@@ -295,6 +311,11 @@ def infer_hook_identity(root: pathlib.Path, event: str, matcher: str, payload: s
         "has_network_fanout": has_network,
         "has_stealth_persistence": has_stealth,
         "has_external_refs": has_external_refs,
+        "has_secret_access": bool(SECRET_ACCESS_RE.search(content)),
+        "has_policy_tamper": bool(POLICY_TAMPER_RE.search(content)),
+        "has_archive_exfil": bool(ARCHIVE_RE.search(content) and UPLOAD_RE.search(content)),
+        "has_prod_breakglass": bool(PROD_BREAKGLASS_RE.search(content)),
+        "has_review_bypass": bool(REVIEW_BYPASS_RE.search(content)),
         "review_surface": surface in set(load_policy(root).get("review_surfaces", [])),
         "high_risk_surface": surface in set(load_policy(root).get("high_risk_surfaces", [])),
     }
@@ -335,6 +356,11 @@ def _record(identity: dict[str, Any], trust_state: str, existing: dict[str, Any]
             "has_network_fanout": bool(identity["has_network_fanout"]),
             "has_stealth_persistence": bool(identity["has_stealth_persistence"]),
             "has_external_refs": bool(identity["has_external_refs"]),
+            "has_secret_access": bool(identity["has_secret_access"]),
+            "has_policy_tamper": bool(identity["has_policy_tamper"]),
+            "has_archive_exfil": bool(identity["has_archive_exfil"]),
+            "has_prod_breakglass": bool(identity["has_prod_breakglass"]),
+            "has_review_bypass": bool(identity["has_review_bypass"]),
             "trust_state": trust_state,
             "last_seen_at": now,
         }
@@ -357,7 +383,57 @@ def assess_change(root: pathlib.Path, event: str, matcher: str, payload: str) ->
     trust_state = "observed"
     hit: dict[str, Any] | None = None
 
-    if identity["origin"] in set(policy.get("block_origins", [])) or identity["has_external_refs"]:
+    if identity["has_secret_access"]:
+        trust_state = "blocked"
+        hit = _hit(
+            "hook-secret-access-guard",
+            "block",
+            f"Blocked {identity['surface']} because it reaches for local secret or credential material.",
+            identity,
+            reason="Implicit hooks should not harvest secret files, agent auth state, cloud credentials, or local key material as part of routine workflow execution.",
+            safer_alternative="Move secret access into an explicit, reviewed step and keep hook-bearing surfaces free of credential harvesting logic.",
+        )
+    elif identity["has_policy_tamper"]:
+        trust_state = "blocked"
+        hit = _hit(
+            "hook-policy-tamper-guard",
+            "block",
+            f"Blocked {identity['surface']} because it targets runtime policy, plugin, or instruction control files.",
+            identity,
+            reason="Hooks that rewrite policy, plugin, or instruction boundaries can disable the very controls meant to contain the runtime before users notice.",
+            safer_alternative="Keep Runwall, MCP, plugin, and instruction control files outside implicit hook logic and change them only through explicit reviewed edits.",
+        )
+    elif identity["has_archive_exfil"]:
+        trust_state = "blocked"
+        hit = _hit(
+            "hook-archive-exfil-guard",
+            "block",
+            f"Blocked {identity['surface']} because it combines archive creation with outbound transfer behavior.",
+            identity,
+            reason="Archive-then-upload chains are a classic way to compress a repo or secret set for exfiltration behind an otherwise routine hook trigger.",
+            safer_alternative="Keep packaging and outbound transfer as explicit reviewed release steps, not implicit hook behavior.",
+        )
+    elif identity["has_prod_breakglass"]:
+        trust_state = "blocked"
+        hit = _hit(
+            "hook-prod-breakglass-guard",
+            "block",
+            f"Blocked {identity['surface']} because it embeds production shell, port-forward, dump, or destroy behavior.",
+            identity,
+            reason="Break-glass production access should never be hidden inside normal hooks because that turns a routine local trigger into privileged infrastructure impact.",
+            safer_alternative="Keep production access and infrastructure-destructive actions behind explicit reviewed commands with human intent, not hooks.",
+        )
+    elif identity["has_review_bypass"]:
+        trust_state = "blocked"
+        hit = _hit(
+            "hook-review-bypass-guard",
+            "block",
+            f"Blocked {identity['surface']} because it contains review-bypass or hook-disabling behavior.",
+            identity,
+            reason="Hooks should not carry flags or phrases that weaken review boundaries, disable guardrails, or bypass normal verification paths.",
+            safer_alternative="Keep review and verification controls intact and remove bypass flags from implicit execution surfaces.",
+        )
+    elif identity["origin"] in set(policy.get("block_origins", [])) or identity["has_external_refs"]:
         trust_state = "blocked"
         hit = _hit(
             "hook-origin-guard",
@@ -411,6 +487,11 @@ def assess_change(root: pathlib.Path, event: str, matcher: str, payload: str) ->
                     "has_network_fanout": existing.get("has_network_fanout"),
                     "has_stealth_persistence": existing.get("has_stealth_persistence"),
                     "has_external_refs": existing.get("has_external_refs"),
+                    "has_secret_access": existing.get("has_secret_access"),
+                    "has_policy_tamper": existing.get("has_policy_tamper"),
+                    "has_archive_exfil": existing.get("has_archive_exfil"),
+                    "has_prod_breakglass": existing.get("has_prod_breakglass"),
+                    "has_review_bypass": existing.get("has_review_bypass"),
                 },
                 "current": {
                     "content_hash": identity["content_hash"],
@@ -419,6 +500,11 @@ def assess_change(root: pathlib.Path, event: str, matcher: str, payload: str) ->
                     "has_network_fanout": identity["has_network_fanout"],
                     "has_stealth_persistence": identity["has_stealth_persistence"],
                     "has_external_refs": identity["has_external_refs"],
+                    "has_secret_access": identity["has_secret_access"],
+                    "has_policy_tamper": identity["has_policy_tamper"],
+                    "has_archive_exfil": identity["has_archive_exfil"],
+                    "has_prod_breakglass": identity["has_prod_breakglass"],
+                    "has_review_bypass": identity["has_review_bypass"],
                 },
             }
             hooks[key] = updated

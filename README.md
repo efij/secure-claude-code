@@ -137,6 +137,11 @@ The built-in hook trust layer keeps a local registry in Runwall state files, typ
 - first-seen review for hook-bearing surfaces that can execute during normal workflows
 - hook drift after a previously reviewed hook changes its body
 - hook origins that jump to temp, download, cache, or remote execution paths
+- hook bodies that read local secret stores, cloud credentials, SSH material, or agent auth state
+- hook bodies that tamper with Runwall, MCP, plugin, or instruction control files
+- hook bodies that archive local data and immediately upload it out
+- hook bodies that embed production break-glass access like `kubectl exec`, prod database shells or dumps, and destructive infra commands
+- hook bodies that carry `--no-verify`, hook-disabling flags, or review-bypass language
 - hook wrapper escalation through inline `bash -c`, `python -c`, `node -e`, or encoded PowerShell
 - hook fanout that adds outbound network, upload, or tunnel behavior to an implicit trigger
 - stealthy background or delayed persistence hidden inside hooks

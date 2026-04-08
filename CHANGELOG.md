@@ -1,5 +1,15 @@
 # Changelog
 
+## 7.1.0
+
+- expanded the Hook Trust Plane with five new built-in protections: `hook-secret-access-guard`, `hook-policy-tamper-guard`, `hook-archive-exfil-guard`, `hook-prod-breakglass-guard`, and `hook-review-bypass-guard`
+- blocked hook-bearing surfaces that harvest local secret files, cloud credentials, SSH material, registry auth, or agent auth state
+- blocked hook-bearing surfaces that tamper with Runwall, MCP, plugin, or instruction control files
+- blocked archive-and-upload exfiltration patterns hidden inside hook-bearing surfaces
+- blocked implicit production break-glass behavior such as prod `kubectl exec`, prod database shells and dumps, and destructive infra commands in hooks
+- blocked review-bypass and hook-disabling flags such as `--no-verify` and `HUSKY=0` when embedded in hook-bearing surfaces
+- expanded smoke coverage for the new hook threat cases and updated the hook trust docs across the README, guard registry, and signature deep dive
+
 ## 7.0.0
 
 - added a Hook Trust Plane for piggyback workflow hooks so Runwall can reason about git hooks, package install scripts, plugin hook manifests, and other hook-bearing surfaces as first-class trust objects

@@ -105,6 +105,41 @@ These are native Runwall trust-plane protections for hook-bearing workflow surfa
 - Why it matters: this is a low-friction way to piggyback unreviewed code onto a trusted workflow trigger.
 - Action: block
 
+### hook-secret-access-guard
+
+- Purpose: block hooks that read or harvest local secret and credential material.
+- Detects: access to `.env`, cloud credentials, SSH keys, kube config, registry auth files, and agent auth state inside hook-bearing surfaces.
+- Why it matters: implicit hooks should not quietly collect secrets during routine developer workflows.
+- Action: block
+
+### hook-policy-tamper-guard
+
+- Purpose: block hooks that target Runwall, MCP, plugin, or instruction control files.
+- Detects: edits or command strings aimed at `.mcp.json`, `CLAUDE.md`, `AGENTS.md`, plugin manifests, hook configs, or `.runwall` policy paths.
+- Why it matters: a malicious hook often weakens review and policy boundaries before doing anything louder.
+- Action: block
+
+### hook-archive-exfil-guard
+
+- Purpose: block hooks that compress local data and immediately ship it out.
+- Detects: archive creation like `tar`, `zip`, or `7z` combined with upload or transfer behavior in the same hook-bearing surface.
+- Why it matters: archive-then-upload is one of the cleanest ways to hide repo or secret exfiltration behind a normal trigger.
+- Action: block
+
+### hook-prod-breakglass-guard
+
+- Purpose: block hooks that hide privileged production access or destructive infrastructure actions.
+- Detects: prod `kubectl exec`, prod `port-forward`, production DB shells and dumps, and destructive Terraform/OpenTofu commands in hooks.
+- Why it matters: break-glass infrastructure actions should never be implicit side effects of ordinary local workflow triggers.
+- Action: block
+
+### hook-review-bypass-guard
+
+- Purpose: block hooks that carry bypass flags or review-disabling language.
+- Detects: `--no-verify`, `HUSKY=0`, hook-disabling flags, and language that instructs the runtime to ignore Runwall or bypass checks.
+- Why it matters: review boundaries are only useful if implicit execution surfaces cannot quietly turn them off.
+- Action: block
+
 ### hook-wrapper-escalation-guard
 
 - Purpose: block hook-bearing surfaces that escalate into inline interpreter or shell wrapper execution.
