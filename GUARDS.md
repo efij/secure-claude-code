@@ -19,6 +19,11 @@ These protections are implemented directly in the Tool Trust Plane instead of as
 - `temp-download-exec-guard`: blocks execution from temp, cache, and download locations
 - `tool-drift-guard`: prompts when a previously trusted tool changes path, hash, or execution shape
 - `interpreter-wrapper-guard`: blocks trusted tools that suddenly resolve through inline interpreters or wrapper chains
+- `path-prepend-hijack-guard`: blocks trusted commands when PATH order causes a local interceptor to win over a reviewed system or package-managed binary
+- `shell-alias-hijack-guard`: blocks alias and function overrides for trusted tool names inside shell command payloads
+- `package-runner-wrapper-guard`: prompts when one-shot package runners execute mutable or remote tool sources
+- `generated-tool-chain-guard`: prompts when a newly created local executable is run before it has been reviewed
+- `symlink-tool-swap-guard`: blocks trusted or approved local tools that suddenly resolve through a symlinked swap target
 
 ## Implemented Guards
 

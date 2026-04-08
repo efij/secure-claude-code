@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import shlex
 import shutil
 from datetime import datetime, timezone
@@ -52,6 +53,7 @@ DEFAULT_POLICY = {
         "claude",
         "codex",
     ],
+    "recent_tool_seconds": 900,
 }
 
 WRAPPER_COMMANDS = {
@@ -91,6 +93,10 @@ INLINE_FLAGS = {
     "/c",
 }
 SCRIPT_EXTENSIONS = {".sh", ".py", ".js", ".mjs", ".cjs", ".rb", ".pl", ".ps1", ".cmd", ".bat"}
+PACKAGE_RUNNER_COMMANDS = {"npx", "bunx", "uvx"}
+RISKY_RUNNER_SOURCE_RE = (
+    r"(github:|git\+|https?://|file:|\.tgz($|[^A-Za-z0-9_])|@latest($|[^A-Za-z0-9_])|^\./|^\.\./|^/)"
+)
 
 
 def utc_now() -> str:
@@ -220,16 +226,39 @@ def _resolve_token(token: str, *, cwd: pathlib.Path) -> pathlib.Path | None:
     if any(sep in expanded for sep in ("/", "\\")) or expanded.startswith("."):
         path = pathlib.Path(expanded)
         if not path.is_absolute():
-            path = (cwd / path).resolve(strict=False)
+            path = pathlib.Path(os.path.abspath(str(cwd / path)))
         return path
     resolved = shutil.which(expanded)
     if resolved:
-        return pathlib.Path(resolved).resolve(strict=False)
+        return pathlib.Path(os.path.abspath(resolved))
     return None
 
 
+def _path_candidates(token: str, *, cwd: pathlib.Path) -> list[pathlib.Path]:
+    expanded = os.path.expanduser(token)
+    if any(sep in expanded for sep in ("/", "\\")) or expanded.startswith("."):
+        path = pathlib.Path(expanded)
+        if not path.is_absolute():
+            path = pathlib.Path(os.path.abspath(str(cwd / path)))
+        return [path]
+    results: list[pathlib.Path] = []
+    seen: set[str] = set()
+    path_value = os.environ.get("PATH", "")
+    for base in path_value.split(os.pathsep):
+        if not base:
+            continue
+        candidate = pathlib.Path(os.path.abspath(str(pathlib.Path(base) / expanded)))
+        key = str(candidate)
+        if key in seen:
+            continue
+        if candidate.exists():
+            results.append(candidate)
+            seen.add(key)
+    return results
+
+
 def _classify_origin(path: pathlib.Path, root: pathlib.Path) -> str:
-    normalized = path.resolve(strict=False)
+    normalized = pathlib.Path(os.path.abspath(str(path)))
     path_text = str(normalized).replace("\\", "/").lower()
     home = home_dir().resolve(strict=False)
     tmp_dirs = {
@@ -332,6 +361,66 @@ def _detect_kind(path: pathlib.Path) -> tuple[str, list[str]]:
     return "binary", interpreter_chain
 
 
+def _file_age_seconds(path: pathlib.Path) -> float | None:
+    if not path.exists():
+        return None
+    try:
+        return max(0.0, datetime.now(timezone.utc).timestamp() - path.stat().st_mtime)
+    except OSError:
+        return None
+
+
+def _synthetic_identity(display_name: str, command: str) -> dict[str, Any]:
+    return {
+        "display_name": display_name,
+        "resolved_path": None,
+        "origin": "unknown",
+        "kind": "shell",
+        "interpreter_chain": [],
+        "explicit_path": False,
+        "bare_name": True,
+        "inline_wrapper": False,
+        "command": command,
+    }
+
+
+def _detect_shell_alias_hijack(command: str, high_trust_names: set[str]) -> dict[str, Any] | None:
+    for name in sorted(high_trust_names):
+        patterns = (
+            rf"(^|[;&|]\s*|\s)alias\s+{re.escape(name)}=",
+            rf"(^|[;&|]\s*|\s)function\s+{re.escape(name)}\s*\(",
+            rf"(^|[;&|]\s*|\s){re.escape(name)}\s*\(\)\s*\{{",
+        )
+        if any(re.search(pattern, command) for pattern in patterns):
+            return _hit(
+                "shell-alias-hijack-guard",
+                "block",
+                f"Blocked shell alias or function override for trusted tool {name}.",
+                _synthetic_identity(name, command),
+                reason="The shell command defines an alias or function for a trusted tool name, which can hide the real executable behind shell-level indirection.",
+                safer_alternative="Call the reviewed executable directly and keep alias or function overrides out of automated runtime sessions.",
+            )
+    return None
+
+
+def _detect_package_runner_wrapper(command_name: str | None, current: list[str]) -> tuple[str | None, str | None]:
+    if not command_name:
+        return None, None
+    name = pathlib.Path(command_name).name
+    package_token = None
+    if name in PACKAGE_RUNNER_COMMANDS:
+        package_token = current[1] if len(current) > 1 else None
+    elif name == "pnpm" and len(current) > 2 and current[1] == "dlx":
+        package_token = current[2]
+    elif name == "yarn" and len(current) > 2 and current[1] == "dlx":
+        package_token = current[2]
+    elif name == "pipx" and len(current) > 2 and current[1] == "run":
+        package_token = current[2]
+    if package_token and re.search(RISKY_RUNNER_SOURCE_RE, package_token):
+        return name, package_token
+    return None, None
+
+
 def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | None:
     tokens = _shell_split(command)
     command_name, current, wrappers = _next_command_tokens(tokens)
@@ -345,19 +434,23 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
     script_path: pathlib.Path | None = None
     resolved_path: pathlib.Path | None = None
     inline_wrapper = False
+    path_candidates = _path_candidates(command_name, cwd=cwd) if command_name else []
+    launch_path: pathlib.Path | None = None
 
     if pathlib.Path(command_name).name in INTERPRETERS:
         interpreter_chain.append(pathlib.Path(command_name).name)
         tail = current[1:]
         if tail and tail[0] in INLINE_FLAGS:
             inline_wrapper = True
-            resolved_path = _resolve_token(command_name, cwd=cwd)
+            launch_path = _resolve_token(command_name, cwd=cwd)
+            resolved_path = launch_path
             kind = "interpreter-inline"
         else:
             candidate = _candidate_script(tail)
             if candidate:
                 script_path = _resolve_token(candidate, cwd=cwd)
-                resolved_path = script_path or _resolve_token(command_name, cwd=cwd)
+                launch_path = script_path or _resolve_token(command_name, cwd=cwd)
+                resolved_path = launch_path
                 if script_path:
                     display_name = pathlib.Path(candidate).name
                     explicit_path = any(sep in candidate for sep in ("/", "\\")) or candidate.startswith(".")
@@ -365,14 +458,17 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
                 else:
                     kind = "binary"
             else:
-                resolved_path = _resolve_token(command_name, cwd=cwd)
+                launch_path = _resolve_token(command_name, cwd=cwd)
+                resolved_path = launch_path
                 kind = "binary"
     else:
-        resolved_path = _resolve_token(command_name, cwd=cwd)
+        launch_path = _resolve_token(command_name, cwd=cwd)
+        resolved_path = launch_path
 
     if resolved_path:
         resolved_path = resolved_path.resolve(strict=False)
     effective_path = script_path or resolved_path
+    launch_effective_path = script_path or launch_path or resolved_path
     if not effective_path:
         return {
             "display_name": display_name,
@@ -391,10 +487,19 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
         kind = detected_kind
     interpreter_chain.extend(item for item in detected_interpreters if item not in interpreter_chain)
     origin = _classify_origin(effective_path, root)
+    launch_origin = _classify_origin(launch_effective_path, root) if launch_effective_path else origin
+    symlink_target = None
+    if launch_effective_path and launch_effective_path.exists() and launch_effective_path.is_symlink():
+        try:
+            symlink_target = str(launch_effective_path.resolve(strict=False))
+        except OSError:
+            symlink_target = None
     return {
         "display_name": display_name,
         "resolved_path": str(effective_path),
+        "launch_path": str(launch_effective_path) if launch_effective_path else str(effective_path),
         "origin": origin,
+        "launch_origin": launch_origin,
         "kind": kind,
         "interpreter_chain": interpreter_chain,
         "explicit_path": explicit_path,
@@ -405,6 +510,10 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
         "sha256": _sha256_file(effective_path),
         "exists": effective_path.exists(),
         "size": effective_path.stat().st_size if effective_path.exists() else None,
+        "symlink_target": symlink_target,
+        "path_candidates": [str(path) for path in path_candidates[:6]],
+        "path_candidate_origins": [_classify_origin(path, root) for path in path_candidates[:6]],
+        "age_seconds": _file_age_seconds(effective_path),
     }
 
 
@@ -449,6 +558,30 @@ def _hit(module: str, decision: str, output: str, identity: dict[str, Any], *, r
 
 
 def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
+    policy = load_policy(root)
+    high_trust_names = set(policy.get("high_trust_names", []))
+    tokens = _shell_split(command)
+    command_name, current, _ = _next_command_tokens(tokens)
+
+    alias_hit = _detect_shell_alias_hijack(command, high_trust_names)
+    if alias_hit:
+        return {"identity": alias_hit["metadata"]["tool_identity"], "hit": alias_hit}
+
+    runner_name, package_token = _detect_package_runner_wrapper(command_name, current)
+    if runner_name and package_token:
+        identity = _synthetic_identity(runner_name, command)
+        return {
+            "identity": identity,
+            "hit": _hit(
+                "package-runner-wrapper-guard",
+                "prompt",
+                f"Review required before using {runner_name} with a remote or mutable package source.",
+                identity,
+                reason="One-shot package runners can fetch and execute tools outside the normal reviewed install path, especially when they point at URLs, git sources, file paths, or @latest targets.",
+                safer_alternative="Install the tool from a reviewed package source first, or pin it to a reviewed package version before execution.",
+            ),
+        }
+
     identity = resolve_tool_identity(root, command)
     if not identity:
         return {"identity": None, "hit": None}
@@ -458,7 +591,6 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
     tools: dict[str, Any] = store.setdefault("tools", {})
     alias_key = str(identity.get("display_name") or identity.get("resolved_path") or "")
     existing = aliases.get(alias_key)
-    policy = load_policy(root)
     trust_state = "observed"
     hit: dict[str, Any] | None = None
 
@@ -466,11 +598,39 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
         return {"identity": identity, "hit": None}
 
     origin = str(identity.get("origin", "unknown"))
+    launch_origin = str(identity.get("launch_origin", origin))
     resolved_path = str(identity.get("resolved_path"))
-    high_trust = alias_key in set(policy.get("high_trust_names", []))
+    high_trust = alias_key in high_trust_names
     wrapper_block = alias_key in set(policy.get("wrapper_block_names", []))
+    auto_trust_origins = set(policy.get("auto_trust_origins", []))
+    review_origins = set(policy.get("review_origins", []))
+    shadow_block_origins = set(policy.get("shadow_block_origins", []))
+    block_origins = set(policy.get("block_origins", []))
+    candidate_origins = identity.get("path_candidate_origins") or []
+    path_candidates = identity.get("path_candidates") or []
+    recent_tool_seconds = int(policy.get("recent_tool_seconds", 900))
 
-    if origin in set(policy.get("block_origins", [])):
+    if high_trust and identity.get("bare_name") and path_candidates and len(path_candidates) > 1 and launch_origin in shadow_block_origins and any(item in auto_trust_origins for item in candidate_origins[1:]):
+        trust_state = "blocked"
+        hit = _hit(
+            "path-prepend-hijack-guard",
+            "block",
+            f"Blocked {alias_key} because PATH resolves it to an unreviewed location ahead of a reviewed system or package-managed tool.",
+            identity,
+            reason="A trusted command name is being intercepted by PATH order rather than invoked from its reviewed location, which is a classic local hijack pattern.",
+            safer_alternative="Remove the unreviewed PATH entry or call the intended tool by its explicit reviewed path.",
+        )
+    elif identity.get("symlink_target") and (high_trust or existing):
+        trust_state = "blocked"
+        hit = _hit(
+            "symlink-tool-swap-guard",
+            "block",
+            f"Blocked {alias_key} because it resolves through a symlinked local tool path.",
+            identity,
+            reason="A trusted or previously seen tool now executes through a symlink, which is a low-friction way to swap the target behind the same command name.",
+            safer_alternative="Use a direct reviewed executable path instead of a symlinked tool shim unless that link is explicitly reviewed.",
+        )
+    elif origin in block_origins:
         trust_state = "blocked"
         hit = _hit(
             "temp-download-exec-guard",
@@ -480,7 +640,7 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
             reason="The executable resolves to a temp, cache, or download location that should not become part of the trusted tool plane.",
             safer_alternative="Move the tool into a reviewed install path or package-managed location before execution.",
         )
-    elif high_trust and origin in set(policy.get("shadow_block_origins", [])):
+    elif high_trust and origin in shadow_block_origins:
         trust_state = "blocked"
         hit = _hit(
             "command-shadowing-guard",
@@ -528,7 +688,17 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
                 reason="Inline interpreter execution hides the real tool body and makes provenance much weaker than a reviewed executable or script path.",
                 safer_alternative="Use a reviewed executable or script file instead of inline interpreter payloads for trusted commands.",
             )
-        elif identity.get("bare_name") and origin in set(policy.get("review_origins", [])):
+        elif origin in review_origins and identity.get("age_seconds") is not None and float(identity["age_seconds"]) <= recent_tool_seconds:
+            trust_state = "prompted"
+            hit = _hit(
+                "generated-tool-chain-guard",
+                "prompt",
+                f"Review required before trusting newly created local executable {alias_key}.",
+                identity,
+                reason="This tool appeared very recently in a local execution path, which often means it was just generated, dropped, or installed and has not been reviewed yet.",
+                safer_alternative=f"Review the new executable and then run `./bin/runwall tools approve {shlex.quote(alias_key)}` if it is expected.",
+            )
+        elif identity.get("bare_name") and origin in review_origins:
             trust_state = "prompted"
             hit = _hit(
                 "unknown-executable-guard",

@@ -1,5 +1,16 @@
 # Changelog
 
+## 6.5.0
+
+- expanded the Tool Trust Plane with five new built-in protections: `path-prepend-hijack-guard`, `shell-alias-hijack-guard`, `package-runner-wrapper-guard`, `generated-tool-chain-guard`, and `symlink-tool-swap-guard`
+- added local PATH-order collision detection so trusted command names are blocked when a local interceptor wins over a reviewed binary later in `PATH`
+- added shell alias and function override blocking for trusted tool names
+- added review gates for mutable or remote one-shot package-runner execution paths like risky `npx`, `pnpm dlx`, `yarn dlx`, `uvx`, `pipx run`, and `bunx`
+- added first-run prompts for newly created local executables before they silently become part of the trusted tool plane
+- added symlink swap blocking for approved or trusted local commands whose launch path changes underneath the same name
+- added `recent_tool_seconds` to `config/tool-trust-policy.json` for low-maintenance tuning of “newly generated tool” review windows
+- expanded smoke coverage for PATH hijack, true trusted-name shadowing, alias hijack, risky package runners, generated local executables, symlink swaps, approval flow, and drift
+
 ## 6.0.0
 
 - added a local Tool Trust Plane for raw CLI execution so Runwall can reason about non-MCP tools, generated CLIs, wrapper scripts, and PATH-injected helpers

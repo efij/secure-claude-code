@@ -48,5 +48,6 @@
     "tofu",
     "claude",
     "codex"
-  ]
+  ],
+  "recent_tool_seconds": 900
 }

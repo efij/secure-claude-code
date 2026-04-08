@@ -45,6 +45,41 @@ These are native Runwall trust-plane protections for raw CLI execution. They are
 - Why it matters: wrappers are a common way to hide malicious behavior behind a familiar tool name.
 - Action: block
 
+### path-prepend-hijack-guard
+
+- Purpose: block PATH-order hijacks where a local tool wins before a reviewed system or package-managed binary.
+- Detects: trusted command names that resolve to a local path even though a reviewed binary still exists later in `PATH`.
+- Why it matters: this is one of the cleanest ways to steal trust from a known-safe command without changing the command text.
+- Action: block
+
+### shell-alias-hijack-guard
+
+- Purpose: block shell alias and function overrides for trusted tool names.
+- Detects: `alias git=...`, `function kubectl()`, `terraform(){ ... }`, and similar shell-level overrides in a command payload.
+- Why it matters: alias and function hijacks bypass executable identity entirely unless the shell text itself is guarded.
+- Action: block
+
+### package-runner-wrapper-guard
+
+- Purpose: require review before one-shot package runners fetch and execute tools from mutable or remote sources.
+- Detects: risky `npx`, `pnpm dlx`, `yarn dlx`, `uvx`, `pipx run`, and `bunx` invocations that point at URLs, git sources, file paths, archives, or `@latest`.
+- Why it matters: these runners are a convenient escape hatch from MCP visibility and long-lived trusted installs.
+- Action: prompt
+
+### generated-tool-chain-guard
+
+- Purpose: require review before newly created local executables join the trusted tool plane.
+- Detects: fresh workspace-local or user-local scripts and binaries that appear and are executed shortly afterward.
+- Why it matters: droppers and generated helper CLIs often rely on that “write then immediately run” pattern.
+- Action: prompt
+
+### symlink-tool-swap-guard
+
+- Purpose: block trusted or approved local tools that suddenly resolve through a symlinked swap target.
+- Detects: previously trusted commands whose launch path becomes a symlink, especially in local tool directories.
+- Why it matters: symlinks are a low-friction way to replace the real target behind the same command name.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

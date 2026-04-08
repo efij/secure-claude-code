@@ -102,9 +102,14 @@ That matters because a lot of modern agent power flows through local tools, gene
 The built-in tool trust layer fingerprints executed tools, stores local trust state in Runwall state files, typically `~/.runwall/state/tools.json` when installed, and intervenes on a few high-confidence cases:
 
 - trusted-name shadowing like fake `git`, `gh`, `kubectl`, `terraform`, `claude`, or `codex`
+- PATH-prepend hijacks where a local tool intercepts a trusted system command before the reviewed binary in `PATH`
 - execution from temp, cache, or download paths
 - first-seen unreviewed PATH tools
+- newly generated local executables that appear and run before they have been reviewed
 - tool drift where a previously approved command changes path, hash, or wrapper shape
+- shell alias and function hijacks for trusted tool names
+- risky one-shot package runners such as `npx`, `pnpm dlx`, `yarn dlx`, `uvx`, `pipx run`, and `bunx` when they point at mutable or remote sources
+- symlinked tool swaps where the same local command name silently points somewhere else
 
 You can inspect and manage that local trust state with:
 
