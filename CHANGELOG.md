@@ -1,5 +1,14 @@
 # Changelog
 
+## 12.0.0
+
+- added a `Local Data Store Trust Plane` with native protections for `sqlite-dump-guard`, `sqlite-session-export-guard`, `redis-admin-export-guard`, `postgres-local-dump-guard`, `browser-indexeddb-export-guard`, `vector-store-export-guard`, `app-cache-db-copy-guard`, `datastore-admin-shell-guard`, `datastore-bulk-read-guard`, and `datastore-drift-guard`
+- added a `Local IPC / Helper Trust Plane` with native protections for `credential-helper-ipc-guard`, `named-pipe-admin-guard`, `local-llm-socket-guard`, `debug-helper-ipc-guard`, `ide-backend-ipc-guard`, `agent-sidecar-ipc-guard`, `ipc-first-seen-review-guard`, `unix-socket-drift-guard`, `ipc-wrapper-bridge-guard`, and `ipc-export-bridge-guard`
+- added new CLI surfaces: `runwall data` and `runwall ipc`
+- extended policy evaluation, pretty output, and audit emission so local datastore and IPC identities show up beside the other trust planes
+- expanded smoke coverage for SQLite admin access, SQLite dumps, local PostgreSQL export review, browser storage export blocking, vector-store export review, local LLM approval flow, credential-helper IPC blocking, wrapper bridges, and IPC export bridges
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `12.0.0` trust-plane upgrade
+
 ## 11.0.0
 
 - added a `Fileless / Inline Execution Trust Plane` with native protections for `inline-fetch-exec-guard`, `inline-encoded-loader-guard`, `inline-process-substitution-guard`, `inline-heredoc-dropper-guard`, `inline-eval-secret-guard`, `inline-env-payload-guard`, `inline-python-loader-guard`, `inline-node-loader-guard`, `inline-shell-persistence-guard`, and `inline-policy-bypass-guard`

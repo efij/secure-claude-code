@@ -756,6 +756,32 @@ services_cmd() {
   esac
 }
 
+data_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|approve|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_data.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown data subcommand: $subcommand"
+      ;;
+  esac
+}
+
+ipc_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|approve|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_ipc.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown ipc subcommand: $subcommand"
+      ;;
+  esac
+}
+
 browser_cmd() {
   local subcommand="${1:-sessions}"
   shift || true
@@ -1269,6 +1295,14 @@ Usage:
   bin/runwall services approve <target>
   bin/runwall services forget <target>
   bin/runwall services diff <target>
+  bin/runwall data list [--json]
+  bin/runwall data approve <target>
+  bin/runwall data forget <target>
+  bin/runwall data diff <target>
+  bin/runwall ipc list [--json]
+  bin/runwall ipc approve <target>
+  bin/runwall ipc forget <target>
+  bin/runwall ipc diff <target>
   bin/runwall safety list [--json]
   bin/runwall safety diff <path-or-surface>
   bin/runwall safety forget <path-or-surface>
@@ -1452,6 +1486,14 @@ case "$command" in
   services)
     shift
     services_cmd "$@"
+    ;;
+  data)
+    shift
+    data_cmd "$@"
+    ;;
+  ipc)
+    shift
+    ipc_cmd "$@"
     ;;
   safety)
     shift

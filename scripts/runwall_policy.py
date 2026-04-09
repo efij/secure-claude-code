@@ -14,10 +14,12 @@ from datetime import datetime, timezone
 from typing import Any
 
 import runwall_chain
+import runwall_data
 import runwall_flow
 import runwall_forensics
 import runwall_hooks
 import runwall_exec
+import runwall_ipc
 import runwall_knowledge
 import runwall_memory
 import runwall_promotion
@@ -395,6 +397,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "tool_identity": result.get("tool_identity"),
             "hook_identity": result.get("hook_identity"),
             "service_identity": result.get("service_identity"),
+            "data_identity": result.get("data_identity"),
+            "ipc_identity": result.get("ipc_identity"),
             "browser_identity": result.get("browser_identity"),
             "exec_identity": result.get("exec_identity"),
             "memory_identity": result.get("memory_identity"),
@@ -447,6 +451,8 @@ def evaluate(
     tool_identity: dict[str, Any] | None = None
     hook_identity: dict[str, Any] | None = None
     service_identity: dict[str, Any] | None = None
+    data_identity: dict[str, Any] | None = None
+    ipc_identity: dict[str, Any] | None = None
     browser_identity: dict[str, Any] | None = None
     exec_identity: dict[str, Any] | None = None
     memory_identity: dict[str, Any] | None = None
@@ -488,6 +494,22 @@ def evaluate(
             if _DECISION_PRIORITY[tool_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = tool_hit["decision"]
             results.append(tool_hit)
+
+        data_assessment = runwall_data.assess_command(root, payload, merged_context)
+        data_identity = data_assessment.get("identity")
+        data_hit = data_assessment.get("hit")
+        if data_hit:
+            if _DECISION_PRIORITY[data_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = data_hit["decision"]
+            results.append(data_hit)
+
+        ipc_assessment = runwall_ipc.assess_command(root, payload, merged_context)
+        ipc_identity = ipc_assessment.get("identity")
+        ipc_hit = ipc_assessment.get("hit")
+        if ipc_hit:
+            if _DECISION_PRIORITY[ipc_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = ipc_hit["decision"]
+            results.append(ipc_hit)
 
         service_assessment = runwall_services.assess_command(root, payload, merged_context)
         service_identity = service_assessment.get("identity")
@@ -619,6 +641,8 @@ def evaluate(
         "tool_identity": tool_identity,
         "hook_identity": hook_identity,
         "service_identity": service_identity,
+        "data_identity": data_identity,
+        "ipc_identity": ipc_identity,
         "browser_identity": browser_identity,
         "exec_identity": exec_identity,
         "memory_identity": memory_identity,
@@ -650,6 +674,12 @@ def print_pretty(result: dict[str, Any]) -> None:
             print(
                 f"service: {service_identity.get('service_class')} -> {service_identity.get('target')}"
             )
+        data_identity = result.get("data_identity") or {}
+        if data_identity.get("target"):
+            print(f"data: {data_identity.get('store_class')} -> {data_identity.get('target')}")
+        ipc_identity = result.get("ipc_identity") or {}
+        if ipc_identity.get("target"):
+            print(f"ipc: {ipc_identity.get('helper_class')} -> {ipc_identity.get('target')}")
         browser_identity = result.get("browser_identity") or {}
         if browser_identity.get("domains"):
             print(f"browser: {', '.join(browser_identity.get('domains', []))}")
@@ -688,6 +718,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     service_identity = result.get("service_identity") or {}
     if service_identity.get("target"):
         print(f"service: {service_identity.get('service_class')} -> {service_identity.get('target')}")
+    data_identity = result.get("data_identity") or {}
+    if data_identity.get("target"):
+        print(f"data: {data_identity.get('store_class')} -> {data_identity.get('target')}")
+    ipc_identity = result.get("ipc_identity") or {}
+    if ipc_identity.get("target"):
+        print(f"ipc: {ipc_identity.get('helper_class')} -> {ipc_identity.get('target')}")
     browser_identity = result.get("browser_identity") or {}
     if browser_identity.get("domains"):
         print(f"browser: {', '.join(browser_identity.get('domains', []))}")

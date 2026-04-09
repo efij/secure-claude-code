@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-RISKY_KINDS = {"app", "browser", "service", "tool", "hook"}
+RISKY_KINDS = {"app", "browser", "service", "tool", "hook", "data", "ipc"}
 
 
 def utc_now() -> str:
@@ -319,6 +319,7 @@ def assess_match(
     repo: str | None = None,
     agent_id: str | None = None,
     fingerprint: str | None = None,
+    consume: bool = True,
 ) -> dict[str, Any]:
     store = load_store(root)
     now = time.time()
@@ -436,6 +437,8 @@ def assess_match(
             continue
 
         matched_approval = item
+        if not consume:
+            break
         item["uses"] = int(item.get("uses", 0)) + 1
         item["last_used_at"] = utc_now()
         if item.get("once"):
@@ -445,6 +448,8 @@ def assess_match(
         break
 
     if matched_approval:
+        if not consume:
+            return {"approval": matched_approval, "hit": None}
         store["approvals"] = approvals + [
             item
             for item in store.get("approvals", [])
@@ -467,11 +472,12 @@ def assess_match(
         save_store(root, store)
         return {"approval": matched_approval, "hit": None}
 
-    for replay in reversed(store.get("consumed", [])):
-        if not isinstance(replay, dict):
-            continue
-        if replay.get("request_key") == request_key:
-            return {"approval": None, "hit": _replay_hit(kind, target, value, replay)}
+    if consume:
+        for replay in reversed(store.get("consumed", [])):
+            if not isinstance(replay, dict):
+                continue
+            if replay.get("request_key") == request_key:
+                return {"approval": None, "hit": _replay_hit(kind, target, value, replay)}
 
     if expired_candidate is not None:
         return {

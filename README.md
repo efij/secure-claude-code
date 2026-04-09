@@ -171,6 +171,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Safety-Control Trust`: protects the things attackers disable first: audit trails, rollback scripts, backups, monitoring, alert sinks, incident bundles, and release safety checks
 - `Fileless / Inline Execution Trust`: blocks remote fetch-and-exec, encoded loaders, env-driven payloads, inline persistence, and policy-bypass chains that try to avoid leaving a normal executable on disk
 - `Remote Content Promotion Trust`: blocks remote or pasted content from being promoted directly into trusted memory, knowledge, hook, policy, script, and agent-instruction surfaces
+- `Local Data Store Trust`: prompts or blocks on local SQLite, Redis, PostgreSQL, browser storage, vector-store, and app-cache export paths before they silently turn into data-extraction flows
+- `Local IPC / Helper Trust`: treats local helper sockets, sidecars, local LLM endpoints, IDE backends, credential helpers, and named pipes as first-class trust boundaries
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -185,6 +187,14 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall services list --json
 ./bin/runwall services approve <target>
 ./bin/runwall services diff <target>
+
+./bin/runwall data list --json
+./bin/runwall data approve <target>
+./bin/runwall data diff <target>
+
+./bin/runwall ipc list --json
+./bin/runwall ipc approve <target>
+./bin/runwall ipc diff <target>
 
 ./bin/runwall browser sessions --json
 ./bin/runwall browser allow github.com
@@ -282,6 +292,15 @@ High-signal built-ins in these planes now include:
 - `remote-to-policy-promotion-guard`
 - `remote-to-script-promotion-guard`
 - `raw-host-promotion-guard`
+- `sqlite-dump-guard`
+- `postgres-local-dump-guard`
+- `browser-indexeddb-export-guard`
+- `vector-store-export-guard`
+- `credential-helper-ipc-guard`
+- `local-llm-socket-guard`
+- `ide-backend-ipc-guard`
+- `ipc-wrapper-bridge-guard`
+- `ipc-export-bridge-guard`
 
 ## Protection Families
 
@@ -299,6 +318,8 @@ Runwall now groups signatures into stable families so the product reads like a r
 - `SaaS & Control Planes`: authenticated control-plane actions against GitHub, Vercel, Stripe, Supabase, cloud consoles, and similar admin surfaces
 - `Fileless & Inline Execution`: inline shells, interpreter one-liners, process substitution, heredoc loaders, and other fileless execution shapes
 - `Remote Content Promotion`: remote or pasted content being promoted into trusted local authority surfaces such as memory, hooks, policy, scripts, and agent docs
+- `Local Data Stores`: local databases, browser storage, vector indexes, app caches, and export paths that can leak sensitive workstation state
+- `Local IPC & Helpers`: sidecars, IDE backends, local model endpoints, credential helpers, and named-pipe or socket control paths
 
 You can inspect the active registry by family with:
 

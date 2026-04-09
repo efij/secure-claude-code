@@ -24,6 +24,7 @@ SSH_AGENT_RE = re.compile(r"(?i)\bssh-add\b|\bSSH_AUTH_SOCK=")
 DEFAULT_ADMIN_PORTS = {2375, 2376, 9222, 9223, 5432, 6379, 27017, 5000, 6443}
 DATABASE_PORTS = {3306, 5432, 6379, 27017, 9200}
 KUBE_PORTS = {6443, 8443}
+LOCAL_LLM_PORTS = {11434, 11435, 1234, 8000, 8080, 8081}
 
 
 def utc_now() -> str:
@@ -82,6 +83,18 @@ def _hit(module: str, decision: str, identity: dict[str, Any], reason: str, safe
             "service_identity": identity,
         },
     }
+
+
+def _ipc_equivalent(identity: dict[str, Any]) -> tuple[str, str, str] | None:
+    service_class = str(identity.get("service_class") or "")
+    target = str(identity.get("target") or "")
+    port = int(identity.get("port") or 0)
+    if service_class == "browser-debug":
+        ipc_target = re.sub(r"^https?://", "", target)
+        return ("debug-helper", ipc_target, hashlib.sha256(f"debug-helper:{ipc_target}".encode("utf-8")).hexdigest())
+    if service_class == "localhost-admin" and port in LOCAL_LLM_PORTS:
+        return ("local-llm", target, hashlib.sha256(f"local-llm:{target}".encode("utf-8")).hexdigest())
+    return None
 
 
 def detect_service(payload: str) -> dict[str, Any] | None:
@@ -154,11 +167,29 @@ def assess_command(root: pathlib.Path, payload: str, context: dict[str, Any] | N
     )
     approval = approval_assessment.get("approval")
     approval_hit = approval_assessment.get("hit")
+    ipc_equivalent = _ipc_equivalent(identity)
+    ipc_approval = None
+    if ipc_equivalent and not approval:
+        ipc_target_class, ipc_target_value, ipc_fingerprint = ipc_equivalent
+        ipc_approval_assessment = runwall_approvals.assess_match(
+            root,
+            kind="ipc",
+            target=ipc_target_class,
+            value=ipc_target_value,
+            runtime=str(runtime) if runtime else None,
+            repo=repo,
+            agent_id=str(agent_id) if agent_id else None,
+            fingerprint=ipc_fingerprint,
+            consume=False,
+        )
+        ipc_approval = ipc_approval_assessment.get("approval")
     store = load_store(root)
     existing = store.setdefault("services", {}).get(target)
     trust_state = "observed"
     hit = None
     if approval:
+        trust_state = "approved"
+    elif ipc_approval:
         trust_state = "approved"
     elif approval_hit:
         trust_state = "prompted"

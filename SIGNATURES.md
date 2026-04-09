@@ -818,6 +818,150 @@ These are native Runwall trust-plane protections for fileless execution shapes a
 - Why it matters: quarantine only works if the runtime cannot keep consuming the poisoned source anyway.
 - Action: block
 
+## Built-In Data Store and IPC Guards
+
+These are native Runwall trust-plane protections for local databases, browser storage, vector stores, sidecars, and helper IPC channels.
+
+### sqlite-dump-guard
+
+- Purpose: stop full local SQLite dumps.
+- Detects: `sqlite3 ... .dump` and similar dump flows against local `.db` and `.sqlite` files.
+- Why it matters: a full local dump is usually an extraction step, not a normal coding action.
+- Action: block
+
+### sqlite-session-export-guard
+
+- Purpose: stop export of session-bearing local SQLite stores.
+- Detects: copy or archive flows against cookie, login, auth, and session SQLite databases.
+- Why it matters: session-bearing browser and app databases can leak live authenticated state.
+- Action: block
+
+### redis-admin-export-guard
+
+- Purpose: stop local Redis export and bulk-enumeration flows.
+- Detects: `redis-cli --rdb`, `SAVE`, `BGSAVE`, `KEYS *`, `SCAN 0`, and similar export or broad-read operations.
+- Why it matters: Redis often holds ephemeral but high-value local app state and queue data.
+- Action: block
+
+### postgres-local-dump-guard
+
+- Purpose: require review before dumping or bulk-exporting local PostgreSQL.
+- Detects: `pg_dump`, `pg_dumpall`, and `psql` copy/export behavior against localhost and private PostgreSQL targets.
+- Why it matters: local development databases often still contain customer-like, auth, or internal state.
+- Action: prompt
+
+### browser-indexeddb-export-guard
+
+- Purpose: stop export of browser IndexedDB, LevelDB, and similar storage roots.
+- Detects: copy or archive flows against browser `IndexedDB`, `Local Storage`, `Session Storage`, and `leveldb` paths.
+- Why it matters: browser local storage can hold sessions, tokens, extension state, and cached app data.
+- Action: block
+
+### vector-store-export-guard
+
+- Purpose: require review before exporting local vector stores.
+- Detects: copy or archive flows against Chroma, FAISS, Qdrant local stores, LanceDB, and similar embedding indexes.
+- Why it matters: vector stores can leak proprietary corpora, prompts, and embedded private data in bulk.
+- Action: prompt
+
+### app-cache-db-copy-guard
+
+- Purpose: require review before copying local application cache databases.
+- Detects: copy and archive flows against app-support databases for Slack, Discord, Notion, Obsidian, Claude, Codex, Cursor, Windsurf, and similar desktop apps.
+- Why it matters: app cache databases often hold high-signal local state even when they are not obvious “secret files.”
+- Action: prompt
+
+### datastore-admin-shell-guard
+
+- Purpose: require review before opening or driving local datastore admin surfaces.
+- Detects: interactive or admin use of `sqlite3`, `psql`, and `redis-cli` against local stores.
+- Why it matters: local admin shells are powerful and can become easy extraction pivots if left unreviewed.
+- Action: prompt
+
+### datastore-bulk-read-guard
+
+- Purpose: require review before broad local datastore reads.
+- Detects: `SELECT *`, `COPY (...)`, schema reads, and similar broad extraction patterns against local datastores.
+- Why it matters: broad reads are often the step just before serialization, copy, or exfiltration.
+- Action: prompt
+
+### datastore-drift-guard
+
+- Purpose: surface when an approved datastore target changes underneath its trust record.
+- Detects: resolved path, file identity, or target fingerprint drift for an approved local datastore.
+- Why it matters: local symlink swaps and path changes can turn a once-reviewed target into a different datastore entirely.
+- Action: prompt
+
+### credential-helper-ipc-guard
+
+- Purpose: stop direct access to credential-helper IPC channels.
+- Detects: SSH agent, keyring, gpg-agent, pinentry, and related helper socket or env flows.
+- Why it matters: helper IPC can expose signing and auth capability without ever reading a raw secret file.
+- Action: block
+
+### named-pipe-admin-guard
+
+- Purpose: stop named-pipe access that behaves like privileged local control.
+- Detects: Windows-style `\\\\.\\pipe\\...` access in runtime commands.
+- Why it matters: named pipes are often invisible trust boundaries that still expose privileged local daemons.
+- Action: block
+
+### local-llm-socket-guard
+
+- Purpose: require review before trusting local model endpoints.
+- Detects: local LLM and inference endpoints like Ollama, LM Studio, llama.cpp, and vLLM-style localhost paths.
+- Why it matters: local models and sidecar inference helpers are part of the runtime trust surface even when they are not MCP servers.
+- Action: prompt
+
+### debug-helper-ipc-guard
+
+- Purpose: require review before trusting local debug-helper targets.
+- Detects: debug ports, inspect helpers, and devtools-like local helper endpoints.
+- Why it matters: debug helpers can expose rich local process control and state.
+- Action: prompt
+
+### ide-backend-ipc-guard
+
+- Purpose: require review before trusting IDE backend IPC paths.
+- Detects: `.cursor-server`, `.vscode-server`, extension-host, Windsurf, and language-server style socket or helper targets.
+- Why it matters: IDE helpers are privileged local control surfaces that often sit outside MCP visibility.
+- Action: prompt
+
+### agent-sidecar-ipc-guard
+
+- Purpose: require review before trusting agent sidecar IPC paths.
+- Detects: local sidecar sockets and helper paths tied to Claude, Codex, OpenClaw, or Runwall-style runtime sidecars.
+- Why it matters: sidecars can become a hidden second tool plane if they are not treated as trust boundaries.
+- Action: prompt
+
+### ipc-first-seen-review-guard
+
+- Purpose: require review before a new local IPC helper becomes trusted.
+- Detects: first-seen helper sockets and IPC endpoints that do not yet fit a reviewed local trust record.
+- Why it matters: first-seen trust is where many local helper abuses slip in quietly.
+- Action: prompt
+
+### unix-socket-drift-guard
+
+- Purpose: surface drift on approved IPC helper targets.
+- Detects: path or fingerprint changes for approved helper sockets and IPC endpoints.
+- Why it matters: socket path swaps and sidecar replacement can quietly widen what a reviewed target now points to.
+- Action: prompt
+
+### ipc-wrapper-bridge-guard
+
+- Purpose: stop helper sockets from being bridged into ad hoc wrappers.
+- Detects: `socat`, `nc`, and inline interpreter bridges against UNIX sockets and named pipes.
+- Why it matters: wrapper bridges convert helper channels into arbitrary shell or interpreter execution paths.
+- Action: block
+
+### ipc-export-bridge-guard
+
+- Purpose: stop upload and export bridges built on helper IPC channels.
+- Detects: helper socket or named-pipe access combined with outbound upload, webhook, or export behavior.
+- Why it matters: privileged helper channels should not become hidden exfiltration sources.
+- Action: block
+
 ## Secrets & Identity
 
 Guards that keep tokens, sessions, credential stores, and delegated identity flows from quietly widening access or leaking off the box.

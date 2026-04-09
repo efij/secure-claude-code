@@ -158,6 +158,31 @@ These protections are implemented directly in native Runwall trust planes instea
 - `paste-to-trusted-surface-guard`: prompts before pasted external content is promoted into a trusted surface
 - `promotion-quarantine-bypass-guard`: blocks reads or writes against promoted sources that were explicitly quarantined
 
+## Built-In Data Store and IPC Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `sqlite-dump-guard`: blocks full SQLite dumps from local database files
+- `sqlite-session-export-guard`: blocks copy or archive of session-bearing SQLite stores such as cookies, login data, and local auth state
+- `redis-admin-export-guard`: blocks Redis export, save, and bulk-key enumeration flows against local instances
+- `postgres-local-dump-guard`: prompts before local PostgreSQL dump and bulk-export behavior
+- `browser-indexeddb-export-guard`: blocks export of browser IndexedDB, LevelDB, and similar storage roots
+- `vector-store-export-guard`: prompts before copying or archiving local vector stores and embedding indexes
+- `app-cache-db-copy-guard`: prompts before copying application cache databases and app-state stores
+- `datastore-admin-shell-guard`: prompts before opening or driving local SQLite, PostgreSQL, or Redis admin surfaces
+- `datastore-bulk-read-guard`: prompts before broad `SELECT *`, `COPY`, schema, and bulk-read datastore access
+- `datastore-drift-guard`: prompts when an approved datastore target changes underneath its local trust record
+- `credential-helper-ipc-guard`: blocks direct access to SSH agent, keyring, gpg-agent, and similar credential-helper IPC paths
+- `named-pipe-admin-guard`: blocks named-pipe control paths that behave like privileged local admin channels
+- `local-llm-socket-guard`: prompts before trusting local LLM endpoints and model-helper sockets
+- `debug-helper-ipc-guard`: prompts before trusting local debug-helper targets
+- `ide-backend-ipc-guard`: prompts before trusting IDE backend and extension-host IPC paths
+- `agent-sidecar-ipc-guard`: prompts before trusting agent sidecar IPC paths
+- `ipc-first-seen-review-guard`: prompts before a new local IPC helper becomes trusted
+- `unix-socket-drift-guard`: prompts when an approved IPC target changes underneath its trust record
+- `ipc-wrapper-bridge-guard`: blocks wrapper and inline-interpreter bridges against helper sockets and pipes
+- `ipc-export-bridge-guard`: blocks upload and export bridges built directly on IPC helper channels
+
 ## Implemented Guards
 
 ### Secrets & Identity
