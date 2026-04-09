@@ -173,6 +173,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Remote Content Promotion Trust`: blocks remote or pasted content from being promoted directly into trusted memory, knowledge, hook, policy, script, and agent-instruction surfaces
 - `Local Data Store Trust`: prompts or blocks on local SQLite, Redis, PostgreSQL, browser storage, vector-store, and app-cache export paths before they silently turn into data-extraction flows
 - `Local IPC / Helper Trust`: treats local helper sockets, sidecars, local LLM endpoints, IDE backends, credential helpers, and named pipes as first-class trust boundaries
+- `Publish / Release Intent Trust`: prompts or blocks on package publishes, image pushes, binary release uploads, registry retargeting, signing bypass, and manifest-level release target drift
+- `Destructive Intent Trust`: blocks or prompts on broad deletes, infra teardown, repo wipes, state destruction, bulk disable loops, and other obvious high-blast-radius actions
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -192,9 +194,18 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall data approve <target>
 ./bin/runwall data diff <target>
 
+./bin/runwall release list --json
+./bin/runwall release approve <target> --once
+./bin/runwall release diff <target>
+./bin/runwall release policy --json
+
 ./bin/runwall ipc list --json
 ./bin/runwall ipc approve <target>
 ./bin/runwall ipc diff <target>
+
+./bin/runwall destructive list --json
+./bin/runwall destructive explain <event-id>
+./bin/runwall destructive policy --json
 
 ./bin/runwall browser sessions --json
 ./bin/runwall browser allow github.com
@@ -320,6 +331,8 @@ Runwall now groups signatures into stable families so the product reads like a r
 - `Remote Content Promotion`: remote or pasted content being promoted into trusted local authority surfaces such as memory, hooks, policy, scripts, and agent docs
 - `Local Data Stores`: local databases, browser storage, vector indexes, app caches, and export paths that can leak sensitive workstation state
 - `Local IPC & Helpers`: sidecars, IDE backends, local model endpoints, credential helpers, and named-pipe or socket control paths
+- `Publish, Release & Supply Chain`: release edges, registries, manifests, image pushes, artifact uploads, and signing or provenance bypass
+- `Destructive Actions & Blast Radius`: obvious high-impact teardown, wipe, revoke, or delete paths that need narrow review
 
 You can inspect the active registry by family with:
 

@@ -23,12 +23,14 @@ import runwall_ipc
 import runwall_knowledge
 import runwall_memory
 import runwall_promotion
+import runwall_release
 import runwall_runtime
 import runwall_tools
 import runwall_services
 import runwall_browser
 import runwall_agents
 import runwall_apps
+import runwall_destructive
 import runwall_safety
 
 _HOOK_SHELL: str | None = None
@@ -405,6 +407,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "knowledge_identity": result.get("knowledge_identity"),
             "promotion_identity": result.get("promotion_identity"),
             "app_identity": result.get("app_identity"),
+            "release_identity": result.get("release_identity"),
+            "destructive_identity": result.get("destructive_identity"),
             "safety_identity": result.get("safety_identity"),
             "chain_alerts": result.get("chain_alerts", []),
             "triggered_chain_alerts": result.get("triggered_chain_alerts", []),
@@ -435,6 +439,7 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
     runwall_flow.observe_result(root, result, payload)
     runwall_agents.observe_result(root, result, payload)
     runwall_apps.record_action(root, result, payload)
+    runwall_destructive.record_action(root, result, payload)
 
 
 def evaluate(
@@ -459,6 +464,8 @@ def evaluate(
     knowledge_identity: dict[str, Any] | None = None
     promotion_identity: dict[str, Any] | None = None
     app_identity: dict[str, Any] | None = None
+    release_identity: dict[str, Any] | None = None
+    destructive_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     event_record = runwall_runtime.with_event_context(
@@ -543,6 +550,22 @@ def evaluate(
                 action = app_hit["decision"]
             results.append(app_hit)
 
+        release_assessment = runwall_release.assess_action(root, event, matcher, payload, merged_context)
+        release_identity = release_assessment.get("identity")
+        release_hit = release_assessment.get("hit")
+        if release_hit:
+            if _DECISION_PRIORITY[release_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = release_hit["decision"]
+            results.append(release_hit)
+
+        destructive_assessment = runwall_destructive.assess_action(root, event, matcher, payload, merged_context)
+        destructive_identity = destructive_assessment.get("identity")
+        destructive_hit = destructive_assessment.get("hit")
+        if destructive_hit:
+            if _DECISION_PRIORITY[destructive_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = destructive_hit["decision"]
+            results.append(destructive_hit)
+
         safety_assessment = runwall_safety.assess_action(root, event, matcher, payload, merged_context)
         safety_identity = safety_assessment.get("identity")
         safety_hit = safety_assessment.get("hit")
@@ -587,6 +610,14 @@ def evaluate(
             if _DECISION_PRIORITY[promotion_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = promotion_hit["decision"]
             results.append(promotion_hit)
+
+        release_assessment = runwall_release.assess_action(root, event, matcher, payload, merged_context)
+        release_identity = release_assessment.get("identity")
+        release_hit = release_assessment.get("hit")
+        if release_hit:
+            if _DECISION_PRIORITY[release_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = release_hit["decision"]
+            results.append(release_hit)
 
         safety_assessment = runwall_safety.assess_action(root, event, matcher, payload, merged_context)
         safety_identity = safety_assessment.get("identity")
@@ -649,6 +680,8 @@ def evaluate(
         "knowledge_identity": knowledge_identity,
         "promotion_identity": promotion_identity,
         "app_identity": app_identity,
+        "release_identity": release_identity,
+        "destructive_identity": destructive_identity,
         "safety_identity": safety_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
@@ -698,6 +731,12 @@ def print_pretty(result: dict[str, Any]) -> None:
         app_identity = result.get("app_identity") or {}
         if app_identity.get("app"):
             print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+        release_identity = result.get("release_identity") or {}
+        if release_identity.get("target"):
+            print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")
+        destructive_identity = result.get("destructive_identity") or {}
+        if destructive_identity.get("target"):
+            print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target')}")
         safety_identity = result.get("safety_identity") or {}
         if safety_identity.get("path"):
             print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")
@@ -742,6 +781,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     app_identity = result.get("app_identity") or {}
     if app_identity.get("app"):
         print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+    release_identity = result.get("release_identity") or {}
+    if release_identity.get("target"):
+        print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")
+    destructive_identity = result.get("destructive_identity") or {}
+    if destructive_identity.get("target"):
+        print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target')}")
     safety_identity = result.get("safety_identity") or {}
     if safety_identity.get("path"):
         print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")

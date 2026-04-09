@@ -769,6 +769,19 @@ data_cmd() {
   esac
 }
 
+release_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|approve|forget|diff|policy)
+      run_python "$ROOT_DIR/scripts/runwall_release.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown release subcommand: $subcommand"
+      ;;
+  esac
+}
+
 ipc_cmd() {
   local subcommand="${1:-list}"
   shift || true
@@ -778,6 +791,19 @@ ipc_cmd() {
       ;;
     *)
       fail "unknown ipc subcommand: $subcommand"
+      ;;
+  esac
+}
+
+destructive_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|explain|policy)
+      run_python "$ROOT_DIR/scripts/runwall_destructive.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown destructive subcommand: $subcommand"
       ;;
   esac
 }
@@ -1299,10 +1325,18 @@ Usage:
   bin/runwall data approve <target>
   bin/runwall data forget <target>
   bin/runwall data diff <target>
+  bin/runwall release list [--json]
+  bin/runwall release approve <target> [--once]
+  bin/runwall release forget <target>
+  bin/runwall release diff <target>
+  bin/runwall release policy [--json]
   bin/runwall ipc list [--json]
   bin/runwall ipc approve <target>
   bin/runwall ipc forget <target>
   bin/runwall ipc diff <target>
+  bin/runwall destructive list [--json]
+  bin/runwall destructive explain <event-id>
+  bin/runwall destructive policy [--json]
   bin/runwall safety list [--json]
   bin/runwall safety diff <path-or-surface>
   bin/runwall safety forget <path-or-surface>
@@ -1491,9 +1525,17 @@ case "$command" in
     shift
     data_cmd "$@"
     ;;
+  release)
+    shift
+    release_cmd "$@"
+    ;;
   ipc)
     shift
     ipc_cmd "$@"
+    ;;
+  destructive)
+    shift
+    destructive_cmd "$@"
     ;;
   safety)
     shift

@@ -869,6 +869,108 @@ These are native Runwall trust-plane protections for local databases, browser st
 - Purpose: require review before copying local application cache databases.
 - Detects: copy and archive flows against app-support databases for Slack, Discord, Notion, Obsidian, Claude, Codex, Cursor, Windsurf, and similar desktop apps.
 - Why it matters: app cache databases often hold high-signal local state even when they are not obvious “secret files.”
+
+## Built-In Release and Destructive-Intent Guards
+
+### `unexpected-publish-target-guard`
+- Purpose: review publishes or releases aimed at unreviewed targets.
+- Detects: package publishes, image pushes, and release uploads that target raw hosts, ad hoc registries, or unreviewed artifact endpoints.
+- Why it matters: release edges are one of the cleanest ways to move attacker-controlled content or sensitive artifacts outside the local review boundary.
+
+### `prod-promote-guard`
+- Purpose: review direct promotion into production-like release channels.
+- Detects: publish or release commands that explicitly move into `prod`, `production`, `live`, `release`, or `stable` channels.
+- Why it matters: direct production promotion from a runtime is high impact even when the command looks legitimate.
+
+### `registry-publish-drift-guard`
+- Purpose: review drift in previously trusted publish targets.
+- Detects: approved release edges whose registry or target fingerprint changed underneath the same target.
+- Why it matters: a quiet target swap is one of the simplest supply-chain pivots.
+
+### `release-manifest-target-guard`
+- Purpose: review manifest or workflow retargeting before it becomes a release path.
+- Detects: edits to `package.json`, `pyproject.toml`, `Cargo.toml`, `Dockerfile`, chart files, and release workflows that move publish targets to unreviewed destinations.
+- Why it matters: attacker-controlled release targets often arrive as config drift, not just shell commands.
+
+### `image-push-prod-guard`
+- Purpose: review production-like container pushes.
+- Detects: direct image push or build-and-push flows into production-like targets.
+- Why it matters: image registries are a common final edge for both accidental and malicious runtime changes.
+
+### `package-publish-prod-guard`
+- Purpose: review package publishes before they ship code or artifacts.
+- Detects: `npm publish`, `pnpm publish`, `yarn npm publish`, `twine upload`, `poetry publish`, `cargo publish`, `gem push`, and similar package release paths.
+- Why it matters: package publishing crosses the local trust boundary immediately.
+
+### `binary-release-upload-guard`
+- Purpose: review binary artifact uploads.
+- Detects: `gh release create`, `gh release upload`, and similar release-bundle uploads to artifact stores or release buckets.
+- Why it matters: binary release edges are an easy place to ship secret-bearing or unreviewed artifacts.
+
+### `release-secret-bundle-guard`
+- Purpose: stop secret-bearing release bundles.
+- Detects: release or publish commands that include `.env`, private keys, token files, credential bundles, or similar secret material.
+- Why it matters: release pipelines are a high-consequence exfil channel when secrets get bundled by mistake or on purpose.
+
+### `release-signing-bypass-guard`
+- Purpose: stop release flows that turn off signing, provenance, SBOM, or attestation controls.
+- Detects: `--no-sign`, `--skip-sign`, `--provenance=false`, `--sbom=false`, `--attestation=false`, and similar disable paths.
+- Why it matters: disabling release integrity controls is a direct trust-boundary downgrade.
+
+### `release-channel-swap-guard`
+- Purpose: review release channel retargeting.
+- Detects: `--registry`, `--repository`, `--publish-url`, `--channel`, and similar rewrites into raw or unreviewed destinations.
+- Why it matters: subtle target changes are often more dangerous than the release command itself.
+
+### `mass-delete-intent-guard`
+- Purpose: stop broad destructive delete paths.
+- Detects: recursive deletes, `git rm -r`, high-scope `find -delete`, and similar wipe behavior against obvious high-value surfaces.
+- Why it matters: broad deletes are one of the fastest ways for a runtime to cause irreversible damage.
+
+### `env-destroy-guard`
+- Purpose: review environment-bound destructive changes.
+- Detects: environment secret/config deletion and production-bound workspace or environment teardown paths.
+- Why it matters: deleting the wrong environment or env-bound controls can take production or CI flows down immediately.
+
+### `secret-revoke-all-guard`
+- Purpose: review broad credential revocation.
+- Detects: token deletion, access-key removal, and bulk secret revocation flows.
+- Why it matters: bulk revocation can be as operationally damaging as a secret leak.
+
+### `role-remove-admin-guard`
+- Purpose: review destructive admin or role-removal actions.
+- Detects: owner/admin removal, IAM binding removal, and similar high-impact access teardown.
+- Why it matters: destructive permission changes can lock teams out or break production operations.
+
+### `infra-teardown-guard`
+- Purpose: stop destructive infrastructure teardown.
+- Detects: `terraform destroy`, `tofu destroy`, `terragrunt destroy`, `pulumi destroy`, and production namespace uninstall/delete flows.
+- Why it matters: infra teardown is a classic catastrophic action that needs an explicit review path.
+
+### `repo-wipe-guard`
+- Purpose: stop repository deletion or history destruction.
+- Detects: repo delete flows, mirror-force rewrites, and history-destruction commands.
+- Why it matters: repository integrity is a core trust boundary for AI-assisted coding workflows.
+
+### `artifact-wipe-guard`
+- Purpose: stop destructive release or build-artifact wipes.
+- Detects: destructive deletion of release bundles, dist outputs, build artifacts, SBOMs, or provenance files.
+- Why it matters: wiping artifacts removes both recovery material and review evidence.
+
+### `state-destroy-guard`
+- Purpose: stop destructive state mutation.
+- Detects: state deletion or mutation against Terraform, Pulumi, and similar infrastructure state.
+- Why it matters: losing or corrupting state can be more damaging than a normal code change because recovery becomes much harder.
+
+### `bulk-disable-guard`
+- Purpose: review fan-out destructive automation.
+- Detects: looped or parallel delete, revoke, or disable flows that broaden impact across many targets.
+- Why it matters: automation makes destructive actions scale much faster than human review can catch.
+
+### `blast-radius-delete-guard`
+- Purpose: review obvious blast-radius widening.
+- Detects: `--all`, `--all-namespaces`, `--prune`, recursive delete, and other flags that widen destructive scope.
+- Why it matters: scope-widening flags often turn a legitimate maintenance action into a major incident.
 - Action: prompt
 
 ### datastore-admin-shell-guard

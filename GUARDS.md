@@ -148,6 +148,31 @@ These protections are implemented directly in native Runwall trust planes instea
 - `inline-node-loader-guard`: blocks risky `node -e` loader behavior with fetch, exec, secret, or outbound primitives
 - `inline-shell-persistence-guard`: blocks inline execution that edits login, scheduler, or persistence surfaces
 - `inline-policy-bypass-guard`: blocks inline execution that tries to disable Runwall or step around local review boundaries
+
+## Built-In Release and Destructive-Intent Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `unexpected-publish-target-guard`: prompts before a publish or release path points at an unreviewed registry, raw host, or artifact target
+- `prod-promote-guard`: prompts before package or release flows promote directly into production-like channels
+- `registry-publish-drift-guard`: prompts when a previously reviewed release edge drifts to a new registry or target
+- `release-manifest-target-guard`: prompts when package manifests, workflows, or release configs are retargeted to unreviewed destinations
+- `image-push-prod-guard`: prompts before container images are pushed to production-like registries or channels
+- `package-publish-prod-guard`: prompts before package publish flows cross the local review boundary
+- `binary-release-upload-guard`: prompts before binary assets are uploaded into release edges
+- `release-secret-bundle-guard`: blocks release and publish flows that appear to bundle secrets, keys, or credentials
+- `release-signing-bypass-guard`: blocks release flows that disable signing, provenance, SBOM, or attestation behavior
+- `release-channel-swap-guard`: prompts before release channels, repositories, or registries are rewritten to new destinations
+- `mass-delete-intent-guard`: blocks obvious high-blast-radius recursive delete behavior
+- `env-destroy-guard`: prompts before environment-bound secret or config destruction paths
+- `secret-revoke-all-guard`: prompts before bulk token, secret, or credential revocation paths
+- `role-remove-admin-guard`: prompts before destructive admin or role-removal actions
+- `infra-teardown-guard`: blocks infrastructure teardown commands such as `terraform destroy`, `pulumi destroy`, or production namespace deletion
+- `repo-wipe-guard`: blocks repository wipe, delete, or history-destruction paths
+- `artifact-wipe-guard`: blocks destructive wiping of release or build artifacts
+- `state-destroy-guard`: blocks destructive mutation or deletion of infrastructure state
+- `bulk-disable-guard`: prompts before fan-out loops apply destructive disable or delete behavior broadly
+- `blast-radius-delete-guard`: prompts before destructive actions widen scope with `--all`, recursive, or blast-radius style flags
 - `remote-to-memory-promotion-guard`: blocks remote content promotion into persistent memory surfaces
 - `remote-to-knowledge-promotion-guard`: blocks remote content promotion into knowledge, vault, and RAG surfaces
 - `remote-to-hook-promotion-guard`: blocks remote content promotion into hook-bearing surfaces

@@ -1,0 +1,31 @@
+{
+  "reviewed_hosts": [
+    "github.com",
+    "npmjs.com",
+    "registry.npmjs.org",
+    "pypi.org",
+    "files.pythonhosted.org",
+    "ghcr.io",
+    "docker.io",
+    "crates.io",
+    "rubygems.org",
+    "pkg.go.dev"
+  ],
+  "prod_keywords": [
+    "prod",
+    "production",
+    "live",
+    "release",
+    "stable"
+  ],
+  "manifest_paths": [
+    "package.json",
+    "pyproject.toml",
+    "Cargo.toml",
+    "Dockerfile",
+    "docker-compose.yml",
+    "compose.yml",
+    "Chart.yaml",
+    ".github/workflows/release.yml"
+  ]
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 13.0.0
+
+- added a `Publish / Release Intent Trust Plane` with native protections for `unexpected-publish-target-guard`, `prod-promote-guard`, `registry-publish-drift-guard`, `release-manifest-target-guard`, `image-push-prod-guard`, `package-publish-prod-guard`, `binary-release-upload-guard`, `release-secret-bundle-guard`, `release-signing-bypass-guard`, and `release-channel-swap-guard`
+- added a `Destructive Intent Trust Plane` with native protections for `mass-delete-intent-guard`, `env-destroy-guard`, `secret-revoke-all-guard`, `role-remove-admin-guard`, `infra-teardown-guard`, `repo-wipe-guard`, `artifact-wipe-guard`, `state-destroy-guard`, `bulk-disable-guard`, and `blast-radius-delete-guard`
+- added new CLI surfaces: `runwall release` and `runwall destructive`
+- extended policy evaluation, pretty output, and audit emission so release and destructive identities show up beside the other trust planes
+- expanded smoke coverage for package publishes, signing bypass, release secret bundles, manifest retargeting, image pushes, binary release uploads, mass delete intent, infra teardown, state destruction, bulk destructive loops, and blast-radius delete paths
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `13.0.0` trust-plane upgrade
+
 ## 12.0.0
 
 - added a `Local Data Store Trust Plane` with native protections for `sqlite-dump-guard`, `sqlite-session-export-guard`, `redis-admin-export-guard`, `postgres-local-dump-guard`, `browser-indexeddb-export-guard`, `vector-store-export-guard`, `app-cache-db-copy-guard`, `datastore-admin-shell-guard`, `datastore-bulk-read-guard`, and `datastore-drift-guard`
