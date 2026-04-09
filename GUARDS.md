@@ -67,6 +67,31 @@ These protections are implemented directly in native Runwall trust planes instea
 - `isolated-parent-bridge-guard`: blocks child or delegated agents from executing around an isolated parent boundary
 - `agent-fanout-guard`: prompts when many agents fan out inside one session before an outbound action
 
+## Built-In Handoff and Delegated-Auth Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `token-handoff-guard`: blocks one actor from reusing delegated-auth flows that another actor already initiated in the same session
+- `browser-session-handoff-guard`: blocks export or mutation after another actor already touched a sensitive authenticated browser surface
+- `child-agent-secret-bridge-guard`: blocks cross-actor export after another actor already touched secret-bearing material
+- `cross-runtime-session-bridge-guard`: prompts when a risky action crosses from one runtime into another inside the same session
+- `artifact-to-subagent-guard`: prompts when one actor prepares artifact material and another actor later tries to export it
+- `credential-file-handoff-guard`: blocks auth-broker or upload behavior after another actor already handled credential-bearing local files
+- `session-reuse-drift-guard`: prompts when a risky action happens in a session that already spans too many actors and runtimes
+- `delegation-overreach-guard`: prompts when a delegated child actor attempts a high-risk mutation or delegated-auth step
+- `handoff-exfil-chain-guard`: blocks export once sensitive session power has already been accumulated in another actor context
+- `broker-to-export-bridge-guard`: blocks delegated-auth material from being bridged into outbound export or publish channels
+- `refresh-token-exchange-guard`: blocks refresh-token and token-exchange flows that would mint fresh delegated sessions
+- `delegated-session-relay-guard`: blocks cookies, sessions, and tokens from being relayed into files, clipboard bridges, or outbound channels
+- `broker-export-guard`: blocks direct export of live tokens or delegated credentials from auth brokers
+- `broker-scope-escalation-guard`: prompts on elevated auth scopes, admin roles, and production-targeted delegated access
+- `cloud-impersonation-broker-guard`: prompts on impersonation, role-assumption, and service-principal auth minting
+- `sts-mint-guard`: prompts when STS-style or short-lived delegated cloud credentials are minted
+- `device-flow-broker-guard`: prompts on device-code and browser-mediated delegated login flows
+- `sso-helper-mint-guard`: prompts on SSO helper and interactive login flows that mint delegated user sessions
+- `credential-helper-mint-guard`: prompts on helper commands that print or mint active tokens and login material
+- `broker-drift-guard`: prompts when a previously observed delegated-auth broker changes executable identity underneath the same provider and class
+
 ## Built-In Memory, Knowledge, and App Guards
 
 These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:

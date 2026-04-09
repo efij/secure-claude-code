@@ -30,7 +30,9 @@ import runwall_services
 import runwall_browser
 import runwall_agents
 import runwall_apps
+import runwall_auth
 import runwall_destructive
+import runwall_handoff
 import runwall_safety
 
 _HOOK_SHELL: str | None = None
@@ -407,6 +409,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "knowledge_identity": result.get("knowledge_identity"),
             "promotion_identity": result.get("promotion_identity"),
             "app_identity": result.get("app_identity"),
+            "auth_identity": result.get("auth_identity"),
+            "handoff_identity": result.get("handoff_identity"),
             "release_identity": result.get("release_identity"),
             "destructive_identity": result.get("destructive_identity"),
             "safety_identity": result.get("safety_identity"),
@@ -439,6 +443,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
     runwall_flow.observe_result(root, result, payload)
     runwall_agents.observe_result(root, result, payload)
     runwall_apps.record_action(root, result, payload)
+    runwall_auth.record_action(root, result, payload)
+    runwall_handoff.observe_result(root, result, payload)
     runwall_destructive.record_action(root, result, payload)
 
 
@@ -464,6 +470,8 @@ def evaluate(
     knowledge_identity: dict[str, Any] | None = None
     promotion_identity: dict[str, Any] | None = None
     app_identity: dict[str, Any] | None = None
+    auth_identity: dict[str, Any] | None = None
+    handoff_identity: dict[str, Any] | None = None
     release_identity: dict[str, Any] | None = None
     destructive_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
@@ -550,6 +558,14 @@ def evaluate(
                 action = app_hit["decision"]
             results.append(app_hit)
 
+        auth_assessment = runwall_auth.assess_command(root, payload, merged_context)
+        auth_identity = auth_assessment.get("identity")
+        auth_hit = auth_assessment.get("hit")
+        if auth_hit:
+            if _DECISION_PRIORITY[auth_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = auth_hit["decision"]
+            results.append(auth_hit)
+
         release_assessment = runwall_release.assess_action(root, event, matcher, payload, merged_context)
         release_identity = release_assessment.get("identity")
         release_hit = release_assessment.get("hit")
@@ -573,6 +589,13 @@ def evaluate(
             if _DECISION_PRIORITY[safety_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = safety_hit["decision"]
             results.append(safety_hit)
+
+        handoff_hit = runwall_handoff.assess_action(root, payload, merged_context)
+        if handoff_hit:
+            handoff_identity = handoff_hit.get("metadata", {}).get("handoff_identity")
+            if _DECISION_PRIORITY[handoff_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = handoff_hit["decision"]
+            results.append(handoff_hit)
 
         agent_action_hit = runwall_agents.assess_action(root, payload, merged_context)
         if agent_action_hit:
@@ -680,6 +703,8 @@ def evaluate(
         "knowledge_identity": knowledge_identity,
         "promotion_identity": promotion_identity,
         "app_identity": app_identity,
+        "auth_identity": auth_identity,
+        "handoff_identity": handoff_identity,
         "release_identity": release_identity,
         "destructive_identity": destructive_identity,
         "safety_identity": safety_identity,
@@ -731,6 +756,12 @@ def print_pretty(result: dict[str, Any]) -> None:
         app_identity = result.get("app_identity") or {}
         if app_identity.get("app"):
             print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+        auth_identity = result.get("auth_identity") or {}
+        if auth_identity.get("provider"):
+            print(f"auth: {auth_identity.get('provider')} -> {auth_identity.get('broker_class')}")
+        handoff_identity = result.get("handoff_identity") or {}
+        if handoff_identity.get("session_id"):
+            print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")
         release_identity = result.get("release_identity") or {}
         if release_identity.get("target"):
             print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")
@@ -781,6 +812,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     app_identity = result.get("app_identity") or {}
     if app_identity.get("app"):
         print(f"app: {app_identity.get('app')} [{app_identity.get('module')}]")
+    auth_identity = result.get("auth_identity") or {}
+    if auth_identity.get("provider"):
+        print(f"auth: {auth_identity.get('provider')} -> {auth_identity.get('broker_class')}")
+    handoff_identity = result.get("handoff_identity") or {}
+    if handoff_identity.get("session_id"):
+        print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")
     release_identity = result.get("release_identity") or {}
     if release_identity.get("target"):
         print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")

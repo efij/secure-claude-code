@@ -312,6 +312,150 @@ These are native Runwall trust-plane protections that sit above raw signatures a
 - Why it matters: large agent fanout before an external action is a practical capability-laundering pattern even when each single step looks mild.
 - Action: prompt
 
+## Built-In Handoff and Delegated-Auth Guards
+
+These are native Runwall trust-plane protections for delegated session power, subagent handoffs, runtime bridges, and broker-style auth flows.
+
+### token-handoff-guard
+
+- Purpose: block one actor from reusing delegated-auth flows that another actor already initiated in the same session.
+- Detects: a second actor or subagent attempting auth minting after the session already contains delegated-auth labels from another actor.
+- Why it matters: delegated auth is itself a privileged capability and should not silently hop between actors.
+- Action: block
+
+### browser-session-handoff-guard
+
+- Purpose: block export or mutation after another actor already touched a sensitive authenticated browser surface.
+- Detects: a second actor trying to upload or mutate after a first actor already drove a sensitive browser session.
+- Why it matters: browser-session power is easy to launder across agents unless the session graph is watched.
+- Action: block
+
+### child-agent-secret-bridge-guard
+
+- Purpose: block cross-actor export after another actor already touched secret-bearing material.
+- Detects: a subagent or second actor attempting upload after a different actor already accessed secret files or secret-like material.
+- Why it matters: splitting read and exfil between agents is a clean way to hide intent.
+- Action: block
+
+### cross-runtime-session-bridge-guard
+
+- Purpose: require review before a risky action crosses from one runtime into another inside the same session.
+- Detects: sessions that start in one runtime and continue in another right before publish, auth, upload, or high-risk mutation.
+- Why it matters: runtime switches are a real trust-boundary jump, especially when they inherit session context.
+- Action: prompt
+
+### artifact-to-subagent-guard
+
+- Purpose: require review when one actor prepares artifact material and another actor later exports it.
+- Detects: release or artifact-like material staged by one actor and then uploaded or published by a different actor.
+- Why it matters: multi-step artifact handoff can hide supply-chain abuse behind seemingly separate steps.
+- Action: prompt
+
+### credential-file-handoff-guard
+
+- Purpose: block auth-broker or upload behavior after another actor already handled credential-bearing local files.
+- Detects: `.env`, cloud credential, browser auth DB, registry auth, or similar material touched by one actor and then bridged by another.
+- Why it matters: credential-bearing files should not hop between actors without explicit review.
+- Action: block
+
+### session-reuse-drift-guard
+
+- Purpose: require review when a risky action happens in a session that already spans too many actors and runtimes.
+- Detects: broad multi-actor, multi-runtime sessions continuing into publish, upload, auth, or destructive actions.
+- Why it matters: session sprawl is a real form of trust drift in agentic workflows.
+- Action: prompt
+
+### delegation-overreach-guard
+
+- Purpose: require review when a delegated child actor attempts a high-risk mutation or delegated-auth step.
+- Detects: subagents driving deploys, destructive actions, token minting, or similar control-plane changes.
+- Why it matters: not every child actor should inherit the parent's full mutation authority.
+- Action: prompt
+
+### handoff-exfil-chain-guard
+
+- Purpose: block export once sensitive session power has already been accumulated in another actor context.
+- Detects: upload or publish after another actor already introduced delegated auth, browser session, or secret-bearing labels into the same session.
+- Why it matters: this is the cleanest cross-actor exfil chain in agentic workflows.
+- Action: block
+
+### broker-to-export-bridge-guard
+
+- Purpose: block delegated-auth material from being bridged directly into outbound export or publish channels.
+- Detects: delegated-auth state in one actor context followed by another actor trying to upload or publish.
+- Why it matters: auth brokers are often abused as a source for later exfil chains.
+- Action: block
+
+### refresh-token-exchange-guard
+
+- Purpose: block refresh-token and token-exchange flows that would mint fresh delegated sessions.
+- Detects: raw refresh-token grant requests, token-exchange parameters, and similar delegated-session minting payloads.
+- Why it matters: these flows can silently widen access without touching normal secret-file paths.
+- Action: block
+
+### delegated-session-relay-guard
+
+- Purpose: block cookies, sessions, and tokens from being relayed into files, clipboard bridges, or outbound channels.
+- Detects: session-bearing auth material combined with redirection, clipboard tools, or upload primitives.
+- Why it matters: delegated sessions are often stolen through relays, not just direct reads.
+- Action: block
+
+### broker-export-guard
+
+- Purpose: block direct export of live tokens or delegated credentials from auth brokers.
+- Detects: `gh auth token > file`, access-token printers piped onward, and similar auth-broker export patterns.
+- Why it matters: printing or teeing brokered credentials is one of the fastest ways to lose control of them.
+- Action: block
+
+### broker-scope-escalation-guard
+
+- Purpose: require review for elevated auth scopes, admin roles, or production-targeted delegated access.
+- Detects: owner, admin, full-access, cluster-admin, and production-scoped broker requests.
+- Why it matters: the difference between read-only access and admin access is exactly the sort of risk boundary that should not be silent.
+- Action: prompt
+
+### cloud-impersonation-broker-guard
+
+- Purpose: require review before impersonation, role-assumption, or service-principal flows mint delegated access.
+- Detects: service-account impersonation, STS assume-role, workload-identity, and similar broker flows.
+- Why it matters: impersonation is a legitimate feature and a major attack lever.
+- Action: prompt
+
+### sts-mint-guard
+
+- Purpose: require review before STS-style or short-lived delegated cloud credentials are minted.
+- Detects: `aws sts get-session-token`, `assume-role`, cloud access-token printing, and similar session-minting helpers.
+- Why it matters: short-lived credentials still widen access materially, even when they are not long-lived keys.
+- Action: prompt
+
+### device-flow-broker-guard
+
+- Purpose: require review before device-code and browser-mediated delegated login flows begin.
+- Detects: device-code URLs, `gh auth login --web`, and similar interactive delegated-login paths.
+- Why it matters: they mint fresh delegated user sessions and should not happen silently.
+- Action: prompt
+
+### sso-helper-mint-guard
+
+- Purpose: require review before SSO helper and interactive login flows mint delegated user access.
+- Detects: `aws sso login`, `gcloud auth login`, `az login`, `vercel login`, `supabase login`, and similar helper flows.
+- Why it matters: SSO helpers are powerful and easy to abuse because they look like normal login plumbing.
+- Action: prompt
+
+### credential-helper-mint-guard
+
+- Purpose: require review before helper commands print or mint active tokens and login material.
+- Detects: `gh auth token`, `aws ecr get-login-password`, access-token printers, and similar helper commands.
+- Why it matters: these commands turn an already trusted login state into portable credential material.
+- Action: prompt
+
+### broker-drift-guard
+
+- Purpose: require review when a previously observed delegated-auth broker changes executable identity underneath the same provider and class.
+- Detects: the same provider and broker class suddenly using a different executable fingerprint.
+- Why it matters: auth brokers are high-trust helpers, so executable drift is a real supply-chain signal.
+- Action: prompt
+
 ## Built-In Memory, Knowledge, and App Guards
 
 These are native Runwall trust-plane protections for persistent memory stores, imported knowledge surfaces, and authenticated control-plane actions.

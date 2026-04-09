@@ -175,6 +175,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Local IPC / Helper Trust`: treats local helper sockets, sidecars, local LLM endpoints, IDE backends, credential helpers, and named pipes as first-class trust boundaries
 - `Publish / Release Intent Trust`: prompts or blocks on package publishes, image pushes, binary release uploads, registry retargeting, signing bypass, and manifest-level release target drift
 - `Destructive Intent Trust`: blocks or prompts on broad deletes, infra teardown, repo wipes, state destruction, bulk disable loops, and other obvious high-blast-radius actions
+- `Session Handoff / Delegation Trust`: tracks when one actor, subagent, or runtime tries to inherit browser session power, delegated auth, artifacts, or sensitive session state from another actor later in the same chain
+- `Delegated Auth Trust`: prompts or blocks on device-code logins, STS minting, impersonation, token printing, refresh-token exchange, and other broker-style auth flows that quietly widen access
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -206,6 +208,16 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall destructive list --json
 ./bin/runwall destructive explain <event-id>
 ./bin/runwall destructive policy --json
+
+./bin/runwall handoff graph --json
+./bin/runwall handoff explain <session-id>
+./bin/runwall handoff policy --json
+
+./bin/runwall auth list --json
+./bin/runwall auth explain <event-id-or-provider:class>
+./bin/runwall auth approve <provider:class> --once
+./bin/runwall auth forget <provider-or-provider:class>
+./bin/runwall auth policy --json
 
 ./bin/runwall browser sessions --json
 ./bin/runwall browser allow github.com

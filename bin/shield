@@ -808,6 +808,32 @@ destructive_cmd() {
   esac
 }
 
+handoff_cmd() {
+  local subcommand="${1:-graph}"
+  shift || true
+  case "$subcommand" in
+    graph|explain|policy)
+      run_python "$ROOT_DIR/scripts/runwall_handoff.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown handoff subcommand: $subcommand"
+      ;;
+  esac
+}
+
+auth_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|explain|policy|approve|forget)
+      run_python "$ROOT_DIR/scripts/runwall_auth.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown auth subcommand: $subcommand"
+      ;;
+  esac
+}
+
 browser_cmd() {
   local subcommand="${1:-sessions}"
   shift || true
@@ -1337,6 +1363,14 @@ Usage:
   bin/runwall destructive list [--json]
   bin/runwall destructive explain <event-id>
   bin/runwall destructive policy [--json]
+  bin/runwall handoff graph [--json]
+  bin/runwall handoff explain <session-id>
+  bin/runwall handoff policy [--json]
+  bin/runwall auth list [--json]
+  bin/runwall auth explain <event-id-or-provider:class>
+  bin/runwall auth approve <provider:class> [--once] [--runtime name] [--agent-id id] [--ttl-hours H]
+  bin/runwall auth forget <provider-or-provider:class>
+  bin/runwall auth policy [--json]
   bin/runwall safety list [--json]
   bin/runwall safety diff <path-or-surface>
   bin/runwall safety forget <path-or-surface>
@@ -1536,6 +1570,14 @@ case "$command" in
   destructive)
     shift
     destructive_cmd "$@"
+    ;;
+  handoff)
+    shift
+    handoff_cmd "$@"
+    ;;
+  auth)
+    shift
+    auth_cmd "$@"
     ;;
   safety)
     shift
