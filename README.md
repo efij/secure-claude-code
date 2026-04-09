@@ -177,6 +177,8 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Destructive Intent Trust`: blocks or prompts on broad deletes, infra teardown, repo wipes, state destruction, bulk disable loops, and other obvious high-blast-radius actions
 - `Session Handoff / Delegation Trust`: tracks when one actor, subagent, or runtime tries to inherit browser session power, delegated auth, artifacts, or sensitive session state from another actor later in the same chain
 - `Delegated Auth Trust`: prompts or blocks on device-code logins, STS minting, impersonation, token printing, refresh-token exchange, and other broker-style auth flows that quietly widen access
+- `Human Review Surface Trust`: protects PR templates, issue/task signoff docs, changelogs, release notes, and incident-facing review surfaces from approval laundering, review bypass text, and secret normalization
+- `Artifact / Report Trust`: protects SARIF, SBOM, provenance, security reports, and incident bundles from silent suppression, source swaps, poisoned evidence pointers, and unredacted secrets
 
 Runwall also now has scoped approvals so these planes stay usable without turning the default policy into mush:
 
@@ -246,6 +248,16 @@ Runwall also now has scoped approvals so these planes stay usable without turnin
 ./bin/runwall knowledge quarantine <path>
 ./bin/runwall knowledge diff <path>
 
+./bin/runwall review list --json
+./bin/runwall review trust <path>
+./bin/runwall review quarantine <path>
+./bin/runwall review diff <path>
+
+./bin/runwall artifacts list --json
+./bin/runwall artifacts trust <path>
+./bin/runwall artifacts quarantine <path>
+./bin/runwall artifacts diff <path>
+
 ./bin/runwall promotion list --json
 ./bin/runwall promotion trust <path>
 ./bin/runwall promotion quarantine <path>
@@ -288,6 +300,18 @@ High-signal built-ins in these planes now include:
 - `knowledge-drift-guard`
 - `knowledge-remote-ingest-guard`
 - `knowledge-prompt-smuggling-guard`
+- `review-surface-review-guard`
+- `review-surface-drift-guard`
+- `pr-description-bypass-guard`
+- `issue-comment-approval-launder-guard`
+- `changelog-coverup-guard`
+- `task-doc-secret-normalize-guard`
+- `review-template-tamper-guard`
+- `audit-report-secret-redaction-bypass-guard`
+- `sarif-finding-suppression-guard`
+- `sbom-source-swap-guard`
+- `provenance-mismatch-guard`
+- `summary-falsification-guard`
 - `knowledge-policy-override-guard`
 - `knowledge-secret-harvest-instruction-guard`
 - `knowledge-exfil-instruction-guard`

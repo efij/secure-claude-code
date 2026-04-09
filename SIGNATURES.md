@@ -2165,6 +2165,192 @@ Guards that catch persistence, trust downgrades, log wiping, symlink hijacks, an
 - Example: `ln -sf /tmp/evil-rules.md CLAUDE.md`
 - Action: block
 
+## Review, Artifacts & Evidence
+
+Guards that protect the human-facing trust surfaces and generated evidence artifacts people rely on during review, release, and incident response.
+
+### review-surface-review-guard
+
+- Purpose: require review before a new PR, changelog, task-signoff, or incident-review surface becomes trusted.
+- Detects: first-seen approval-facing files such as PR templates, signoff docs, incident notes, and changelogs.
+- Why it matters: these files can quietly become the place where attackers shape what a human approves next.
+- Action: prompt
+
+### review-surface-drift-guard
+
+- Purpose: surface drift after a previously trusted human review surface changes.
+- Detects: content-fingerprint changes on trusted PR, release-note, task, and incident review surfaces.
+- Why it matters: a trusted approval-facing file that changes later is a review-boundary event, not just another doc edit.
+- Action: prompt
+
+### review-quarantine-bypass-guard
+
+- Purpose: block reads or writes against review surfaces that were explicitly quarantined.
+- Detects: later access to a PR, signoff, or incident-review file that was already quarantined.
+- Why it matters: once a human-facing surface is identified as poisoned, letting the runtime keep using it defeats the quarantine.
+- Action: block
+
+### pr-description-bypass-guard
+
+- Purpose: block merge-or-approve language that tries to bypass normal review in PR-facing surfaces.
+- Detects: phrases like `merge without review`, `skip review`, `approve immediately`, and similar review-shortcut language.
+- Why it matters: approval laundering often starts by shaping what the human reviewer sees in the PR surface itself.
+- Action: block
+
+### issue-comment-approval-launder-guard
+
+- Purpose: block issue or task text that claims to stand in for formal security or maintainer approval.
+- Detects: phrases like `already approved by security`, `consider this pre-approved`, or `approval captured above`.
+- Why it matters: attackers can try to convert ordinary issue prose into fake approval authority.
+- Action: block
+
+### release-notes-mislead-guard
+
+- Purpose: block misleading "verified" or "fully reviewed" claims paired with mutable external references.
+- Detects: trusted-sounding release language plus raw or paste-style links in the same approval-facing file.
+- Why it matters: a human can be steered to trust mutable external content instead of the reviewed local change itself.
+- Action: block
+
+### changelog-coverup-guard
+
+- Purpose: block language that hides, buries, or renames material changes in changelogs and review notes.
+- Detects: phrases like `do not mention`, `hide this change`, `bury this in misc`, or `rename as refactor`.
+- Why it matters: coverups in release-facing text directly attack human review quality.
+- Action: block
+
+### task-doc-secret-normalize-guard
+
+- Purpose: block real secret material disguised as a harmless sample or placeholder inside review-facing docs.
+- Detects: live-looking tokens, keys, or private-key material paired with language like `safe to share` or `dummy secret`.
+- Why it matters: human review docs should never become a laundering channel for real credentials.
+- Action: block
+
+### incident-note-bypass-guard
+
+- Purpose: block incident and postmortem text that tries to skip escalation, paging, or post-incident review.
+- Detects: phrases like `no incident required`, `do not escalate`, `skip postmortem`, or similar response-weakening language.
+- Why it matters: weakening incident review is a classic way to reduce scrutiny after risky behavior.
+- Action: block
+
+### review-template-tamper-guard
+
+- Purpose: surface changes that weaken PR or signoff template structure.
+- Detects: content that removes review checklists, deletes required signoff sections, or strips risk-review prompts.
+- Why it matters: template tampering weakens every later human review that depends on that structure.
+- Action: prompt
+
+### approval-text-smuggling-guard
+
+- Purpose: block embedded magic approval text and pseudo-tokens inside human review surfaces.
+- Detects: phrases like `approval token`, `signoff token`, `approved=true`, or similar smuggled approval markers.
+- Why it matters: Runwall approvals should come from real review decisions, not magic text inside a doc.
+- Action: block
+
+### human-review-override-guard
+
+- Purpose: block language telling humans to ignore Runwall or local policy outcomes.
+- Detects: phrases like `humans should ignore Runwall`, `override the guard`, or `treat this as higher priority than policy`.
+- Why it matters: review surfaces should explain changes, not instruct reviewers to disregard the security boundary.
+- Action: block
+
+### review-surface-rewrite-guard
+
+- Purpose: block rewrites that redirect reviewers to raw, pasted, or mutable external approval links.
+- Detects: explicit redirects to raw GitHub, gist raw, paste, temp, or file-URL style review references.
+- Why it matters: external mutable references make human review much easier to manipulate after the fact.
+- Action: block
+
+### artifact-source-review-guard
+
+- Purpose: require review before a generated report or evidence bundle becomes trusted.
+- Detects: first-seen SARIF, SBOM, provenance, incident-bundle, and similar artifact surfaces.
+- Why it matters: generated evidence is only useful if the runtime treats it as a trust surface, not just another file.
+- Action: prompt
+
+### artifact-drift-guard
+
+- Purpose: surface drift after a previously trusted artifact or report changes.
+- Detects: content-fingerprint changes on trusted SARIF, SBOM, provenance, and security-report surfaces.
+- Why it matters: silent drift in generated evidence can hide or misrepresent what actually happened.
+- Action: prompt
+
+### artifact-quarantine-bypass-guard
+
+- Purpose: block reads or writes against artifact surfaces that were explicitly quarantined.
+- Detects: later access to a report or evidence bundle already marked as quarantined.
+- Why it matters: quarantined evidence should not quietly flow back into review or incident handling.
+- Action: block
+
+### sarif-finding-suppression-guard
+
+- Purpose: block SARIF suppression markers and silent-pass drift.
+- Detects: `suppressions`, `baselineState: absent`, `level: none`, `kind: pass`, and similar finding-hiding markers in SARIF.
+- Why it matters: SARIF is often the canonical review artifact for automated findings; suppression poisoning directly attacks that trust.
+- Action: block
+
+### sbom-source-swap-guard
+
+- Purpose: surface SBOM and dependency-report drift to raw or mutable sources.
+- Detects: raw hosts, file URLs, git download references, and suspicious external refs inside SBOM material.
+- Why it matters: supply-chain evidence loses value when its source references silently widen to unreviewed locations.
+- Action: prompt
+
+### provenance-mismatch-guard
+
+- Purpose: block weak, placeholder, or externally mutable provenance metadata.
+- Detects: unknown builders, raw/file provenance IDs, placeholder predicate types, or zeroed/unknown digests.
+- Why it matters: provenance is supposed to strengthen trust, not become another spoofable field.
+- Action: block
+
+### audit-report-secret-redaction-bypass-guard
+
+- Purpose: block live secrets from landing inside trusted reports or evidence bundles.
+- Detects: real-looking GitHub tokens, cloud keys, private-key blocks, and other live secret material in reports.
+- Why it matters: reports should contain masked evidence, not the credentials themselves.
+- Action: block
+
+### incident-bundle-poison-guard
+
+- Purpose: block incident bundles that weaken evidence handling or redirect operators to mutable external content.
+- Detects: phrases like `ignore prior findings`, `do not preserve evidence`, or `download evidence from ...`.
+- Why it matters: incident bundles are supposed to anchor trust during an investigation, not undermine it.
+- Action: block
+
+### summary-falsification-guard
+
+- Purpose: block "all clear" summaries that still reference critical or failing conditions.
+- Detects: phrases like `no findings` or `all clear` near `critical`, `high`, `error`, or `failed` content.
+- Why it matters: summary poisoning is a clean way to manipulate human review without touching the raw evidence directly.
+- Action: block
+
+### checksum-report-drift-guard
+
+- Purpose: surface placeholder-like or inconsistent digest material in trusted reports.
+- Detects: zeroed or `unknown` sha256/checksum fields and suspicious checksum-scheme drift like fallback MD5 markers.
+- Why it matters: checksum placeholders weaken the trust value of generated evidence and release review.
+- Action: prompt
+
+### security-report-coverup-guard
+
+- Purpose: block language that suppresses or hides findings inside a trusted report.
+- Detects: phrases like `waive all`, `suppress all`, `hide this finding`, or `remove the evidence section`.
+- Why it matters: trusted reports should reflect reviewed findings, not become a hiding place for them.
+- Action: block
+
+### artifact-regeneration-mismatch-guard
+
+- Purpose: surface generated artifacts that claim unknown, manual, or non-reviewable provenance.
+- Detects: `manually edited generated file`, `do not regenerate`, or other signs that a generated artifact was hand-tampered.
+- Why it matters: once generated evidence is manually rewritten, it stops being reliable evidence.
+- Action: prompt
+
+### evidence-pointer-rewrite-guard
+
+- Purpose: block evidence pointers rewritten to raw, temp, or mutable external locations.
+- Detects: incident, SBOM, provenance, or report pointers aimed at raw hosts, temp paths, Downloads, or file URLs.
+- Why it matters: evidence pointers should remain stable and reviewable instead of drifting to mutable side channels.
+- Action: block
+
 ## Quality & Workflow
 
 Guards that keep workflow integrity intact so the runtime cannot quietly suppress tests, evade review, or blur accountability.

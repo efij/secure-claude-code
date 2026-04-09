@@ -1,5 +1,14 @@
 # Changelog
 
+## 15.0.0
+
+- added a `Human Review Surface Trust Plane` with native protections for `review-surface-review-guard`, `review-surface-drift-guard`, `review-quarantine-bypass-guard`, `pr-description-bypass-guard`, `issue-comment-approval-launder-guard`, `release-notes-mislead-guard`, `changelog-coverup-guard`, `task-doc-secret-normalize-guard`, `incident-note-bypass-guard`, `review-template-tamper-guard`, `approval-text-smuggling-guard`, `human-review-override-guard`, and `review-surface-rewrite-guard`
+- added an `Artifact / Report Trust Plane` with native protections for `artifact-source-review-guard`, `artifact-drift-guard`, `artifact-quarantine-bypass-guard`, `sarif-finding-suppression-guard`, `sbom-source-swap-guard`, `provenance-mismatch-guard`, `audit-report-secret-redaction-bypass-guard`, `incident-bundle-poison-guard`, `summary-falsification-guard`, `checksum-report-drift-guard`, `security-report-coverup-guard`, `artifact-regeneration-mismatch-guard`, and `evidence-pointer-rewrite-guard`
+- added new CLI surfaces: `runwall review` and `runwall artifacts`
+- extended policy evaluation, pretty output, and audit emission so review and artifact identities show up beside the other trust planes
+- expanded smoke coverage for PR bypass text, task-doc secret normalization, quarantined review surfaces, SARIF suppression, secret-bearing reports, artifact quarantine, and benign review/report updates
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `15.0.0` trust-plane upgrade
+
 ## 14.0.0
 
 - added a `Session Handoff / Delegation Trust Plane` with native protections for `token-handoff-guard`, `browser-session-handoff-guard`, `child-agent-secret-bridge-guard`, `cross-runtime-session-bridge-guard`, `artifact-to-subagent-guard`, `credential-file-handoff-guard`, `session-reuse-drift-guard`, `delegation-overreach-guard`, `handoff-exfil-chain-guard`, and `broker-to-export-bridge-guard`

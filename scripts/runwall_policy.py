@@ -34,6 +34,8 @@ import runwall_auth
 import runwall_destructive
 import runwall_handoff
 import runwall_safety
+import runwall_review
+import runwall_artifacts
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -407,6 +409,8 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
             "exec_identity": result.get("exec_identity"),
             "memory_identity": result.get("memory_identity"),
             "knowledge_identity": result.get("knowledge_identity"),
+            "review_identity": result.get("review_identity"),
+            "artifact_identity": result.get("artifact_identity"),
             "promotion_identity": result.get("promotion_identity"),
             "app_identity": result.get("app_identity"),
             "auth_identity": result.get("auth_identity"),
@@ -468,6 +472,8 @@ def evaluate(
     exec_identity: dict[str, Any] | None = None
     memory_identity: dict[str, Any] | None = None
     knowledge_identity: dict[str, Any] | None = None
+    review_identity: dict[str, Any] | None = None
+    artifact_identity: dict[str, Any] | None = None
     promotion_identity: dict[str, Any] | None = None
     app_identity: dict[str, Any] | None = None
     auth_identity: dict[str, Any] | None = None
@@ -626,6 +632,22 @@ def evaluate(
                 action = knowledge_hit["decision"]
             results.append(knowledge_hit)
 
+        review_assessment = runwall_review.assess_fileop(root, event, matcher, payload, merged_context)
+        review_identity = review_assessment.get("identity")
+        review_hit = review_assessment.get("hit")
+        if review_hit:
+            if _DECISION_PRIORITY[review_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = review_hit["decision"]
+            results.append(review_hit)
+
+        artifact_assessment = runwall_artifacts.assess_fileop(root, event, matcher, payload, merged_context)
+        artifact_identity = artifact_assessment.get("identity")
+        artifact_hit = artifact_assessment.get("hit")
+        if artifact_hit:
+            if _DECISION_PRIORITY[artifact_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = artifact_hit["decision"]
+            results.append(artifact_hit)
+
         promotion_assessment = runwall_promotion.assess_fileop(root, event, matcher, payload, merged_context)
         promotion_identity = promotion_assessment.get("identity")
         promotion_hit = promotion_assessment.get("hit")
@@ -701,6 +723,8 @@ def evaluate(
         "exec_identity": exec_identity,
         "memory_identity": memory_identity,
         "knowledge_identity": knowledge_identity,
+        "review_identity": review_identity,
+        "artifact_identity": artifact_identity,
         "promotion_identity": promotion_identity,
         "app_identity": app_identity,
         "auth_identity": auth_identity,
@@ -750,6 +774,12 @@ def print_pretty(result: dict[str, Any]) -> None:
         knowledge_identity = result.get("knowledge_identity") or {}
         if knowledge_identity.get("path"):
             print(f"knowledge: {knowledge_identity.get('path')}")
+        review_identity = result.get("review_identity") or {}
+        if review_identity.get("path"):
+            print(f"review: {review_identity.get('surface')} -> {review_identity.get('path')}")
+        artifact_identity = result.get("artifact_identity") or {}
+        if artifact_identity.get("path"):
+            print(f"artifacts: {artifact_identity.get('surface')} -> {artifact_identity.get('path')}")
         promotion_identity = result.get("promotion_identity") or {}
         if promotion_identity.get("path"):
             print(f"promotion: {promotion_identity.get('surface')} -> {promotion_identity.get('path')}")
@@ -806,6 +836,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     knowledge_identity = result.get("knowledge_identity") or {}
     if knowledge_identity.get("path"):
         print(f"knowledge: {knowledge_identity.get('path')}")
+    review_identity = result.get("review_identity") or {}
+    if review_identity.get("path"):
+        print(f"review: {review_identity.get('surface')} -> {review_identity.get('path')}")
+    artifact_identity = result.get("artifact_identity") or {}
+    if artifact_identity.get("path"):
+        print(f"artifacts: {artifact_identity.get('surface')} -> {artifact_identity.get('path')}")
     promotion_identity = result.get("promotion_identity") or {}
     if promotion_identity.get("path"):
         print(f"promotion: {promotion_identity.get('surface')} -> {promotion_identity.get('path')}")

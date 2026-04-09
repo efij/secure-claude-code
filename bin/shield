@@ -899,6 +899,32 @@ knowledge_cmd() {
   esac
 }
 
+review_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|trust|quarantine|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_review.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown review subcommand: $subcommand"
+      ;;
+  esac
+}
+
+artifacts_cmd() {
+  local subcommand="${1:-list}"
+  shift || true
+  case "$subcommand" in
+    list|trust|quarantine|forget|diff)
+      run_python "$ROOT_DIR/scripts/runwall_artifacts.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown artifacts subcommand: $subcommand"
+      ;;
+  esac
+}
+
 apps_cmd() {
   local subcommand="${1:-list}"
   shift || true
@@ -1395,6 +1421,16 @@ Usage:
   bin/runwall knowledge quarantine <path>
   bin/runwall knowledge forget <path>
   bin/runwall knowledge diff <path>
+  bin/runwall review list [--json]
+  bin/runwall review trust <path>
+  bin/runwall review quarantine <path>
+  bin/runwall review forget <path>
+  bin/runwall review diff <path>
+  bin/runwall artifacts list [--json]
+  bin/runwall artifacts trust <path>
+  bin/runwall artifacts quarantine <path>
+  bin/runwall artifacts forget <path>
+  bin/runwall artifacts diff <path>
   bin/runwall apps list [--json]
   bin/runwall apps explain <event-id>
   bin/runwall apps policy [--json]
@@ -1602,6 +1638,14 @@ case "$command" in
   knowledge)
     shift
     knowledge_cmd "$@"
+    ;;
+  review)
+    shift
+    review_cmd "$@"
+    ;;
+  artifacts)
+    shift
+    artifacts_cmd "$@"
     ;;
   apps)
     shift

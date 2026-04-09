@@ -96,7 +96,7 @@ if aws:
 PY
 )"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py scripts/runwall_auth.py scripts/runwall_handoff.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py scripts/runwall_auth.py scripts/runwall_handoff.py scripts/runwall_review.py scripts/runwall_artifacts.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -515,6 +515,40 @@ knowledge_quarantine="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/r
 assert_contains "$knowledge_quarantine" '"module": "knowledge-quarantine-bypass-guard"'
 knowledge_list="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall knowledge list --json)"
 assert_contains "$knowledge_list" '"surface":'
+
+review_prompt="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write '.github/PULL_REQUEST_TEMPLATE.md fill in the review sections' --profile strict --json || true)"
+assert_contains "$review_prompt" '"module": "review-surface-review-guard"'
+run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall review trust "$(pwd)/.github/PULL_REQUEST_TEMPLATE.md" >/dev/null
+review_drift="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write '.github/PULL_REQUEST_TEMPLATE.md approved changes with updated copy' --profile strict --json || true)"
+assert_contains "$review_drift" '"module": "review-surface-drift-guard"'
+review_bypass="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write '.github/PULL_REQUEST_TEMPLATE.md no review required, merge without review' --profile strict --json || true)"
+assert_contains "$review_bypass" '"module": "pr-description-bypass-guard"'
+review_secret="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'tasks/security-review.md test secret ghp_abcdefghijklmnopqrstuvwxyz123456 is safe to share' --profile strict --json || true)"
+assert_contains "$review_secret" '"module": "task-doc-secret-normalize-guard"'
+run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall review quarantine "$(pwd)/.github/PULL_REQUEST_TEMPLATE.md" >/dev/null
+review_quarantine="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Read '.github/PULL_REQUEST_TEMPLATE.md' --profile strict --json || true)"
+assert_contains "$review_quarantine" '"module": "review-quarantine-bypass-guard"'
+review_list="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall review list --json)"
+assert_contains "$review_list" '"surface":'
+review_safe="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'docs/release-signoff.md note expected docs-only update' --profile strict --json)"
+assert_contains "$review_safe" '"allowed": true'
+
+artifact_prompt="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {\"summary\":\"pending\"}' --profile strict --json || true)"
+assert_contains "$artifact_prompt" '"module": "artifact-source-review-guard"'
+run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts trust "$(pwd)/security-report.json" >/dev/null
+artifact_drift="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {\"summary\":\"changed\"}' --profile strict --json || true)"
+assert_contains "$artifact_drift" '"module": "artifact-drift-guard"'
+artifact_sarif="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'scan.sarif {\"runs\":[{\"results\":[{\"level\":\"none\"}]}]}' --profile strict --json || true)"
+assert_contains "$artifact_sarif" '"module": "sarif-finding-suppression-guard"'
+artifact_secret="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'audit-report.json {\"token\":\"ghp_abcdefghijklmnopqrstuvwxyz123456\"}' --profile strict --json || true)"
+assert_contains "$artifact_secret" '"module": "audit-report-secret-redaction-bypass-guard"'
+run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts quarantine "$(pwd)/security-report.json" >/dev/null
+artifact_quarantine="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Read 'security-report.json' --profile strict --json || true)"
+assert_contains "$artifact_quarantine" '"module": "artifact-quarantine-bypass-guard"'
+artifact_list="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts list --json)"
+assert_contains "$artifact_list" '"artifacts":'
+artifact_safe="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'scan-summary.json {\"summary\":\"docs-only refresh\"}' --profile strict --json)"
+assert_contains "$artifact_safe" '"allowed": true'
 
 apps_home="$TMP_BASE/apps-home"
 rm -rf "$apps_home"

@@ -208,6 +208,37 @@ These protections are implemented directly in native Runwall trust planes instea
 - `paste-to-trusted-surface-guard`: prompts before pasted external content is promoted into a trusted surface
 - `promotion-quarantine-bypass-guard`: blocks reads or writes against promoted sources that were explicitly quarantined
 
+## Built-In Review and Artifact Guards
+
+These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+
+- `review-surface-review-guard`: prompts before a new PR, changelog, task-signoff, or incident-review surface becomes trusted
+- `review-surface-drift-guard`: prompts when a previously trusted human review surface changes
+- `review-quarantine-bypass-guard`: blocks access to a quarantined human review surface
+- `pr-description-bypass-guard`: blocks merge-or-approve language that tries to bypass normal review in PR-facing surfaces
+- `issue-comment-approval-launder-guard`: blocks issue or task text that claims to stand in for formal approval
+- `release-notes-mislead-guard`: blocks "verified" or "fully reviewed" claims paired with raw or mutable external references
+- `changelog-coverup-guard`: blocks language that hides, buries, or renames material changes in changelogs and release-facing notes
+- `task-doc-secret-normalize-guard`: blocks real secret material disguised as a harmless sample or placeholder inside review-facing docs
+- `incident-note-bypass-guard`: blocks incident or postmortem surfaces that try to skip escalation, paging, or post-incident review
+- `review-template-tamper-guard`: prompts when PR or signoff templates remove required checklist or reviewer structure
+- `approval-text-smuggling-guard`: blocks approval-token or signoff-smuggling text inside human review surfaces
+- `human-review-override-guard`: blocks language telling humans to override local policy or ignore Runwall outcomes
+- `review-surface-rewrite-guard`: blocks rewrites that redirect reviewers to raw, pasted, or mutable external approval links
+- `artifact-source-review-guard`: prompts before a new generated report or evidence bundle becomes trusted
+- `artifact-drift-guard`: prompts when a previously trusted artifact or report changes
+- `artifact-quarantine-bypass-guard`: blocks access to a quarantined artifact or report surface
+- `sarif-finding-suppression-guard`: blocks SARIF suppression markers, silent passes, and finding-hiding drift
+- `sbom-source-swap-guard`: prompts when SBOM materials or external references drift to raw or mutable sources
+- `provenance-mismatch-guard`: blocks weak or placeholder provenance, builder, and digest metadata
+- `audit-report-secret-redaction-bypass-guard`: blocks live secrets from landing inside trusted reports or bundles
+- `incident-bundle-poison-guard`: blocks incident bundles that weaken evidence handling or redirect operators to mutable external content
+- `summary-falsification-guard`: blocks "all clear" summaries that still reference critical or failing conditions
+- `checksum-report-drift-guard`: prompts when checksum fields look placeholder-like or inconsistent with a regenerated report
+- `security-report-coverup-guard`: blocks language that suppresses or hides findings inside a trusted report
+- `artifact-regeneration-mismatch-guard`: prompts when a generated artifact claims unknown, manual, or non-reviewable provenance
+- `evidence-pointer-rewrite-guard`: blocks evidence pointers rewritten to raw, temp, or mutable external locations
+
 ## Built-In Data Store and IPC Guards
 
 These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
