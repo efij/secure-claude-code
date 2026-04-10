@@ -9,6 +9,8 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
+import runwall_destructive_surface
+
 
 MASS_DELETE_RE = re.compile(r"(?i)\brm\s+-[A-Za-z]*r[fA-Za-z]*\s+(?:/|~|\.|/\w|\.git|dist|build|release|releases)|\bgit\s+rm\s+-r\b|\bfind\b[^\n\r]{0,120}-delete\b")
 ENV_DESTROY_RE = re.compile(r"(?i)(?:vercel\s+env\s+rm\b|kubectl\s+delete\s+configmap\b|kubectl\s+delete\s+secret\b|supabase\s+secrets?\s+unset\b|terraform\s+workspace\s+delete\b[^\n\r]{0,80}\bprod(?:uction)?\b)")
@@ -20,6 +22,18 @@ ARTIFACT_WIPE_RE = re.compile(r"(?i)(?:rm\s+-[A-Za-z]*r[fA-Za-z]*\s+[^\n\r]*(?:d
 STATE_DESTROY_RE = re.compile(r"(?i)(?:rm\s+-[A-Za-z]*f\b[^\n\r]*(?:terraform\.tfstate|Pulumi\.[^.]+\.yaml|\.pulumi|state\.json)|terraform\s+state\s+rm\b|\bpulumi\s+state\s+delete\b)")
 BULK_DISABLE_RE = re.compile(r"(?i)(?:for\s+\w+\s+in\b[^\n\r]{0,160}(?:delete|disable|rm|revoke)|xargs\b[^\n\r]{0,160}(?:delete|disable|rm|revoke)|parallel\b[^\n\r]{0,160}(?:delete|disable|rm|revoke))")
 BLAST_RADIUS_RE = re.compile(r"(?i)(?:--all\b|--all-namespaces\b|--prune\b|--recursive\b|delete all\b|remove all\b|revoke all\b|drop database\b)")
+TRUNCATE_CLEAR_RE = re.compile(r"(?i)(?:\btruncate\s+-s\s+0\b|:\s*>\s*\S+|\bClear-Content\b|\bSet-Content\b[^\n\r]{0,120}(?:''|\"\"|'\s*'|\"\s*\")|dd\s+if=/dev/zero\b[^\n\r]{0,160}\bof=)")
+DB_DESTROY_RE = re.compile(r"(?i)(?:drop\s+table\b|truncate\s+table\b|drop\s+database\b|prisma\s+migrate\s+reset\b|rails\s+db:(?:drop|reset)\b|sequelize\s+db:(?:drop|reset)\b|redis-cli\b[^\n\r]{0,80}\bflush(?:all|db)\b)")
+CLOUD_DESTROY_RE = re.compile(r"(?i)(?:aws\s+s3\s+rb\b[^\n\r]{0,120}\s--force\b|aws\s+ec2\s+delete-snapshot\b|aws\s+ec2\s+delete-volume\b|aws\s+sqs\s+purge-queue\b|aws\s+sns\s+delete-topic\b|aws\s+kinesis\s+delete-stream\b|gcloud\s+storage\s+rm\b[^\n\r]{0,120}\s-r\b|gcloud\s+compute\s+disks\s+delete\b|gcloud\s+pubsub\s+topics\s+delete\b|az\s+storage\s+blob\s+delete-batch\b|az\s+disk\s+delete\b|az\s+snapshot\s+delete\b|docker\s+volume\s+rm\b|docker\s+system\s+prune\b[^\n\r]{0,120}\s--volumes\b)")
+KEY_DESTROY_RE = re.compile(r"(?i)(?:aws\s+kms\s+schedule-key-deletion\b|aws\s+kms\s+disable-key\b|gcloud\s+kms\s+keys\s+versions\s+destroy\b|az\s+keyvault\s+(?:key|secret)\s+(?:delete|purge)\b|gpg\s+--delete-secret-keys\b|security\s+delete-keychain\b)")
+RANSOMWARE_RE = re.compile(r"(?i)(?:openssl\s+enc\b[^\n\r]{0,200}(?:^|\s)-in\b|gpg\s+-c\b|age\s+-e\b|7z\s+a\b[^\n\r]{0,160}\s-p)")
+SCHEDULED_DESTRUCTION_RE = re.compile(r"(?i)(?:crontab\b|schtasks\b|launchctl\b|systemd-run\b|at\b|onCalendar=|@reboot|postinstall|preinstall|rc\.local)[^\n\r]{0,260}(?:rm\s+-[A-Za-z]*r[fA-Za-z]*|truncate\s+-s\s+0|terraform\s+destroy|drop\s+table|openssl\s+enc|gpg\s+-c|age\s+-e|chmod\s+0{3}\b)")
+RESOURCE_EXHAUST_RE = re.compile(r"(?i)(?:fallocate\s+-l\b|dd\s+if=/dev/zero\b[^\n\r]{0,160}\bof=|yes\s+>\s*\S+|:\(\)\s*\{\s*:\|:&\s*\};:|fsutil\s+file\s+createnew\b)")
+ICACLS_LOCKOUT_RE = re.compile(r"(?i)\bicacls\b[^\n\r]{0,180}\b/deny\b")
+SETFACL_LOCKOUT_RE = re.compile(r"(?i)\bsetfacl\b[^\n\r]{0,180}(?:---|0\b)")
+CHATTR_LOCKOUT_RE = re.compile(r"(?i)\bchattr\b[^\n\r]{0,80}\+(?:i|a)\b")
+LINK_SWAP_RE = re.compile(r"(?i)(?:\bln\b[^\n\r]{0,40}\s-s\b|\bmklink\b|\bNew-Item\b[^\n\r]{0,120}\bSymbolicLink\b|\bmount\b[^\n\r]{0,120}\b(?:--bind|-o\s+bind)\b)")
+DELETE_FROM_RE = re.compile(r"(?i)\bdelete\s+from\b")
 
 
 def utc_now() -> str:
@@ -87,8 +101,208 @@ def _extract_target(payload: str) -> str:
     return "runtime"
 
 
+def _profile(context: dict[str, Any] | None) -> str:
+    return str((context or {}).get("profile") or "balanced").lower()
+
+
+def _identity(module: str, payload: str, target: str, *, surface: str | None = None, tier: int | None = None) -> dict[str, Any]:
+    identity = {"module": module, "target": target, "preview": payload[:220]}
+    if surface:
+        identity["surface"] = surface
+    if tier is not None:
+        identity["tier"] = tier
+    return identity
+
+
+def _path_like(token: str) -> bool:
+    return token.startswith("/") or token.startswith("~") or "/" in token or token.endswith((".json", ".yaml", ".yml", ".toml", ".conf", ".ini", ".md", ".txt", ".sh", ".py", ".sql", ".env"))
+
+
+def _destructive_path_target(tokens: list[str], payload: str) -> tuple[pathlib.Path | None, str | None]:
+    for token in tokens:
+        if token.startswith("-"):
+            continue
+        if _path_like(token):
+            path = runwall_destructive_surface.normalize_path_token(token)
+            return path, runwall_destructive_surface.classify_path(path)
+    match = re.search(r"(?i)\bof=(?P<target>[^\s]+)", payload)
+    if match:
+        path = runwall_destructive_surface.normalize_path_token(match.group("target"))
+        return path, runwall_destructive_surface.classify_path(path)
+    return None, None
+
+
+def _move_away_hit(payload: str) -> dict[str, Any] | None:
+    tokens = runwall_destructive_surface.shell_split(payload)
+    if not tokens:
+        return None
+    if tokens[0] == "git" and len(tokens) >= 4 and tokens[1] == "mv":
+        src_token, dest_token = tokens[-2], tokens[-1]
+    elif tokens[0] in {"mv", "move", "ren", "rename"} and len(tokens) >= 3:
+        src_token, dest_token = tokens[-2], tokens[-1]
+    else:
+        return None
+    src_path = runwall_destructive_surface.normalize_path_token(src_token)
+    src_surface = runwall_destructive_surface.classify_path(src_path)
+    dest_lower = dest_token.lower()
+    if not runwall_destructive_surface.is_critical_surface(src_surface):
+        return None
+    if not re.search(r"(?i)(?:\.bak\b|\.old\b|\.disabled\b|\.off\b|/tmp/|/var/tmp/|/trash/|/cache/|backup|archive)", dest_lower):
+        return None
+    module = "move-away-destruction-guard"
+    identity = _identity(module, payload, str(src_path), surface=src_surface, tier=1)
+    return _hit(
+        module,
+        "block",
+        identity,
+        f"Blocked move-away destructive path for critical surface {src_path}.",
+        "Keep critical trust files in place or move them only through a reviewed recovery or migration workflow.",
+    )
+
+
+def _truncate_or_clear_hit(payload: str) -> dict[str, Any] | None:
+    if not TRUNCATE_CLEAR_RE.search(payload):
+        return None
+    tokens = runwall_destructive_surface.shell_split(payload)
+    path, surface = _destructive_path_target(tokens, payload)
+    if path is None:
+        return None
+    decision = "block" if runwall_destructive_surface.is_critical_surface(surface or "") else "prompt"
+    module = "truncate-clear-guard"
+    identity = _identity(module, payload, str(path), surface=surface, tier=1)
+    return _hit(
+        module,
+        decision,
+        identity,
+        f"Blocked destructive truncate or clear path for {path}." if decision == "block" else f"Review required before truncating or clearing {path}.",
+        "Prefer reviewed file replacement or targeted cleanup over silent truncate, clear, or zero-fill behavior.",
+    )
+
+
+def _permission_lockout_hit(payload: str) -> dict[str, Any] | None:
+    lowered = payload.lower()
+    if "chmod" not in lowered and "icacls" not in lowered and "setfacl" not in lowered and "chattr" not in lowered:
+        return None
+    tokens = runwall_destructive_surface.shell_split(payload)
+    path, surface = _destructive_path_target(tokens, payload)
+    if path is None:
+        return None
+    lockout = False
+    if re.search(r"(?i)\bchmod\b[^\n\r]{0,120}\b(?:000|0)\b", payload):
+        lockout = True
+    elif re.search(r"(?i)\bchmod\b[^\n\r]{0,120}\s-x\b", payload):
+        lockout = True
+    elif ICACLS_LOCKOUT_RE.search(payload) or SETFACL_LOCKOUT_RE.search(payload) or CHATTR_LOCKOUT_RE.search(payload):
+        lockout = True
+    if not lockout:
+        return None
+    decision = "block" if runwall_destructive_surface.is_critical_surface(surface or "") else "prompt"
+    module = "permission-lockout-guard"
+    identity = _identity(module, payload, str(path), surface=surface, tier=1)
+    return _hit(
+        module,
+        decision,
+        identity,
+        f"Blocked destructive permission lockout on {path}." if decision == "block" else f"Review required before permission lockout style change on {path}.",
+        "Keep access-control changes narrow and reviewed, especially on policy, recovery, release, and credential-bearing files.",
+    )
+
+
+def _tier_two_hit(payload: str) -> dict[str, Any] | None:
+    tokens = runwall_destructive_surface.shell_split(payload)
+    if DB_DESTROY_RE.search(payload):
+        module = "database-destroy-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=2)
+        return _hit(
+            module,
+            "block",
+            identity,
+            "Blocked destructive database reset, drop, truncate, or flush path.",
+            "Use a reviewed migration or recovery workflow instead of ad hoc destructive database commands from the runtime.",
+        )
+    if DELETE_FROM_RE.search(payload) and " where " not in payload.lower():
+        module = "database-bulk-delete-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=2)
+        return _hit(
+            module,
+            "prompt",
+            identity,
+            "Review required before broad database delete without an obvious WHERE clause.",
+            "Reduce the delete scope or move the data change into a reviewed migration or admin workflow.",
+        )
+    if CLOUD_DESTROY_RE.search(payload):
+        module = "cloud-resource-destroy-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=2)
+        return _hit(
+            module,
+            "block",
+            identity,
+            "Blocked destructive cloud or storage resource deletion path.",
+            "Keep bucket, volume, queue, topic, stream, and snapshot destruction behind reviewed operational workflows.",
+        )
+    if KEY_DESTROY_RE.search(payload):
+        module = "key-destroy-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=2)
+        return _hit(
+            module,
+            "prompt",
+            identity,
+            "Review required before deleting or disabling encryption, signing, or recovery key material.",
+            "Use a reviewed key lifecycle workflow and confirm all dependent systems and recovery paths first.",
+        )
+    if RANSOMWARE_RE.search(payload):
+        path, surface = _destructive_path_target(tokens, payload)
+        if path is not None and runwall_destructive_surface.is_critical_surface(surface or ""):
+            module = "ransomware-intent-guard"
+            identity = _identity(module, payload, str(path), surface=surface, tier=2)
+            return _hit(
+                module,
+                "prompt",
+                identity,
+                f"Review required before encrypting or rewrapping critical local asset {path}.",
+                "Keep encryption and rekey flows off critical local trust surfaces unless the exact backup or rotation workflow is separately reviewed.",
+            )
+    if LINK_SWAP_RE.search(payload):
+        path, surface = _destructive_path_target(tokens[::-1], payload)
+        if path is not None and runwall_destructive_surface.is_critical_surface(surface or ""):
+            module = "indirection-swap-guard"
+            identity = _identity(module, payload, str(path), surface=surface, tier=2)
+            return _hit(
+                module,
+                "block",
+                identity,
+                f"Blocked indirection swap targeting critical surface {path}.",
+                "Edit critical files directly instead of redirecting them through symlink, junction, or bind-style indirection.",
+            )
+    return None
+
+
+def _tier_three_hit(payload: str) -> dict[str, Any] | None:
+    if SCHEDULED_DESTRUCTION_RE.search(payload):
+        module = "delayed-destruction-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=3)
+        return _hit(
+            module,
+            "prompt",
+            identity,
+            "Review required before scheduling delayed destructive automation.",
+            "Keep cron, task scheduler, launch agent, and startup automation free of destructive actions unless the exact maintenance flow was reviewed.",
+        )
+    if RESOURCE_EXHAUST_RE.search(payload):
+        module = "resource-exhaustion-destroy-guard"
+        identity = _identity(module, payload, _extract_target(payload), tier=3)
+        return _hit(
+            module,
+            "prompt",
+            identity,
+            "Review required before resource-exhaustion style destructive setup.",
+            "Avoid disk-fill, zero-fill, or fork-bomb style commands from the runtime unless they are part of a tightly reviewed diagnostic workflow.",
+        )
+    return None
+
+
 def assess_action(root: pathlib.Path, event: str, matcher: str, payload: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
-    _ = (root, context)
+    _ = root
     if event != "PreToolUse" or matcher != "Bash":
         return {"identity": None, "hit": None}
 
@@ -109,9 +323,20 @@ def assess_action(root: pathlib.Path, event: str, matcher: str, payload: str, co
         if regex.search(payload):
             target = _extract_target(payload)
             return {
-                "identity": _identity(module, payload, target),
-                "hit": _hit(module, decision, _identity(module, payload, target), f"{reason} Target={target}.", safer),
+                "identity": _identity(module, payload, target, tier=1),
+                "hit": _hit(module, decision, _identity(module, payload, target, tier=1), f"{reason} Target={target}.", safer),
             }
+    for handler in (_move_away_hit, _truncate_or_clear_hit, _permission_lockout_hit):
+        hit = handler(payload)
+        if hit:
+            return {"identity": hit["metadata"]["destructive_identity"], "hit": hit}
+    if _profile(context) == "strict":
+        tier_two = _tier_two_hit(payload)
+        if tier_two:
+            return {"identity": tier_two["metadata"]["destructive_identity"], "hit": tier_two}
+        tier_three = _tier_three_hit(payload)
+        if tier_three:
+            return {"identity": tier_three["metadata"]["destructive_identity"], "hit": tier_three}
     return {"identity": None, "hit": None}
 
 
@@ -124,7 +349,7 @@ def record_action(root: pathlib.Path, result: dict[str, Any], payload: str) -> N
         {
             "event_id": result.get("event_id"),
             "module": identity.get("module"),
-            "target": identity.get("target"),
+            "target": identity.get("target") or identity.get("path"),
             "preview": payload[:180],
             "decision": result.get("action"),
             "ts": utc_now(),
@@ -151,6 +376,9 @@ def policy_payload() -> dict[str, Any]:
     return {
         "guards": [
             "mass-delete-intent-guard",
+            "move-away-destruction-guard",
+            "truncate-clear-guard",
+            "permission-lockout-guard",
             "env-destroy-guard",
             "secret-revoke-all-guard",
             "role-remove-admin-guard",
@@ -160,6 +388,19 @@ def policy_payload() -> dict[str, Any]:
             "state-destroy-guard",
             "bulk-disable-guard",
             "blast-radius-delete-guard",
+            "database-destroy-guard",
+            "database-bulk-delete-guard",
+            "cloud-resource-destroy-guard",
+            "key-destroy-guard",
+            "ransomware-intent-guard",
+            "indirection-swap-guard",
+            "delayed-destruction-guard",
+            "resource-exhaustion-destroy-guard",
+            "file-nulling-guard",
+            "file-stub-replacement-guard",
+            "file-junk-overwrite-guard",
+            "foreign-header-overwrite-guard",
+            "split-step-destruction-guard",
         ]
     }
 

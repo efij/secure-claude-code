@@ -191,6 +191,9 @@ These protections are implemented directly in native Runwall trust planes instea
 - `release-signing-bypass-guard`: blocks release flows that disable signing, provenance, SBOM, or attestation behavior
 - `release-channel-swap-guard`: prompts before release channels, repositories, or registries are rewritten to new destinations
 - `mass-delete-intent-guard`: blocks obvious high-blast-radius recursive delete behavior
+- `move-away-destruction-guard`: blocks moving critical trust files into backup, trash, temp, or disable-style destinations
+- `truncate-clear-guard`: blocks or prompts on truncate, empty-write, clear-content, and zero-fill destructive paths
+- `permission-lockout-guard`: blocks or prompts on deny-all chmod, ACL lockout, or immutable-flag destructive access changes
 - `env-destroy-guard`: prompts before environment-bound secret or config destruction paths
 - `secret-revoke-all-guard`: prompts before bulk token, secret, or credential revocation paths
 - `role-remove-admin-guard`: prompts before destructive admin or role-removal actions
@@ -200,6 +203,19 @@ These protections are implemented directly in native Runwall trust planes instea
 - `state-destroy-guard`: blocks destructive mutation or deletion of infrastructure state
 - `bulk-disable-guard`: prompts before fan-out loops apply destructive disable or delete behavior broadly
 - `blast-radius-delete-guard`: prompts before destructive actions widen scope with `--all`, recursive, or blast-radius style flags
+- `database-destroy-guard`: blocks destructive database reset, drop, truncate, and flush behavior in strict mode
+- `database-bulk-delete-guard`: prompts before broad database delete flows with no obvious scope narrowing in strict mode
+- `cloud-resource-destroy-guard`: blocks destructive bucket, volume, queue, stream, topic, and snapshot removal in strict mode
+- `key-destroy-guard`: prompts before destructive encryption, signing, and recovery key lifecycle actions in strict mode
+- `ransomware-intent-guard`: prompts before encrypt-in-place or rekey behavior targets critical local trust files in strict mode
+- `indirection-swap-guard`: blocks symlink, junction, bind-style, and other indirection swaps against critical surfaces in strict mode
+- `delayed-destruction-guard`: prompts on delayed destructive automation and destructive scheduled writes in strict mode
+- `resource-exhaustion-destroy-guard`: prompts on disk-fill, zero-fill, and fork-bomb style destructive setup in strict mode
+- `file-nulling-guard`: blocks or prompts on emptying meaningful tracked text files, especially critical trust surfaces
+- `file-stub-replacement-guard`: blocks or prompts on placeholder, no-op, or stub replacement of meaningful tracked files
+- `file-junk-overwrite-guard`: blocks or prompts on ciphertext-like or opaque junk overwrites of meaningful tracked text files
+- `foreign-header-overwrite-guard`: blocks or prompts on replacing text/config files with archive, HTML, PDF, or key-material style headers
+- `split-step-destruction-guard`: prompts when the same session accumulates multiple destructive file-edit signals against one path in strict mode
 - `remote-to-memory-promotion-guard`: blocks remote content promotion into persistent memory surfaces
 - `remote-to-knowledge-promotion-guard`: blocks remote content promotion into knowledge, vault, and RAG surfaces
 - `remote-to-hook-promotion-guard`: blocks remote content promotion into hook-bearing surfaces

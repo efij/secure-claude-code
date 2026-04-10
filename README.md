@@ -174,7 +174,7 @@ Runwall now adds four more native trust planes on top of tools and hooks:
 - `Local Data Store Trust`: prompts or blocks on local SQLite, Redis, PostgreSQL, browser storage, vector-store, and app-cache export paths before they silently turn into data-extraction flows
 - `Local IPC / Helper Trust`: treats local helper sockets, sidecars, local LLM endpoints, IDE backends, credential helpers, and named pipes as first-class trust boundaries
 - `Publish / Release Intent Trust`: prompts or blocks on package publishes, image pushes, binary release uploads, registry retargeting, signing bypass, and manifest-level release target drift
-- `Destructive Intent Trust`: blocks or prompts on broad deletes, infra teardown, repo wipes, state destruction, bulk disable loops, and other obvious high-blast-radius actions
+- `Destructive Intent Trust`: blocks or prompts on broad deletes, infra teardown, repo wipes, state destruction, critical-file nulling or overwrite, permission lockout, indirection swaps, and other high-blast-radius destructive actions with tiered profile defaults
 - `Session Handoff / Delegation Trust`: tracks when one actor, subagent, or runtime tries to inherit browser session power, delegated auth, artifacts, or sensitive session state from another actor later in the same chain
 - `Delegated Auth Trust`: prompts or blocks on device-code logins, STS minting, impersonation, token printing, refresh-token exchange, and other broker-style auth flows that quietly widen access
 - `Human Review Surface Trust`: protects PR templates, issue/task signoff docs, changelogs, release notes, and incident-facing review surfaces from approval laundering, review bypass text, and secret normalization
@@ -730,11 +730,11 @@ Tight baseline for solo hacking and lightweight local hardening.
 
 ### `balanced`
 
-Recommended default for most users. Good protection without too much friction.
+Recommended default for most users. Good protection without too much friction, with Tier 1 destructive coverage enabled for high-confidence catastrophic actions only.
 
 ### `strict`
 
-Stronger controls for sensitive repos, shared environments, and security-heavy teams.
+Stronger controls for sensitive repos, shared environments, and security-heavy teams. This adds Tier 2 destructive coverage and low-friction Tier 3 correlation prompts on top of the balanced baseline.
 
 ## Why People Keep It Installed
 

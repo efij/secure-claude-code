@@ -28,11 +28,14 @@ import runwall_runtime
 import runwall_tools
 import runwall_services
 import runwall_exposure
+import runwall_retention
 import runwall_browser
 import runwall_agents
 import runwall_apps
 import runwall_auth
 import runwall_destructive
+import runwall_delayed_exfil
+import runwall_file_destructive
 import runwall_handoff
 import runwall_safety
 import runwall_review
@@ -480,10 +483,13 @@ def evaluate(
     auth_identity: dict[str, Any] | None = None
     handoff_identity: dict[str, Any] | None = None
     exposure_identity: dict[str, Any] | None = None
+    retention_identity: dict[str, Any] | None = None
     release_identity: dict[str, Any] | None = None
     destructive_identity: dict[str, Any] | None = None
+    delayed_exfil_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
+    merged_context.setdefault("profile", profile)
     event_record = runwall_runtime.with_event_context(
         {
             "ts": datetime.now(timezone.utc).isoformat(),
@@ -512,12 +518,28 @@ def evaluate(
                 action = exposure_hit["decision"]
             results.append(exposure_hit)
 
+        retention_assessment = runwall_retention.assess_command(root, matcher, payload, merged_context)
+        retention_identity = retention_assessment.get("identity")
+        retention_hit = retention_assessment.get("hit")
+        if retention_hit:
+            if _DECISION_PRIORITY[retention_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = retention_hit["decision"]
+            results.append(retention_hit)
+
     if event == "PreToolUse" and matcher == "Bash":
         flow_hit = runwall_flow.assess_preflight(root, event, matcher, payload, merged_context)
         if flow_hit:
             if _DECISION_PRIORITY[flow_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = flow_hit["decision"]
             results.append(flow_hit)
+
+        delayed_exfil_assessment = runwall_delayed_exfil.assess_action(root, event, matcher, payload, merged_context)
+        delayed_exfil_identity = delayed_exfil_assessment.get("identity")
+        delayed_exfil_hit = delayed_exfil_assessment.get("hit")
+        if delayed_exfil_hit:
+            if _DECISION_PRIORITY[delayed_exfil_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = delayed_exfil_hit["decision"]
+            results.append(delayed_exfil_hit)
 
         tool_assessment = runwall_tools.assess_command(root, payload)
         tool_identity = tool_assessment.get("identity")
@@ -627,6 +649,14 @@ def evaluate(
                 action = flow_hit["decision"]
             results.append(flow_hit)
 
+        delayed_exfil_assessment = runwall_delayed_exfil.assess_action(root, event, matcher, payload, merged_context)
+        delayed_exfil_identity = delayed_exfil_assessment.get("identity")
+        delayed_exfil_hit = delayed_exfil_assessment.get("hit")
+        if delayed_exfil_hit:
+            if _DECISION_PRIORITY[delayed_exfil_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = delayed_exfil_hit["decision"]
+            results.append(delayed_exfil_hit)
+
         memory_assessment = runwall_memory.assess_fileop(root, event, matcher, payload, merged_context)
         memory_identity = memory_assessment.get("identity")
         memory_hit = memory_assessment.get("hit")
@@ -666,6 +696,15 @@ def evaluate(
             if _DECISION_PRIORITY[promotion_hit["decision"]] > _DECISION_PRIORITY[action]:
                 action = promotion_hit["decision"]
             results.append(promotion_hit)
+
+        destructive_assessment = runwall_file_destructive.assess_fileop(root, event, matcher, payload, merged_context)
+        destructive_identity = None
+        destructive_hit = destructive_assessment.get("hit")
+        if destructive_hit:
+            destructive_identity = destructive_assessment.get("identity")
+            if _DECISION_PRIORITY[destructive_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = destructive_hit["decision"]
+            results.append(destructive_hit)
 
         release_assessment = runwall_release.assess_action(root, event, matcher, payload, merged_context)
         release_identity = release_assessment.get("identity")
@@ -741,8 +780,10 @@ def evaluate(
         "auth_identity": auth_identity,
         "handoff_identity": handoff_identity,
         "exposure_identity": exposure_identity,
+        "retention_identity": retention_identity,
         "release_identity": release_identity,
         "destructive_identity": destructive_identity,
+        "delayed_exfil_identity": delayed_exfil_identity,
         "safety_identity": safety_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
@@ -807,6 +848,12 @@ def print_pretty(result: dict[str, Any]) -> None:
                 f"exposure: {exposure_identity.get('surface_class')} -> {exposure_identity.get('target')} "
                 f"[{exposure_identity.get('visibility')}]"
             )
+        retention_identity = result.get("retention_identity") or {}
+        if retention_identity.get("surface_class"):
+            print(
+                f"retention: {retention_identity.get('surface_class')} -> {retention_identity.get('target')} "
+                f"[{retention_identity.get('visibility')}]"
+            )
         handoff_identity = result.get("handoff_identity") or {}
         if handoff_identity.get("session_id"):
             print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")
@@ -814,8 +861,14 @@ def print_pretty(result: dict[str, Any]) -> None:
         if release_identity.get("target"):
             print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")
         destructive_identity = result.get("destructive_identity") or {}
-        if destructive_identity.get("target"):
-            print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target')}")
+        if destructive_identity.get("target") or destructive_identity.get("path"):
+            print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target') or destructive_identity.get('path')}")
+        delayed_exfil_identity = result.get("delayed_exfil_identity") or {}
+        if delayed_exfil_identity.get("surface_class"):
+            print(
+                f"delayed-exfil: {delayed_exfil_identity.get('surface_class')} -> "
+                f"{delayed_exfil_identity.get('path') or delayed_exfil_identity.get('target')}"
+            )
         safety_identity = result.get("safety_identity") or {}
         if safety_identity.get("path"):
             print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")
@@ -875,6 +928,12 @@ def print_pretty(result: dict[str, Any]) -> None:
             f"exposure: {exposure_identity.get('surface_class')} -> {exposure_identity.get('target')} "
             f"[{exposure_identity.get('visibility')}]"
         )
+    retention_identity = result.get("retention_identity") or {}
+    if retention_identity.get("surface_class"):
+        print(
+            f"retention: {retention_identity.get('surface_class')} -> {retention_identity.get('target')} "
+            f"[{retention_identity.get('visibility')}]"
+        )
     handoff_identity = result.get("handoff_identity") or {}
     if handoff_identity.get("session_id"):
         print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")
@@ -882,8 +941,14 @@ def print_pretty(result: dict[str, Any]) -> None:
     if release_identity.get("target"):
         print(f"release: {release_identity.get('release_class')} -> {release_identity.get('target')}")
     destructive_identity = result.get("destructive_identity") or {}
-    if destructive_identity.get("target"):
-        print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target')}")
+    if destructive_identity.get("target") or destructive_identity.get("path"):
+        print(f"destructive: {destructive_identity.get('module')} -> {destructive_identity.get('target') or destructive_identity.get('path')}")
+    delayed_exfil_identity = result.get("delayed_exfil_identity") or {}
+    if delayed_exfil_identity.get("surface_class"):
+        print(
+            f"delayed-exfil: {delayed_exfil_identity.get('surface_class')} -> "
+            f"{delayed_exfil_identity.get('path') or delayed_exfil_identity.get('target')}"
+        )
     safety_identity = result.get("safety_identity") or {}
     if safety_identity.get("path"):
         print(f"safety: {safety_identity.get('surface')} -> {safety_identity.get('path')}")

@@ -1117,6 +1117,92 @@ These are native Runwall trust-plane protections for local databases, browser st
 - Why it matters: scope-widening flags often turn a legitimate maintenance action into a major incident.
 - Action: prompt
 
+### `move-away-destruction-guard`
+- Purpose: stop critical trust files from being renamed or moved into backup, temp, trash, or disable-style paths.
+- Detects: `mv`, `git mv`, `rename`, and similar move-away behavior when the source is a critical release, safety, review, auth, or runtime-policy surface.
+- Why it matters: moving the trusted file out of the expected path can break integrity just as effectively as deleting it.
+
+### `truncate-clear-guard`
+- Purpose: stop silent destructive clearing of tracked files.
+- Detects: `truncate -s 0`, shell null redirects, PowerShell clear-content style paths, and zero-fill writes that target a real file path.
+- Why it matters: truncation is a low-noise way to destroy content without ever using the word `delete`.
+
+### `permission-lockout-guard`
+- Purpose: stop destructive access lockout against important files.
+- Detects: `chmod 000`, `chmod -x`, deny-all ACL updates, immutable-flag flips, and similar access-teardown patterns.
+- Why it matters: availability loss through permissions can be operationally identical to file destruction.
+
+### `database-destroy-guard`
+- Purpose: stop destructive database reset, drop, truncate, and flush commands in strict mode.
+- Detects: `DROP TABLE`, `DROP DATABASE`, `TRUNCATE TABLE`, framework reset helpers, and flush-all database admin commands.
+- Why it matters: destructive database actions often bypass normal migration review and can wipe irreplaceable state.
+
+### `database-bulk-delete-guard`
+- Purpose: review broad data-deletion commands in strict mode before they fan out across a table.
+- Detects: `DELETE FROM` style commands without an obvious `WHERE` scope.
+- Why it matters: broad deletes are often one typo away from full-table loss.
+- Action: prompt
+
+### `cloud-resource-destroy-guard`
+- Purpose: stop destructive cloud and storage resource teardown in strict mode.
+- Detects: bucket delete, snapshot delete, volume delete, queue purge, topic delete, stream delete, blob batch delete, and similar control-plane destruction.
+- Why it matters: control-plane deletes can wipe data and recovery material outside the repo immediately.
+
+### `key-destroy-guard`
+- Purpose: review destructive encryption, signing, and recovery-key lifecycle actions in strict mode.
+- Detects: KMS deletion scheduling, key disablement, key-vault delete or purge, keychain deletion, and similar key-destruction paths.
+- Why it matters: destroying or disabling key material can make otherwise intact systems or data unreadable.
+- Action: prompt
+
+### `ransomware-intent-guard`
+- Purpose: review encrypt-in-place or rekey behavior when it targets critical local trust files in strict mode.
+- Detects: `openssl enc`, `gpg -c`, `age -e`, passworded archive creation, and similar local encryption paths against critical surfaces.
+- Why it matters: unreadability can be just as destructive as deletion even when the bytes still exist.
+- Action: prompt
+
+### `indirection-swap-guard`
+- Purpose: stop critical files from being replaced with symlink, junction, bind-style, or similar indirection targets in strict mode.
+- Detects: `ln -s`, `mklink`, symbolic-link creation, and bind-style redirection paths aimed at critical files.
+- Why it matters: indirection swaps can silently retarget trusted paths to unreviewed content.
+
+### `delayed-destruction-guard`
+- Purpose: review delayed destructive behavior before it is baked into a cron, workflow, startup path, or other scheduled surface.
+- Detects: scheduled or persistent automation content that later performs destructive deletes, truncation, teardown, encryption, or lockout behavior.
+- Why it matters: delayed destructive changes are easy to miss during review because the damage happens later.
+- Action: prompt
+
+### `resource-exhaustion-destroy-guard`
+- Purpose: review resource-exhaustion style destructive setup in strict mode.
+- Detects: disk-fill, zero-fill, quota-burn, and fork-bomb style content or shell commands.
+- Why it matters: destroying availability through exhaustion can take a system down without touching the nominal data paths.
+- Action: prompt
+
+### `file-nulling-guard`
+- Purpose: stop meaningful tracked text files from being emptied through normal file-write tools.
+- Detects: empty or whitespace-only replacement of previously meaningful tracked files, with stricter blocking on critical trust surfaces.
+- Why it matters: normal write tools can erase integrity just as effectively as shell delete commands.
+
+### `file-stub-replacement-guard`
+- Purpose: stop meaningful tracked files from being replaced with stubs, placeholders, or no-op bodies.
+- Detects: `TODO`, placeholder text, `pass`, empty exports, trivial returns, and similar stub-like destructive replacement patterns.
+- Why it matters: semantic destruction often looks like a valid edit unless the replacement body is classified explicitly.
+
+### `file-junk-overwrite-guard`
+- Purpose: stop meaningful tracked text files from being overwritten with ciphertext-like or opaque junk content.
+- Detects: encryption markers, suspicious base64-like blobs, and similar opaque replacement bodies written through file-edit tools.
+- Why it matters: attackers can destroy integrity by making a trusted file unreadable without deleting it.
+
+### `foreign-header-overwrite-guard`
+- Purpose: stop config and text files from being replaced with obviously foreign formats.
+- Detects: HTML, PDF, archive, key-material, and similar foreign-format headers being written into tracked text surfaces.
+- Why it matters: a single header swap can corrupt a trusted file while still looking like a successful write.
+
+### `split-step-destruction-guard`
+- Purpose: review sessions that accumulate multiple destructive file-edit signals against the same path in strict mode.
+- Detects: one session first stubbing, nulling, or corrupting a file and then layering a second destructive signal such as ciphertext-like overwrite.
+- Why it matters: some destructive flows are intentionally split across smaller edits to stay below single-step thresholds.
+- Action: prompt
+
 ### datastore-admin-shell-guard
 
 - Purpose: require review before opening or driving local datastore admin surfaces.

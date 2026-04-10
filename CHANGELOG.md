@@ -1,5 +1,13 @@
 # Changelog
 
+## 16.0.0
+
+- expanded the `Destructive Intent Trust Plane` into a tiered destructive-coverage rollout with Tier 1 on by default in `balanced`, Tier 2 enabled in `strict`, and Tier 3 implemented with dormant default actions for low-backfire stateful correlation
+- added native destructive guards for `move-away-destruction-guard`, `truncate-clear-guard`, `permission-lockout-guard`, `database-destroy-guard`, `database-bulk-delete-guard`, `cloud-resource-destroy-guard`, `key-destroy-guard`, `ransomware-intent-guard`, `indirection-swap-guard`, `delayed-destruction-guard`, `resource-exhaustion-destroy-guard`, `file-nulling-guard`, `file-stub-replacement-guard`, `file-junk-overwrite-guard`, `foreign-header-overwrite-guard`, and `split-step-destruction-guard`
+- added a central file-destructive evaluator for `Write`, `Edit`, and `MultiEdit`, plus shared destructive surface classification so critical trust files block aggressively while ordinary code and generated outputs stay low-friction
+- expanded smoke coverage for Tier 1 file nulling and lockout behavior, Tier 2 DB/cloud/key/ransomware/indirection cases, Tier 3 delayed and split-step destructive signals, and balanced-vs-strict regressions
+- updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `16.0.0` destructive-coverage upgrade
+
 ## 15.0.1
 
 - narrowed the new exposure trust plane for low-fatigue behavior so it only blocks clear public or externally shared sensitive exfil paths and only prompts on a small unknown-visibility set for GitHub comments, GitHub repo sharing, and Slack posting
