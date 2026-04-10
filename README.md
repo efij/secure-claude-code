@@ -33,6 +33,7 @@ Runwall helps reduce real-world risk around:
 - agent session theft and desktop credential store access
 - browser remote-debugging exposure and local trust-store tampering
 - prompt injection and exfiltration paths
+- public and external-shared exposure, access-widening precursor actions, and delayed exfil chains
 - indirect prompt injection hidden in files, web pages, shell output, and MCP responses
 - unsafe shell execution
 - dangerous git and repo actions
@@ -78,6 +79,7 @@ Runwall helps you:
 - stop delegated cloud login and role-assumption flows from silently minting broader access
 - catch secret-manager pulls, inline config secret drops, and build-time container secret leaks
 - catch browser session exposure through remote debugging, package auth secrets in config, and secret-bearing files entering public artifacts
+- review or block public share flips, guest invites, durable external replication, delayed upload chains, and broader collaboration exfil surfaces in `strict` while keeping `balanced` low-fatigue
 - protect trusted config and instruction files from symlink hijack or stealth cleanup
 - reduce dangerous shell, git, and repo behavior
 - stop local trust-boundary tampering such as hosts-file remaps and sudoers weakening

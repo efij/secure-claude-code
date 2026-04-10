@@ -1,5 +1,12 @@
 # Changelog
 
+## 17.0.0
+
+- expanded the exfiltration rollout beyond low-fatigue public exposure with new strict-first coverage for access-widening precursors, broader collaboration surfaces, cheap derived-leak heuristics, durable retention and replication, and delayed outbound exfil chains
+- added native protections for `public-exposure-precursor-guard`, `access-widening-precursor-guard`, `public-retention-export-guard`, `retention-replication-guard`, and `delayed-exfil-chain-guard`
+- extended the exposure trust plane so `strict` can normalize Google Docs and Drive, Notion, Jira, Confluence, Zendesk, Linear, and email-like send surfaces while `balanced` stays narrowly scoped to low-fatigue public and external exposure cases
+- expanded smoke coverage for strict-vs-balanced precursor gating, broader collaboration surface review, tokenized URLs and bearer-style derived leaks, durable external indexing and backup export flows, and scheduled delayed exfil attempts
+
 ## 16.0.0
 
 - expanded the `Destructive Intent Trust Plane` into a tiered destructive-coverage rollout with Tier 1 on by default in `balanced`, Tier 2 enabled in `strict`, and Tier 3 implemented with dormant default actions for low-backfire stateful correlation

@@ -48,6 +48,11 @@ These protections are implemented directly in native Runwall trust planes instea
 - `sensitive-data-flow-guard`: blocks outbound transfers and publishes after the same session already touched sensitive data
 - `public-exposure-surface-guard`: blocks direct or session-derived sensitive data from being sent to public or externally shared surfaces such as gists, public repos, public channels, and public object storage
 - `broad-exposure-surface-guard`: prompts before sending potentially sensitive material to broad collaboration surfaces such as repo comments or chat channels when private visibility is not confirmed
+- `public-exposure-precursor-guard`: blocks sensitive sessions from widening exposure through precursor actions such as public repo flips, public share-link creation, external webhook setup, and public object-store ACL changes
+- `access-widening-precursor-guard`: prompts before access-widening precursor actions in `strict`, while `balanced` only prompts on the clearest public or external share and ACL expansion cases
+- `public-retention-export-guard`: blocks durable export or replication of sensitive material into public or externally shared retention targets
+- `retention-replication-guard`: prompts in `strict` before durable external backup, indexing, transcript persistence, or replication after a session already touched sensitive data
+- `delayed-exfil-chain-guard`: blocks scheduled or backgrounded outbound exfil chains in `strict` when persistence is used to stage later upload, publish, or delivery behavior
 - `public-artifact-flow-guard`: blocks writes into public artifacts, build outputs, and release bundles after a session already touched sensitive or production data
 - `cross-agent-secret-flow-guard`: blocks one agent from exporting data that another agent in the same session already read from sensitive sources
 - `clipboard-secret-flow-guard`: blocks clipboard bridges after the same session already touched sensitive or browser-exported data
