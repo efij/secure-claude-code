@@ -1,5 +1,11 @@
 # Changelog
 
+## 15.0.1
+
+- narrowed the new exposure trust plane for low-fatigue behavior so it only blocks clear public or externally shared sensitive exfil paths and only prompts on a small unknown-visibility set for GitHub comments, GitHub repo sharing, and Slack posting
+- added per-session prompt dedupe and exact exposure-fingerprint approval reuse so repeated high-risk sharing flows do not create approval fatigue
+- expanded smoke coverage for public GitHub and Slack posting, public object-storage ACL uploads, unknown-visibility prompt dedupe, exact approval reuse, and read-only/private no-hit cases
+
 ## 15.0.0
 
 - added a `Human Review Surface Trust Plane` with native protections for `review-surface-review-guard`, `review-surface-drift-guard`, `review-quarantine-bypass-guard`, `pr-description-bypass-guard`, `issue-comment-approval-launder-guard`, `release-notes-mislead-guard`, `changelog-coverup-guard`, `task-doc-secret-normalize-guard`, `incident-note-bypass-guard`, `review-template-tamper-guard`, `approval-text-smuggling-guard`, `human-review-override-guard`, and `review-surface-rewrite-guard`

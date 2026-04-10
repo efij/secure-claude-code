@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-RISKY_KINDS = {"app", "auth", "browser", "service", "tool", "hook", "data", "ipc"}
+RISKY_KINDS = {"app", "auth", "browser", "service", "tool", "hook", "data", "ipc", "exposure"}
 
 
 def utc_now() -> str:

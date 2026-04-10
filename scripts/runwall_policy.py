@@ -27,6 +27,7 @@ import runwall_release
 import runwall_runtime
 import runwall_tools
 import runwall_services
+import runwall_exposure
 import runwall_browser
 import runwall_agents
 import runwall_apps
@@ -478,6 +479,7 @@ def evaluate(
     app_identity: dict[str, Any] | None = None
     auth_identity: dict[str, Any] | None = None
     handoff_identity: dict[str, Any] | None = None
+    exposure_identity: dict[str, Any] | None = None
     release_identity: dict[str, Any] | None = None
     destructive_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
@@ -500,6 +502,15 @@ def evaluate(
         if _DECISION_PRIORITY[agent_hit["decision"]] > _DECISION_PRIORITY[action]:
             action = agent_hit["decision"]
         results.append(agent_hit)
+
+    if event == "PreToolUse" and (matcher == "Bash" or matcher.startswith("mcp__")):
+        exposure_assessment = runwall_exposure.assess_command(root, matcher, payload, merged_context)
+        exposure_identity = exposure_assessment.get("identity")
+        exposure_hit = exposure_assessment.get("hit")
+        if exposure_hit:
+            if _DECISION_PRIORITY[exposure_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = exposure_hit["decision"]
+            results.append(exposure_hit)
 
     if event == "PreToolUse" and matcher == "Bash":
         flow_hit = runwall_flow.assess_preflight(root, event, matcher, payload, merged_context)
@@ -729,6 +740,7 @@ def evaluate(
         "app_identity": app_identity,
         "auth_identity": auth_identity,
         "handoff_identity": handoff_identity,
+        "exposure_identity": exposure_identity,
         "release_identity": release_identity,
         "destructive_identity": destructive_identity,
         "safety_identity": safety_identity,
@@ -789,6 +801,12 @@ def print_pretty(result: dict[str, Any]) -> None:
         auth_identity = result.get("auth_identity") or {}
         if auth_identity.get("provider"):
             print(f"auth: {auth_identity.get('provider')} -> {auth_identity.get('broker_class')}")
+        exposure_identity = result.get("exposure_identity") or {}
+        if exposure_identity.get("surface_class"):
+            print(
+                f"exposure: {exposure_identity.get('surface_class')} -> {exposure_identity.get('target')} "
+                f"[{exposure_identity.get('visibility')}]"
+            )
         handoff_identity = result.get("handoff_identity") or {}
         if handoff_identity.get("session_id"):
             print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")
@@ -851,6 +869,12 @@ def print_pretty(result: dict[str, Any]) -> None:
     auth_identity = result.get("auth_identity") or {}
     if auth_identity.get("provider"):
         print(f"auth: {auth_identity.get('provider')} -> {auth_identity.get('broker_class')}")
+    exposure_identity = result.get("exposure_identity") or {}
+    if exposure_identity.get("surface_class"):
+        print(
+            f"exposure: {exposure_identity.get('surface_class')} -> {exposure_identity.get('target')} "
+            f"[{exposure_identity.get('visibility')}]"
+        )
     handoff_identity = result.get("handoff_identity") or {}
     if handoff_identity.get("session_id"):
         print(f"handoff: {handoff_identity.get('session_id')} [{handoff_identity.get('actor')}]")

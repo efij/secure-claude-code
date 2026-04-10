@@ -46,6 +46,8 @@ These protections are implemented directly in the Hook Trust Plane instead of as
 These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
 
 - `sensitive-data-flow-guard`: blocks outbound transfers and publishes after the same session already touched sensitive data
+- `public-exposure-surface-guard`: blocks direct or session-derived sensitive data from being sent to public or externally shared surfaces such as gists, public repos, public channels, and public object storage
+- `broad-exposure-surface-guard`: prompts before sending potentially sensitive material to broad collaboration surfaces such as repo comments or chat channels when private visibility is not confirmed
 - `public-artifact-flow-guard`: blocks writes into public artifacts, build outputs, and release bundles after a session already touched sensitive or production data
 - `cross-agent-secret-flow-guard`: blocks one agent from exporting data that another agent in the same session already read from sensitive sources
 - `clipboard-secret-flow-guard`: blocks clipboard bridges after the same session already touched sensitive or browser-exported data
