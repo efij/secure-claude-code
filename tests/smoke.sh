@@ -35,6 +35,7 @@ assert_contains() {
   local needle="${2:-}"
   if [[ "$haystack" != *"$needle"* ]]; then
     printf 'assertion failed: expected output to contain: %s\n' "$needle" >&2
+    printf 'actual output:\n%s\n' "$haystack" >&2
     exit 1
   fi
 }
@@ -643,21 +644,27 @@ assert_contains "$review_list" '"surface":'
 review_safe="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'docs/maintenance-notes.md note expected docs-only update' --profile strict --json)"
 assert_contains "$review_safe" '"allowed": true'
 
-artifact_prompt="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {\"summary\":\"pending\"}' --profile strict --json || true)"
+artifact_home="$TMP_BASE/artifact-home"
+rm -rf "$artifact_home"
+mkdir -p "$artifact_home"
+artifact_prompt="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {"summary":"pending"}' --profile strict --json || true)"
 assert_contains "$artifact_prompt" '"module": "artifact-source-review-guard"'
-run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts trust "$(pwd)/security-report.json" >/dev/null
-artifact_drift="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {\"summary\":\"changed\"}' --profile strict --json || true)"
+run_capture false env RUNWALL_HOME="$artifact_home" ./bin/runwall artifacts trust "$(pwd)/security-report.json" >/dev/null
+artifact_drift="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'security-report.json {"summary":"changed"}' --profile strict --json || true)"
 assert_contains "$artifact_drift" '"module": "artifact-drift-guard"'
-artifact_sarif="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'scan.sarif {\"runs\":[{\"results\":[{\"level\":\"none\"}]}]}' --profile strict --json || true)"
+artifact_sarif_prompt="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'scan.sarif {"runs":[{"results":[{"level":"warning"}]}]}' --profile strict --json || true)"
+assert_contains "$artifact_sarif_prompt" '"module": "artifact-source-review-guard"'
+run_capture false env RUNWALL_HOME="$artifact_home" ./bin/runwall artifacts trust "$(pwd)/scan.sarif" >/dev/null
+artifact_sarif="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'scan.sarif {"runs":[{"results":[{"level":"none"}]}]}' --profile strict --json || true)"
 assert_contains "$artifact_sarif" '"module": "sarif-finding-suppression-guard"'
-artifact_secret="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'audit-report.json {\"token\":\"ghp_abcdefghijklmnopqrstuvwxyz123456\"}' --profile strict --json || true)"
+artifact_secret="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'audit-report.json {"token":"ghp_abcdefghijklmnopqrstuvwxyz123456"}' --profile strict --json || true)"
 assert_contains "$artifact_secret" '"module": "audit-report-secret-redaction-bypass-guard"'
-run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts quarantine "$(pwd)/security-report.json" >/dev/null
-artifact_quarantine="$(run_capture true env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Read 'security-report.json' --profile strict --json || true)"
+run_capture false env RUNWALL_HOME="$artifact_home" ./bin/runwall artifacts quarantine "$(pwd)/security-report.json" >/dev/null
+artifact_quarantine="$(run_capture true env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Read 'security-report.json' --profile strict --json || true)"
 assert_contains "$artifact_quarantine" '"module": "artifact-quarantine-bypass-guard"'
-artifact_list="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall artifacts list --json)"
+artifact_list="$(run_capture false env RUNWALL_HOME="$artifact_home" ./bin/runwall artifacts list --json)"
 assert_contains "$artifact_list" '"artifacts":'
-artifact_safe="$(run_capture false env RUNWALL_HOME="$memory_home" ./bin/runwall evaluate PreToolUse Write 'scan-summary.json {\"summary\":\"docs-only refresh\"}' --profile strict --json)"
+artifact_safe="$(run_capture false env RUNWALL_HOME="$artifact_home" ./bin/runwall evaluate PreToolUse Write 'notes.json {"summary":"docs-only refresh"}' --profile strict --json)"
 assert_contains "$artifact_safe" '"allowed": true'
 
 apps_home="$TMP_BASE/apps-home"
@@ -844,15 +851,15 @@ rm -rf "$destructive_tier_two_home"
 mkdir -p "$destructive_tier_two_home"
 destructive_tier_two_db="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "psql -c 'DELETE FROM users'" --profile strict --json || true)"
 assert_contains "$destructive_tier_two_db" '"module": "database-bulk-delete-guard"'
-destructive_tier_two_cloud="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash 'aws s3 rb s3://demo-bucket --force' --profile strict --json || true)"
+destructive_tier_two_cloud="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "$aws_cmd s3 rb s3://demo-bucket --force" --profile strict --json || true)"
 assert_contains "$destructive_tier_two_cloud" '"module": "cloud-resource-destroy-guard"'
-destructive_tier_two_key="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash 'aws kms schedule-key-deletion --key-id demo --pending-window-in-days 7' --profile strict --json || true)"
+destructive_tier_two_key="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "$aws_cmd kms schedule-key-deletion --key-id demo --pending-window-in-days 7" --profile strict --json || true)"
 assert_contains "$destructive_tier_two_key" '"module": "key-destroy-guard"'
 destructive_tier_two_encrypt="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "openssl enc -aes-256-cbc -in $destructive_release_stub -out $destructive_release_stub.enc" --profile strict --json || true)"
 assert_contains "$destructive_tier_two_encrypt" '"module": "ransomware-intent-guard"'
 destructive_tier_two_link="$(run_capture true env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "ln -s /tmp/elsewhere $destructive_release_stub" --profile strict --json || true)"
 assert_contains "$destructive_tier_two_link" '"module": "indirection-swap-guard"'
-destructive_tier_two_balanced="$(run_capture false env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash 'aws kms schedule-key-deletion --key-id demo --pending-window-in-days 7' --profile balanced --json)"
+destructive_tier_two_balanced="$(run_capture false env RUNWALL_HOME="$destructive_tier_two_home" ./bin/runwall evaluate PreToolUse Bash "$aws_cmd kms schedule-key-deletion --key-id demo --pending-window-in-days 7" --profile balanced --json)"
 assert_contains "$destructive_tier_two_balanced" '"allowed": true'
 assert_not_contains "$destructive_tier_two_balanced" '"module": "key-destroy-guard"'
 
