@@ -175,6 +175,13 @@ def save_store(root: pathlib.Path, store: dict[str, Any]) -> None:
     path.write_text(json.dumps(store, indent=2, sort_keys=True) + "\n")
 
 
+def _normalized_compare_key(value: str | None) -> str:
+    if not value:
+        return ""
+    text = os.path.normcase(os.path.normpath(_sanitize_token(str(value))))
+    return text
+
+
 def _shell_split(command: str) -> list[str]:
     try:
         return shlex.split(command, posix=os.name != "nt")
@@ -787,9 +794,11 @@ def approve_tool(root: pathlib.Path, selector: str) -> bool:
     aliases = store.setdefault("aliases", {})
     tools = store.setdefault("tools", {})
     record = aliases.get(selector)
+    selector_key = _normalized_compare_key(selector)
     if record is None:
         for key, candidate in aliases.items():
-            if candidate.get("resolved_path") == selector:
+            candidate_path = candidate.get("resolved_path")
+            if candidate_path == selector or _normalized_compare_key(candidate_path) == selector_key:
                 selector = key
                 record = candidate
                 break
@@ -811,6 +820,7 @@ def forget_tool(root: pathlib.Path, selector: str) -> bool:
     aliases = store.setdefault("aliases", {})
     tools = store.setdefault("tools", {})
     removed = False
+    selector_key = _normalized_compare_key(selector)
     record = aliases.pop(selector, None)
     if record:
         removed = True
@@ -819,9 +829,11 @@ def forget_tool(root: pathlib.Path, selector: str) -> bool:
             tools.pop(resolved_path, None)
     else:
         for key, candidate in list(aliases.items()):
-            if candidate.get("resolved_path") == selector:
+            candidate_path = candidate.get("resolved_path")
+            if candidate_path == selector or _normalized_compare_key(candidate_path) == selector_key:
                 aliases.pop(key, None)
-                tools.pop(selector, None)
+                if candidate_path:
+                    tools.pop(candidate_path, None)
                 removed = True
                 break
     if removed:

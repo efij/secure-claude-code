@@ -897,7 +897,7 @@ assert_not_contains "$destructive_tier_two_balanced" '"module": "key-destroy-gua
 destructive_tier_three_home="$TMP_BASE/destructive-tier-three-home"
 rm -rf "$destructive_tier_three_home"
 mkdir -p "$destructive_tier_three_home"
-destructive_tier_three_root="$ROOT_DIR/tmp/destructive-tier-three-target"
+destructive_tier_three_root="$ROOT_DIR/smoke-fixtures/destructive-tier-three-target"
 rm -rf "$destructive_tier_three_root"
 destructive_tier_three_delay_file="$destructive_tier_three_root/.github/workflows/nightly.yml"
 mkdir -p "$(dirname "$destructive_tier_three_delay_file")"
