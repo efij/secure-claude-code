@@ -33,7 +33,7 @@ scan_sensitive_tokens() {
     case "$clean" in
       *://*) continue ;;
     esac
-    if printf '%s\n' "$clean" | grep -Eif "$SECRET_PATHS_FILE" >/dev/null 2>&1; then
+    if shield_match_file "$clean" "$SECRET_PATHS_FILE"; then
       hits="${hits}${clean}"$'\n'
     fi
   done

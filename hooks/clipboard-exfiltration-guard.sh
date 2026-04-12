@@ -21,7 +21,7 @@ esac
 if [ "$clipboard_match" != "true" ]; then
   CLEAN_CLIPBOARD_FILE="$(shield_prepare_pattern_file "$CLIPBOARD_FILE")" || exit 1
   trap 'rm -f "${CLEAN_CLIPBOARD_FILE:-}" "${CLEAN_TOKEN_FILE:-}" "${CLEAN_SECRET_PATHS_FILE:-}"' EXIT
-  if ! printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_CLIPBOARD_FILE" >/dev/null 2>&1; then
+  if ! shield_match_file "$INPUT" "$CLEAN_CLIPBOARD_FILE"; then
     exit 0
   fi
 else
@@ -35,9 +35,9 @@ if [ -f "$SECRET_PATHS_FILE" ]; then
   CLEAN_SECRET_PATHS_FILE="$(shield_prepare_pattern_file "$SECRET_PATHS_FILE")" || exit 1
 fi
 
-if [ -n "${CLEAN_TOKEN_FILE:-}" ] && printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_TOKEN_FILE" >/dev/null 2>&1; then
+if [ -n "${CLEAN_TOKEN_FILE:-}" ] && shield_match_file "$INPUT" "$CLEAN_TOKEN_FILE"; then
   :
-elif [ -n "${CLEAN_SECRET_PATHS_FILE:-}" ] && printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_SECRET_PATHS_FILE" >/dev/null 2>&1; then
+elif [ -n "${CLEAN_SECRET_PATHS_FILE:-}" ] && shield_match_file "$INPUT" "$CLEAN_SECRET_PATHS_FILE"; then
   :
 elif printf '%s' "$INPUT" | grep -Eqi '(printenv|gh[[:space:]]+auth[[:space:]]+token|gcloud[[:space:]]+auth[[:space:]]+print-access-token|aws[[:space:]]+configure[[:space:]]+export-credentials|kubectl[[:space:]]+config[[:space:]]+view[[:space:]]+--raw)'; then
   :

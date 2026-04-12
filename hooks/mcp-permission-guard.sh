@@ -11,14 +11,14 @@ RISK_FILE="$CONFIG_HOME/mcp-risky-permissions.regex"
 [ -f "$RISK_FILE" ] || exit 0
 
 touches_mcp_control() {
-  printf '%s\n' "$INPUT" | grep -Eif "$CONTROL_FILE" >/dev/null 2>&1
+  shield_match_file "$INPUT" "$CONTROL_FILE"
 }
 
 if ! touches_mcp_control; then
   exit 0
 fi
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$RISK_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$RISK_FILE"; then
   exit 0
 fi
 

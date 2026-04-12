@@ -29,5 +29,5 @@ shield_match_pattern_file() {
   local clean_file
 
   clean_file="$(shield_prepare_pattern_file "$source_file")" || return 1
-  printf '%s\n' "$input" | grep -Eif "$clean_file" >/dev/null 2>&1
+  shield_match_file "$input" "$clean_file"
 }

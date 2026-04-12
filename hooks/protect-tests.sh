@@ -7,7 +7,7 @@ TEST_PATHS_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/con
 
 [ -f "$TEST_PATHS_FILE" ] || exit 0
 
-test_hits="$(printf '%s\n' "$INPUT" | grep -Eif "$TEST_PATHS_FILE" || true)"
+test_hits="$(shield_grep_file "$INPUT" "$TEST_PATHS_FILE" || true)"
 skip_hits="$(printf '%s\n' "$INPUT" | grep -Eo '(\.skip\(|\.only\(|xdescribe\(|xit\(|xtest\(|@pytest\.mark\.(skip|xfail)|pytest\.skip\(|unittest\.skip|describe\.only\(|test\.only\()' || true)"
 disable_hits="$(printf '%s\n' "$INPUT" | grep -Eo '(eslint-disable|biome-ignore|@ts-ignore|@ts-expect-error|noqa|ruff:[[:space:]]*noqa|nolint|istanbul ignore|c8 ignore|coverage:[[:space:]]*ignore|type:[[:space:]]*ignore|pragma:[[:space:]]*no cover)' || true)"
 

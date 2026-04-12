@@ -114,3 +114,35 @@ shield_emit_metadata() {
   [ -n "$json_payload" ] || return 0
   printf 'RUNWALL_JSON:%s\n' "$json_payload"
 }
+
+shield_prepare_input_file() {
+  local input="${1:-}"
+  local temp_file
+
+  temp_file="$(mktemp "${TMPDIR:-/tmp}/runwall-input.XXXXXX")" || return 1
+  printf '%s\n' "$input" >"$temp_file"
+  printf '%s\n' "$temp_file"
+}
+
+shield_grep_file() {
+  local input="${1:-}"
+  local pattern_file="${2:-}"
+  local input_file
+  local status
+
+  input_file="$(shield_prepare_input_file "$input")" || return 1
+  if grep -Eif "$pattern_file" "$input_file"; then
+    status=0
+  else
+    status=$?
+  fi
+  rm -f "$input_file"
+  return "$status"
+}
+
+shield_match_file() {
+  local input="${1:-}"
+  local pattern_file="${2:-}"
+
+  shield_grep_file "$input" "$pattern_file" >/dev/null 2>&1
+}

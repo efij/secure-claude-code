@@ -193,6 +193,13 @@ def _strip_assignments(tokens: list[str]) -> list[str]:
     return result
 
 
+def _sanitize_token(token: str) -> str:
+    stripped = token.strip()
+    if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {'"', "'"}:
+        return stripped[1:-1]
+    return stripped
+
+
 def _next_command_tokens(tokens: list[str]) -> tuple[str | None, list[str], list[str]]:
     current = _strip_assignments(tokens)
     wrappers: list[str] = []
@@ -222,12 +229,15 @@ def _candidate_script(tokens: list[str]) -> str | None:
 
 
 def _resolve_token(token: str, *, cwd: pathlib.Path) -> pathlib.Path | None:
-    expanded = os.path.expanduser(token)
+    expanded = os.path.expanduser(_sanitize_token(token))
     if any(sep in expanded for sep in ("/", "\\")) or expanded.startswith("."):
         path = pathlib.Path(expanded)
         if not path.is_absolute():
             path = pathlib.Path(os.path.abspath(str(cwd / path)))
         return path
+    candidates = _path_candidates(expanded, cwd=cwd)
+    if candidates:
+        return candidates[0]
     resolved = shutil.which(expanded)
     if resolved:
         return pathlib.Path(os.path.abspath(resolved))
@@ -235,7 +245,7 @@ def _resolve_token(token: str, *, cwd: pathlib.Path) -> pathlib.Path | None:
 
 
 def _path_candidates(token: str, *, cwd: pathlib.Path) -> list[pathlib.Path]:
-    expanded = os.path.expanduser(token)
+    expanded = os.path.expanduser(_sanitize_token(token))
     if any(sep in expanded for sep in ("/", "\\")) or expanded.startswith("."):
         path = pathlib.Path(expanded)
         if not path.is_absolute():
@@ -244,16 +254,25 @@ def _path_candidates(token: str, *, cwd: pathlib.Path) -> list[pathlib.Path]:
     results: list[pathlib.Path] = []
     seen: set[str] = set()
     path_value = os.environ.get("PATH", "")
+    path_exts = [""]
+    if os.name == "nt":
+        raw_exts = os.environ.get("PATHEXT", "")
+        for item in raw_exts.split(os.pathsep):
+            ext = item.strip()
+            if ext and ext.lower() not in {existing.lower() for existing in path_exts}:
+                path_exts.append(ext)
     for base in path_value.split(os.pathsep):
         if not base:
             continue
-        candidate = pathlib.Path(os.path.abspath(str(pathlib.Path(base) / expanded)))
-        key = str(candidate)
-        if key in seen:
-            continue
-        if candidate.exists():
-            results.append(candidate)
-            seen.add(key)
+        for ext in path_exts:
+            candidate_name = expanded if not ext or expanded.lower().endswith(ext.lower()) else f"{expanded}{ext}"
+            candidate = pathlib.Path(os.path.abspath(str(pathlib.Path(base) / candidate_name)))
+            key = str(candidate).lower() if os.name == "nt" else str(candidate)
+            if key in seen:
+                continue
+            if candidate.exists():
+                results.append(candidate)
+                seen.add(key)
     return results
 
 
@@ -279,9 +298,11 @@ def _classify_origin(path: pathlib.Path, root: pathlib.Path) -> str:
     }
     package_managed_dirs = {
         pathlib.Path("/Applications"),
+        pathlib.Path("/Library/Frameworks"),
         pathlib.Path("/opt/homebrew/bin"),
         pathlib.Path("/opt/homebrew/sbin"),
         pathlib.Path("/opt/homebrew/Cellar"),
+        pathlib.Path("/opt/hostedtoolcache"),
         pathlib.Path("/usr/local/bin"),
         pathlib.Path("/usr/local/sbin"),
         pathlib.Path("/usr/local/Cellar"),
@@ -291,11 +312,13 @@ def _classify_origin(path: pathlib.Path, root: pathlib.Path) -> str:
         home / ".npm-global" / "bin",
         home / ".bun" / "bin",
         home / "go" / "bin",
+        home / "hostedtoolcache",
         home / ".pyenv" / "shims",
         home / ".asdf" / "shims",
     }
     system_dirs = {
         pathlib.Path("/bin"),
+        pathlib.Path("/Library/Apple/usr/bin"),
         pathlib.Path("/sbin"),
         pathlib.Path("/usr/bin"),
         pathlib.Path("/usr/sbin"),
@@ -320,6 +343,19 @@ def _classify_origin(path: pathlib.Path, root: pathlib.Path) -> str:
             return "system"
     if _safe_rel(normalized, home):
         return "user-local"
+    if any(
+        marker in path_text
+        for marker in (
+            "/program files/",
+            "/program files (x86)/",
+            "/hostedtoolcache/",
+            "/scoop/apps/",
+            "/chocolatey/bin/",
+        )
+    ):
+        return "package-managed"
+    if any(marker in path_text for marker in ("/windows/system32/", "/sysnative/")):
+        return "system"
     if "appdata/local/temp" in path_text or "windows/temp" in path_text:
         return "temp"
     if "/downloads/" in path_text:
@@ -489,11 +525,14 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
     origin = _classify_origin(effective_path, root)
     launch_origin = _classify_origin(launch_effective_path, root) if launch_effective_path else origin
     symlink_target = None
+    symlink_origin = None
     if launch_effective_path and launch_effective_path.exists() and launch_effective_path.is_symlink():
         try:
             symlink_target = str(launch_effective_path.resolve(strict=False))
+            symlink_origin = _classify_origin(pathlib.Path(symlink_target), root)
         except OSError:
             symlink_target = None
+            symlink_origin = None
     return {
         "display_name": display_name,
         "resolved_path": str(effective_path),
@@ -511,6 +550,7 @@ def resolve_tool_identity(root: pathlib.Path, command: str) -> dict[str, Any] | 
         "exists": effective_path.exists(),
         "size": effective_path.stat().st_size if effective_path.exists() else None,
         "symlink_target": symlink_target,
+        "symlink_origin": symlink_origin,
         "path_candidates": [str(path) for path in path_candidates[:6]],
         "path_candidate_origins": [_classify_origin(path, root) for path in path_candidates[:6]],
         "age_seconds": _file_age_seconds(effective_path),
@@ -599,6 +639,7 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
 
     origin = str(identity.get("origin", "unknown"))
     launch_origin = str(identity.get("launch_origin", origin))
+    symlink_origin = str(identity.get("symlink_origin") or origin)
     resolved_path = str(identity.get("resolved_path"))
     high_trust = alias_key in high_trust_names
     wrapper_block = alias_key in set(policy.get("wrapper_block_names", []))
@@ -620,7 +661,9 @@ def assess_command(root: pathlib.Path, command: str) -> dict[str, Any]:
             reason="A trusted command name is being intercepted by PATH order rather than invoked from its reviewed location, which is a classic local hijack pattern.",
             safer_alternative="Remove the unreviewed PATH entry or call the intended tool by its explicit reviewed path.",
         )
-    elif identity.get("symlink_target") and (high_trust or existing):
+    elif identity.get("symlink_target") and (high_trust or existing) and not (
+        launch_origin in auto_trust_origins and symlink_origin in auto_trust_origins
+    ):
         trust_state = "blocked"
         hit = _hit(
             "symlink-tool-swap-guard",

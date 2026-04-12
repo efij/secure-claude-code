@@ -11,14 +11,14 @@ TAMPER_FILE="$CONFIG_HOME/tamper-phrases.regex"
 [ -f "$TAMPER_FILE" ] || exit 0
 
 touches_control() {
-  printf '%s\n' "$INPUT" | grep -Eif "$CONTROL_FILE" >/dev/null 2>&1
+  shield_match_file "$INPUT" "$CONTROL_FILE"
 }
 
 if ! touches_control; then
   exit 0
 fi
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$TAMPER_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$TAMPER_FILE"; then
   exit 0
 fi
 

@@ -16,7 +16,7 @@ block() {
 
 touches_control_files() {
   [ -f "$CONTROL_FILE" ] || return 1
-  printf '%s\n' "$INPUT" | grep -Eif "$CONTROL_FILE" >/dev/null 2>&1
+  shield_match_file "$INPUT" "$CONTROL_FILE"
 }
 
 if printf '%s' "$INPUT" | grep -Eqi '(curl|wget|Invoke-WebRequest|iwr|irm|fetch)' &&

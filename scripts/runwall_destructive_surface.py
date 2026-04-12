@@ -87,6 +87,26 @@ def normalize_path_token(token: str) -> pathlib.Path:
     return path
 
 
+def _is_system_temp_path(path: pathlib.Path) -> bool:
+    candidates = {
+        pathlib.Path("/tmp"),
+        pathlib.Path("/var/tmp"),
+        pathlib.Path("/private/tmp"),
+    }
+    for env_name in ("TMPDIR", "TEMP", "TMP"):
+        value = os.environ.get(env_name)
+        if value:
+            candidates.add(pathlib.Path(value).resolve(strict=False))
+    resolved = path.resolve(strict=False)
+    for base in candidates:
+        try:
+            resolved.relative_to(base.resolve(strict=False))
+            return True
+        except ValueError:
+            continue
+    return False
+
+
 def classify_path(path: pathlib.Path) -> str:
     location = str(path).replace("\\", "/")
     if RUNTIME_POLICY_PATH_RE.search(location):
@@ -99,6 +119,8 @@ def classify_path(path: pathlib.Path) -> str:
         return "review-surface"
     if AUTH_PATH_RE.search(location):
         return "auth-control"
+    if path.is_absolute() and _is_system_temp_path(path):
+        return "ordinary-surface"
     if GENERATED_PATH_RE.search(location):
         return "generated-output"
     return "ordinary-surface"

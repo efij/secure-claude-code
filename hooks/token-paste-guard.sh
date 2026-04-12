@@ -7,7 +7,7 @@ PATTERN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config
 
 [ -f "$PATTERN_FILE" ] || exit 0
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$PATTERN_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$PATTERN_FILE"; then
   exit 0
 fi
 

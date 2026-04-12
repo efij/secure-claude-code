@@ -10,11 +10,11 @@ RISK_FILE="$CONFIG_HOME/ci-release-risky.regex"
 [ -f "$FILES_FILE" ] || exit 0
 [ -f "$RISK_FILE" ] || exit 0
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$FILES_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$FILES_FILE"; then
   exit 0
 fi
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$RISK_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$RISK_FILE"; then
   exit 0
 fi
 

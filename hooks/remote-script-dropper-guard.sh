@@ -11,7 +11,7 @@ if ! printf '%s' "$INPUT" | grep -Eqi '(curl|wget|Invoke-WebRequest|iwr|irm|fetc
   exit 0
 fi
 
-if ! printf '%s\n' "$INPUT" | grep -Eif "$PATTERN_FILE" >/dev/null 2>&1; then
+if ! shield_match_file "$INPUT" "$PATTERN_FILE"; then
   exit 0
 fi
 

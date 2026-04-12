@@ -16,7 +16,7 @@ CLEAN_TOKEN_FILE="$(shield_prepare_pattern_file "$TOKEN_FILE")" || exit 1
 trap 'rm -f "$CLEAN_FILES_FILE" "$CLEAN_TOKEN_FILE"' EXIT
 
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_FILES_FILE" >/dev/null 2>&1
+shield_match_file "$INPUT" "$CLEAN_FILES_FILE"
 files_status=$?
 set -e
 if [ "$files_status" -eq 2 ]; then
@@ -28,7 +28,7 @@ if [ "$files_status" -ne 0 ]; then
 fi
 
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_TOKEN_FILE" >/dev/null 2>&1
+shield_match_file "$INPUT" "$CLEAN_TOKEN_FILE"
 token_status=$?
 set -e
 if [ "$token_status" -eq 2 ]; then

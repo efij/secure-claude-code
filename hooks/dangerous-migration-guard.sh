@@ -15,7 +15,7 @@ if [ "$destructive" -eq 0 ]; then
   exit 0
 fi
 
-if [ -f "$FILES_FILE" ] && printf '%s\n' "$INPUT" | grep -Eif "$FILES_FILE" >/dev/null 2>&1; then
+if [ -f "$FILES_FILE" ] && shield_match_file "$INPUT" "$FILES_FILE"; then
   :
 elif printf '%s' "$INPUT" | grep -Eqi '(prisma|sequelize|alembic|flyway|liquibase|psql|mysql|sqlite3|db[[:space:]]+push|migrate)'; then
   :

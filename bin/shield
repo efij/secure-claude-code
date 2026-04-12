@@ -86,7 +86,7 @@ module_ids = [
     if line.strip() and not line.strip().startswith("#")
 ]
 
-hooks = {}
+  hooks = {}
 selected = []
 
 for module_id in module_ids:
@@ -193,7 +193,12 @@ for module_id in module_ids:
         }
         hooks.setdefault(event, []).append(entry)
 
-output_path.write_text(json.dumps(hooks, indent=2) + "\n")
+payload = {
+    "description": "Runwall balanced hook pack for Claude Code.",
+    "hooks": hooks,
+}
+
+output_path.write_text(json.dumps(payload, indent=2) + "\n")
 PY
 }
 

@@ -123,6 +123,8 @@ required = [
     Path("skills/secure-tune/SKILL.md"),
 ]
 
+expected_version = Path("VERSION").read_text().strip()
+
 for path in required:
     if not path.exists():
         raise SystemExit(f"missing required plugin file: {path}")
@@ -130,12 +132,41 @@ for path in required:
 for path in required[:5]:
     json.loads(path.read_text())
 
+claude_plugin = json.loads(Path(".claude-plugin/plugin.json").read_text())
+if not isinstance(claude_plugin.get("hooks"), dict) or "PreToolUse" not in claude_plugin["hooks"]:
+    raise SystemExit("claude plugin manifest missing embedded hooks")
+if claude_plugin.get("version") != expected_version:
+    raise SystemExit("claude plugin manifest version mismatch")
+
+claude_hook_file = json.loads(Path("hooks/hooks.json").read_text())
+if not isinstance(claude_hook_file.get("hooks"), dict) or "PreToolUse" not in claude_hook_file["hooks"]:
+    raise SystemExit("claude hook file missing wrapped hooks payload")
+
+codex_plugin = json.loads(Path(".codex-plugin/plugin.json").read_text())
+if codex_plugin.get("skills") != "./skills/":
+    raise SystemExit("codex plugin manifest missing skills path")
+if codex_plugin.get("version") != expected_version:
+    raise SystemExit("codex plugin manifest version mismatch")
+
+marketplace = json.loads(Path(".claude-plugin/marketplace.json").read_text())
+if marketplace["plugins"][0].get("version") != expected_version:
+    raise SystemExit("marketplace plugin version mismatch")
+
 print("plugin-json-ok")
 PY
 assert_contains "$(cat "$plugin_json_check")" 'plugin-json-ok'
 
 if command -v claude >/dev/null 2>&1; then
   run_capture false claude plugin validate .
+  claude_plugin_home="$TMP_BASE/claude-plugin-home"
+  mkdir -p "$claude_plugin_home"
+  claude_plugin_add="$(run_capture false env HOME="$claude_plugin_home" CLAUDE_HOME="$claude_plugin_home/.claude" bash -lc 'cd .. && claude plugin marketplace add ./secure-claude-code')"
+  assert_contains "$claude_plugin_add" 'Successfully added marketplace: runwall'
+  claude_plugin_install="$(run_capture false env HOME="$claude_plugin_home" CLAUDE_HOME="$claude_plugin_home/.claude" claude plugin install runwall@runwall)"
+  assert_contains "$claude_plugin_install" 'Successfully installed plugin: runwall@runwall'
+  claude_plugin_list="$(run_capture false env HOME="$claude_plugin_home" CLAUDE_HOME="$claude_plugin_home/.claude" claude plugin list)"
+  assert_contains "$claude_plugin_list" 'runwall@runwall'
+  assert_not_contains "$claude_plugin_list" 'failed to load'
 fi
 
 runtime_list_output="$(run_capture false ./bin/runwall list runtimes)"
@@ -250,7 +281,7 @@ cat >"$tool_bin_a/claude" <<'EOF'
 echo fake claude
 EOF
 chmod +x "$tool_bin_a/claude"
-tool_shadow_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_a:/bin:/usr/bin" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'claude --help' --profile strict --json || true)"
+tool_shadow_json="$(run_capture true env HOME="$tool_trust_user_home" PATH="$tool_bin_a:/bin:/usr/bin:$PATH" RUNWALL_HOME="$tool_trust_home" ./bin/runwall evaluate PreToolUse Bash 'claude --help' --profile strict --json || true)"
 assert_contains "$tool_shadow_json" '"module": "command-shadowing-guard"'
 
 tool_temp_path="$TMP_BASE/tmp-fetch.sh"
@@ -866,12 +897,14 @@ assert_not_contains "$destructive_tier_two_balanced" '"module": "key-destroy-gua
 destructive_tier_three_home="$TMP_BASE/destructive-tier-three-home"
 rm -rf "$destructive_tier_three_home"
 mkdir -p "$destructive_tier_three_home"
-destructive_tier_three_delay_file="$TMP_BASE/destructive-tier-three-target/.github/workflows/nightly.yml"
+destructive_tier_three_root="$ROOT_DIR/tmp/destructive-tier-three-target"
+rm -rf "$destructive_tier_three_root"
+destructive_tier_three_delay_file="$destructive_tier_three_root/.github/workflows/nightly.yml"
 mkdir -p "$(dirname "$destructive_tier_three_delay_file")"
 printf 'name: nightly\n' >"$destructive_tier_three_delay_file"
 destructive_tier_three_delay="$(run_capture true env RUNWALL_HOME="$destructive_tier_three_home" ./bin/runwall evaluate PreToolUse Write "$destructive_tier_three_delay_file on: schedule rm -rf dist/cache" --profile strict --json || true)"
 assert_contains "$destructive_tier_three_delay" '"module": "delayed-destruction-guard"'
-destructive_tier_three_chain_file="$TMP_BASE/destructive-tier-three-target/src/worker.py"
+destructive_tier_three_chain_file="$destructive_tier_three_root/src/worker.py"
 mkdir -p "$(dirname "$destructive_tier_three_chain_file")"
 printf 'print(1)\n' >"$destructive_tier_three_chain_file"
 run_capture true env RUNWALL_HOME="$destructive_tier_three_home" ./bin/runwall evaluate PreToolUse Write "$destructive_tier_three_chain_file TODO" --profile strict --session-id destructive-chain --json >/dev/null || true

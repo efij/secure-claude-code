@@ -22,7 +22,7 @@ CLEAN_PATTERN_FILE="$(shield_prepare_pattern_file "$PATTERN_FILE")" || exit 1
 trap 'rm -f "$CLEAN_PATTERN_FILE"' EXIT
 
 set +e
-printf '%s\n' "$INPUT" | grep -Eif "$CLEAN_PATTERN_FILE" >/dev/null 2>&1
+shield_match_file "$INPUT" "$CLEAN_PATTERN_FILE"
 pattern_status=$?
 set -e
 if [ "$pattern_status" -eq 2 ]; then
