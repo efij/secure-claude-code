@@ -182,6 +182,13 @@ def _normalized_compare_key(value: str | None) -> str:
     return text
 
 
+def _selector_basename(value: str | None) -> str:
+    if not value:
+        return ""
+    sanitized = _sanitize_token(str(value))
+    return os.path.normcase(pathlib.Path(sanitized).name)
+
+
 def _shell_split(command: str) -> list[str]:
     try:
         return shlex.split(command, posix=os.name != "nt")
@@ -795,10 +802,16 @@ def approve_tool(root: pathlib.Path, selector: str) -> bool:
     tools = store.setdefault("tools", {})
     record = aliases.get(selector)
     selector_key = _normalized_compare_key(selector)
+    selector_name = _selector_basename(selector)
     if record is None:
         for key, candidate in aliases.items():
             candidate_path = candidate.get("resolved_path")
-            if candidate_path == selector or _normalized_compare_key(candidate_path) == selector_key:
+            candidate_name = _selector_basename(candidate_path) or _selector_basename(key)
+            if (
+                candidate_path == selector
+                or _normalized_compare_key(candidate_path) == selector_key
+                or (selector_name and candidate_name == selector_name)
+            ):
                 selector = key
                 record = candidate
                 break
@@ -821,6 +834,7 @@ def forget_tool(root: pathlib.Path, selector: str) -> bool:
     tools = store.setdefault("tools", {})
     removed = False
     selector_key = _normalized_compare_key(selector)
+    selector_name = _selector_basename(selector)
     record = aliases.pop(selector, None)
     if record:
         removed = True
@@ -830,7 +844,12 @@ def forget_tool(root: pathlib.Path, selector: str) -> bool:
     else:
         for key, candidate in list(aliases.items()):
             candidate_path = candidate.get("resolved_path")
-            if candidate_path == selector or _normalized_compare_key(candidate_path) == selector_key:
+            candidate_name = _selector_basename(candidate_path) or _selector_basename(key)
+            if (
+                candidate_path == selector
+                or _normalized_compare_key(candidate_path) == selector_key
+                or (selector_name and candidate_name == selector_name)
+            ):
                 aliases.pop(key, None)
                 if candidate_path:
                     tools.pop(candidate_path, None)
