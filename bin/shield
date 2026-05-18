@@ -504,6 +504,12 @@ validate_install() {
     check_warn "tool trust policy missing"
   fi
 
+  if [ -f "$INSTALL_HOME/config/stallion-client.json" ]; then
+    check_pass "Stallion client config present"
+  else
+    check_warn "Stallion client config missing"
+  fi
+
   local expected_config_count=0
   local installed_config_count=0
   expected_config_count="$(find "$ROOT_DIR/config" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')"
@@ -941,6 +947,23 @@ apps_cmd() {
       fail "unknown apps subcommand: $subcommand"
       ;;
   esac
+}
+
+stallion_cmd() {
+  local subcommand="${1:-status}"
+  shift || true
+  case "$subcommand" in
+    status|policy|flush|record-prompt)
+      run_python "$ROOT_DIR/scripts/runwall_stallion.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      ;;
+    *)
+      fail "unknown stallion subcommand: $subcommand"
+      ;;
+  esac
+}
+
+wrap_cmd() {
+  run_python "$ROOT_DIR/scripts/runwall_wrap.py" --root "$ROOT_DIR" "$@"
 }
 
 generate_runtime_config() {
@@ -1439,6 +1462,12 @@ Usage:
   bin/runwall apps list [--json]
   bin/runwall apps explain <event-id>
   bin/runwall apps policy [--json]
+  bin/runwall stallion status [--json]
+  bin/runwall stallion policy [--json]
+  bin/runwall stallion flush [--limit N]
+  bin/runwall stallion record-prompt [--runtime name] [--agent-id id] [--session-id id] [--role role] <prompt>
+  bin/runwall wrap list-packs [--json]
+  bin/runwall wrap add <server-id> --command <cmd> [--arg value]... [--env KEY=VALUE]...
   bin/runwall generate-config [profile] [output]
   bin/runwall generate-plugin-hooks [profile] [output]
   bin/runwall generate-runtime-config <runtime> [profile] [output]
@@ -1549,6 +1578,10 @@ case "$command" in
     shift
     export_incident_cmd "$@"
     ;;
+  wrap)
+    shift
+    wrap_cmd "$@"
+    ;;
   mcp)
     case "${2:-}" in
       serve)
@@ -1655,6 +1688,10 @@ case "$command" in
   apps)
     shift
     apps_cmd "$@"
+    ;;
+  stallion)
+    shift
+    stallion_cmd "$@"
     ;;
   help|-h|--help|"")
     usage

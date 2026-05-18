@@ -23,6 +23,7 @@ It is designed to sit on top of normal safe setup choices such as Claude Code sa
 - rule-override and jailbreak-style text written into control files
 - tampering with Claude, MCP, or CI control files through bypass-style edits
 - test deletion and obvious quality-check suppression patterns
+- managed Stallion client policy for MCP servers/tools, plugin and skill authorization, and required-route CLI bypass attempts when enabled
 
 ## Out Of Scope
 
@@ -31,7 +32,7 @@ It is designed to sit on top of normal safe setup choices such as Claude Code sa
 - CI secret scanning outside local hooks
 - endpoint security or EDR
 - least-privilege credential management
-- centralized team policy distribution
+- the private Stallion server/admin implementation; this OSS repo only includes the managed client, local cache, enforcement, and telemetry queue
 
 ## Assumptions
 
@@ -51,4 +52,4 @@ Warnings and blocks are written to local JSONL audit logs by default.
 
 - hook visibility is strongest around tool inputs, not full remote content bodies
 - Windows-native hook execution is not yet first-class
-- the project intentionally stays focused on the runtime layer and does not include enterprise policy sync
+- Stallion can only record prompts and hidden runtime context that the host runtime exposes to hooks, MCP tools, or client integration points

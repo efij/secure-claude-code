@@ -1,0 +1,21 @@
+{
+  "enabled": false,
+  "server_url": "",
+  "policy_file": "state/stallion-policy.json",
+  "event_queue_file": "state/stallion-events.jsonl",
+  "fail_closed": false,
+  "max_policy_age_seconds": 86400,
+  "upload_enabled": false,
+  "upload_path": "/api/client/events",
+  "capture": {
+    "audit_events": true,
+    "prompts": true,
+    "tool_payloads": true,
+    "redact": true
+  },
+  "verification": {
+    "mode": "none",
+    "sha256": "",
+    "hmac_env": "RUNWALL_STALLION_POLICY_HMAC_KEY"
+  }
+}

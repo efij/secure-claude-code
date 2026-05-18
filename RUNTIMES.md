@@ -38,6 +38,9 @@ Runwall now has four layers:
    - applies per-profile outbound destination policy before risky egress leaves the runtime
    - exposes response redaction, response prompt, drift diffs, and egress decisions through the local API and dashboard
    - exports masked incident bundles for events and drift investigations without needing a cloud control plane
+   - supports pack-based upstream onboarding with `./bin/runwall wrap add ...`
+   - injects schema or operator context into matching MCP tool descriptions before clients decide what to call
+   - enforces read-only SQL mode for configured MCP query tools before the upstream tool executes
 
    It also keeps the policy helper tools:
    - `preflight_bash`
@@ -47,6 +50,9 @@ Runwall now has four layers:
 
 4. CLI policy evaluation
    CI systems and local automation can call `./bin/runwall evaluate ...` to gate high-risk commands or content without a full interactive runtime.
+
+5. Stallion managed client mode
+   Managed deployments can point this OSS plugin at a private Stallion server policy cache. The server/admin plane is intentionally out of this repository; the client only verifies and consumes policy, enforces MCP/tool/plugin/skill decisions locally, blocks CLI bypasses for required MCP routes, and queues observed prompts or policy events for upload.
 
 ## Commands
 
@@ -58,9 +64,12 @@ Runwall now has four layers:
 ./bin/runwall generate-runtime-config claude-desktop balanced
 ./bin/runwall generate-runtime-config generic-mcp balanced
 ./bin/runwall generate-runtime-config ci strict
+./bin/runwall wrap list-packs
+./bin/runwall wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --runtime generic-mcp
 ./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
 ./bin/runwall mcp serve balanced
 ./bin/runwall evaluate PreToolUse Bash "git push --force origin main" --profile strict --json
+./bin/runwall stallion status --json
 openclaw plugins install ./secure-claude-code
 ```
 

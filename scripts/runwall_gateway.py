@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import fnmatch
 import hashlib
 import json
 import os
@@ -24,6 +25,7 @@ from urllib.parse import parse_qs, urlparse
 import runwall_policy
 import runwall_forensics
 import runwall_runtime
+import runwall_stallion
 
 
 INTERNAL_TOOLS = [
@@ -77,7 +79,44 @@ INTERNAL_TOOLS = [
             "required": ["tool_name", "content"],
         },
     },
+    {
+        "name": "record_prompt",
+        "description": "Record an observed prompt for Stallion managed telemetry when the runtime exposes prompt content.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "prompt": {"type": "string"},
+                "role": {"type": "string"},
+                "runtime": {"type": "string"},
+                "agent_id": {"type": "string"},
+                "subagent_id": {"type": "string"},
+                "session_id": {"type": "string"},
+            },
+            "required": ["prompt"],
+        },
+    },
 ]
+
+READ_ONLY_SQL_VERBS = {
+    "SELECT",
+    "WITH",
+    "SHOW",
+    "EXPLAIN",
+    "DESCRIBE",
+    "DESC",
+    "VALUES",
+    "PRAGMA",
+    "TABLE",
+}
+
+WRITE_SQL_PATTERN = re.compile(
+    r"\b("
+    r"UPDATE|DELETE|INSERT|REPLACE|MERGE|DROP|CREATE|ALTER|TRUNCATE|RENAME|"
+    r"GRANT|REVOKE|CALL|EXECUTE|COPY|VACUUM|ANALYZE|CLUSTER|REINDEX|REFRESH|"
+    r"COMMIT|ROLLBACK|SAVEPOINT"
+    r")\b",
+    re.IGNORECASE,
+)
 
 
 def read_message(reader) -> dict[str, Any] | None:
@@ -450,14 +489,274 @@ def secret_redaction_fallback(result: dict[str, Any]) -> dict[str, Any] | None:
     }
 
 
-def load_gateway_config(path: pathlib.Path | None) -> dict[str, Any]:
+def pack_catalog_path(root: pathlib.Path) -> pathlib.Path:
+    return root / "config" / "mcp-packs.json"
+
+
+def load_pack_catalog(root: pathlib.Path) -> dict[str, dict[str, Any]]:
+    path = pack_catalog_path(root)
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"invalid MCP pack catalog: {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise SystemExit(f"invalid MCP pack catalog: {path}")
+    catalog: dict[str, dict[str, Any]] = {}
+    for name, spec in payload.items():
+        if isinstance(name, str) and isinstance(spec, dict):
+            catalog[name] = copy.deepcopy(spec)
+    return catalog
+
+
+def config_base_dir(root: pathlib.Path, path: pathlib.Path | None) -> pathlib.Path:
+    if path is not None and path.exists():
+        return path.parent
+    if path is not None:
+        return path.parent
+    return root / "config"
+
+
+def merge_nested(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    merged = copy.deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = merge_nested(merged[key], value)
+        else:
+            merged[key] = copy.deepcopy(value)
+    return merged
+
+
+def normalize_server_spec(
+    root: pathlib.Path,
+    base_dir: pathlib.Path,
+    raw: dict[str, Any],
+    pack_catalog: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    spec = copy.deepcopy(raw)
+    pack_name = spec.get("pack")
+    if pack_name is not None and not isinstance(pack_name, str):
+        raise SystemExit("invalid gateway config: pack must be a string")
+    if isinstance(pack_name, str):
+        pack = pack_catalog.get(pack_name)
+        if pack is None:
+            raise SystemExit(f"unknown MCP pack: {pack_name}")
+        spec = merge_nested(pack, spec)
+        spec["pack"] = pack_name
+
+    if not isinstance(spec.get("command"), str) or not str(spec.get("command")).strip():
+        raise SystemExit("invalid gateway config: server command is required")
+
+    args = spec.get("args", [])
+    if args is None:
+        args = []
+    if not isinstance(args, list) or any(not isinstance(item, str) for item in args):
+        raise SystemExit("invalid gateway config: args must be an array of strings")
+    spec["args"] = list(args)
+
+    env = spec.get("env")
+    if env is not None and (not isinstance(env, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in env.items())):
+        raise SystemExit("invalid gateway config: env must be an object of string values")
+
+    context = spec.get("context")
+    if context is not None:
+        if not isinstance(context, dict):
+            raise SystemExit("invalid gateway config: context must be an object")
+        inject_into = context.get("inject_into")
+        if inject_into is None:
+            sql_policy = spec.get("sql_policy")
+            if isinstance(sql_policy, dict) and isinstance(sql_policy.get("tool_names"), list):
+                inject_into = list(sql_policy["tool_names"])
+            else:
+                inject_into = ["*"]
+        if not isinstance(inject_into, list) or any(not isinstance(item, str) or not item.strip() for item in inject_into):
+            raise SystemExit("invalid gateway config: context.inject_into must be an array of tool selectors")
+        text = context.get("text")
+        text_file = context.get("text_file")
+        if text is None and text_file is None:
+            raise SystemExit("invalid gateway config: context requires text or text_file")
+        if text is not None and not isinstance(text, str):
+            raise SystemExit("invalid gateway config: context.text must be a string")
+        if text_file is not None:
+            if not isinstance(text_file, str) or not text_file.strip():
+                raise SystemExit("invalid gateway config: context.text_file must be a non-empty string")
+            text_file_path = pathlib.Path(text_file).expanduser()
+            if not text_file_path.is_absolute():
+                text_file_path = (base_dir / text_file_path).resolve()
+            context["text_file"] = str(text_file_path)
+        position = context.get("position", "append")
+        if position not in {"prepend", "append"}:
+            raise SystemExit("invalid gateway config: context.position must be prepend or append")
+        context.setdefault("label", "Runwall Context")
+        context["inject_into"] = inject_into
+        context["position"] = position
+        spec["context"] = context
+
+    sql_policy = spec.get("sql_policy")
+    if sql_policy is not None:
+        if not isinstance(sql_policy, dict):
+            raise SystemExit("invalid gateway config: sql_policy must be an object")
+        enabled = sql_policy.get("enabled", True)
+        sql_policy["enabled"] = bool(enabled)
+        tool_names = sql_policy.get("tool_names") or []
+        if not isinstance(tool_names, list) or any(not isinstance(item, str) or not item.strip() for item in tool_names):
+            raise SystemExit("invalid gateway config: sql_policy.tool_names must be an array of strings")
+        sql_policy["tool_names"] = tool_names
+        if "sql_arg" in sql_policy and (not isinstance(sql_policy["sql_arg"], str) or not sql_policy["sql_arg"].strip()):
+            raise SystemExit("invalid gateway config: sql_policy.sql_arg must be a non-empty string")
+        arg_candidates = sql_policy.get("sql_arg_candidates") or []
+        if not isinstance(arg_candidates, list) or any(not isinstance(item, str) or not item.strip() for item in arg_candidates):
+            raise SystemExit("invalid gateway config: sql_policy.sql_arg_candidates must be an array of strings")
+        sql_policy["sql_arg_candidates"] = arg_candidates
+        mode = sql_policy.get("mode", "readonly")
+        if mode != "readonly":
+            raise SystemExit("invalid gateway config: sql_policy.mode must be readonly")
+        sql_policy["mode"] = mode
+        spec["sql_policy"] = sql_policy
+
+    return spec
+
+
+def load_gateway_config(root: pathlib.Path, path: pathlib.Path | None) -> dict[str, Any]:
     if path is None or not path.exists():
         return {"servers": {}}
     payload = json.loads(path.read_text())
     if not isinstance(payload, dict):
         raise SystemExit(f"invalid gateway config: {path}")
     payload.setdefault("servers", {})
+    if not isinstance(payload.get("servers"), dict):
+        raise SystemExit(f"invalid gateway config: {path}")
+    base_dir = config_base_dir(root, path)
+    pack_catalog = load_pack_catalog(root)
+    payload["servers"] = {
+        server_id: normalize_server_spec(root, base_dir, spec, pack_catalog)
+        for server_id, spec in payload["servers"].items()
+        if isinstance(server_id, str) and isinstance(spec, dict)
+    }
     return payload
+
+
+def load_context_text(context: dict[str, Any]) -> str:
+    text = context.get("text")
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+    text_file = context.get("text_file")
+    if isinstance(text_file, str) and text_file.strip():
+        try:
+            return pathlib.Path(text_file).read_text(encoding="utf-8").strip()
+        except OSError:
+            return ""
+    return ""
+
+
+def tool_matches_selector(tool_name: str, selectors: list[str]) -> bool:
+    if not selectors:
+        return True
+    return any(fnmatch.fnmatch(tool_name, selector) for selector in selectors)
+
+
+def decorate_tool_with_context(tool: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+    raw_name = str(tool.get("name", ""))
+    selectors = [str(item) for item in context.get("inject_into", []) if isinstance(item, str)]
+    if not tool_matches_selector(raw_name, selectors):
+        return tool
+    text = load_context_text(context)
+    if not text:
+        return tool
+    description = str(tool.get("description", "")).strip()
+    label = str(context.get("label", "Runwall Context")).strip() or "Runwall Context"
+    block = f"{label}:\n{text}"
+    position = context.get("position", "append")
+    if description:
+        tool["description"] = f"{block}\n\n{description}" if position == "prepend" else f"{description}\n\n{block}"
+    else:
+        tool["description"] = block
+    return tool
+
+
+def strip_sql_noise(sql: str) -> str:
+    cleaned = re.sub(r"/\*[\s\S]*?\*/", " ", sql)
+    cleaned = re.sub(r"--[^\r\n]*", " ", cleaned)
+    cleaned = re.sub(r"'(?:''|[^'])*'", "''", cleaned)
+    cleaned = re.sub(r'"(?:""|[^"])*"', '""', cleaned)
+    return cleaned
+
+
+def sql_is_read_only(sql: str) -> bool:
+    cleaned = strip_sql_noise(sql).strip()
+    if not cleaned:
+        return True
+    statements = [item.strip() for item in cleaned.split(";") if item.strip()]
+    for statement in statements:
+        safe_statement = statement
+        for pattern in (
+            r"\bFOR\s+NO\s+KEY\s+UPDATE\b",
+            r"\bFOR\s+KEY\s+SHARE\b",
+            r"\bFOR\s+UPDATE\b",
+            r"\bFOR\s+SHARE\b",
+        ):
+            safe_statement = re.sub(pattern, "FOR READONLY", safe_statement, flags=re.IGNORECASE)
+        match = re.match(r"^[\s(]*([A-Za-z][A-Za-z0-9_]*)", safe_statement)
+        if match is None:
+            return False
+        if match.group(1).upper() not in READ_ONLY_SQL_VERBS:
+            return False
+        if WRITE_SQL_PATTERN.search(safe_statement):
+            return False
+        if re.search(r"\bSELECT\b[\s\S]{0,400}\bINTO\b[\s\S]{0,120}\bFROM\b", safe_statement, re.IGNORECASE):
+            return False
+    return True
+
+
+def sql_policy_decision(server_id: str, tool_name: str, arguments: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any] | None:
+    policy = spec.get("sql_policy")
+    if not isinstance(policy, dict) or not policy.get("enabled"):
+        return None
+    tool_names = [str(item) for item in policy.get("tool_names", []) if isinstance(item, str)]
+    if tool_names and not tool_matches_selector(tool_name, tool_names):
+        return None
+    candidates: list[str] = []
+    sql_arg = policy.get("sql_arg")
+    if isinstance(sql_arg, str) and sql_arg.strip():
+        candidates.append(sql_arg.strip())
+    candidates.extend(
+        str(item).strip()
+        for item in policy.get("sql_arg_candidates", [])
+        if isinstance(item, str) and str(item).strip()
+    )
+    candidates.extend(["sql", "query", "statement"])
+    seen: set[str] = set()
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        value = arguments.get(candidate)
+        if not isinstance(value, str):
+            continue
+        if sql_is_read_only(value):
+            return None
+        return {
+            "allowed": False,
+            "action": "block",
+            "hits": [
+                {
+                    "module": "mcp-sql-readonly-guard",
+                    "name": "MCP SQL Read-Only Guard Pack",
+                    "category": "mcp",
+                    "decision": "block",
+                    "exit_code": 2,
+                    "output": "[runwall] blocked write-style SQL on a read-only MCP tool",
+                    "metadata": {
+                        "reason": (
+                            f"Blocked a write-style SQL statement on read-only MCP tool {server_id}__{tool_name}."
+                        ),
+                        "sql_arg": candidate,
+                    },
+                }
+            ],
+        }
+    return None
 
 
 def identity_policy_path(root: pathlib.Path) -> pathlib.Path:
@@ -799,7 +1098,7 @@ class Gateway:
         self.config_path = config_path
         self.api_port = api_port
         self.event_store = EventStore()
-        self.registry = load_gateway_config(config_path)
+        self.registry = load_gateway_config(root, config_path)
         self.identity_policy = load_identity_policy(root)
         self.fingerprint_store = FingerprintStore(fingerprint_store_path(root))
         self.upstreams: dict[str, UpstreamSession] = {}
@@ -1212,6 +1511,23 @@ class Gateway:
         collected: list[tuple[str, dict[str, Any]]] = []
         internal_names = {tool["name"] for tool in INTERNAL_TOOLS}
         for server_id, spec in sorted(self.registry_servers().items()):
+            stallion_server = runwall_stallion.assess_mcp_server(self.root, self.profile, server_id, spec)
+            if stallion_server.get("hit"):
+                hit = stallion_server["hit"]
+                self.audit_gateway_event(
+                    {
+                        "module": "runwall-gateway",
+                        "decision": hit["decision"],
+                        "reason": hit.get("output", f"Suppressed MCP server {server_id}"),
+                        "runtime": "gateway",
+                        "server_id": server_id,
+                        "tool_name": "",
+                        "direction": "tools/list",
+                        "tool_input": safe_json_dumps(spec),
+                        "hits": [hit],
+                    }
+                )
+                continue
             if not self.registry_allowed(server_id, spec):
                 continue
             upstream = self.get_upstream(server_id)
@@ -1219,6 +1535,30 @@ class Gateway:
             if not self.server_identity_allowed(server_id, spec, upstream):
                 continue
             for tool in upstream_tools:
+                raw_name = str(tool.get("name", ""))
+                stallion_tool = runwall_stallion.assess_mcp_tool(
+                    self.root,
+                    self.profile,
+                    server_id,
+                    raw_name,
+                    {},
+                )
+                if stallion_tool.get("hit"):
+                    hit = stallion_tool["hit"]
+                    self.audit_gateway_event(
+                        {
+                            "module": "runwall-gateway",
+                            "decision": hit["decision"],
+                            "reason": hit.get("output", f"Suppressed MCP tool {server_id}__{raw_name}"),
+                            "runtime": "gateway",
+                            "server_id": server_id,
+                            "tool_name": raw_name,
+                            "direction": "tools/list",
+                            "tool_input": safe_json_dumps(tool),
+                            "hits": [hit],
+                        }
+                    )
+                    continue
                 if not self.tool_identity_allowed(server_id, tool):
                     continue
                 evaluation = self.evaluate_tool_definition(server_id, tool)
@@ -1239,7 +1579,6 @@ class Gateway:
                         }
                     )
                     continue
-                raw_name = str(tool.get("name", ""))
                 if raw_name in internal_names:
                     drift = runwall_forensics.build_collision(
                         self.root,
@@ -1285,6 +1624,9 @@ class Gateway:
                 )
                 continue
             exposed = copy.deepcopy(tool)
+            context = self.registry_servers().get(server_id, {}).get("context")
+            if isinstance(context, dict):
+                exposed = decorate_tool_with_context(exposed, context)
             exposed["name"] = f"{server_id}__{raw_name}"
             tools.append(exposed)
         return tools
@@ -1336,6 +1678,21 @@ class Gateway:
                 payload,
                 context=context,
             )
+        elif name == "record_prompt":
+            runwall_stallion.record_event(
+                self.root,
+                {
+                    "event_type": "PromptObserved",
+                    "ts": runwall_stallion.utc_now(),
+                    "runtime": args.get("runtime") or context.get("runtime") or "gateway",
+                    "agent_id": args.get("agent_id") or context.get("agent_id"),
+                    "subagent_id": args.get("subagent_id") or context.get("subagent_id"),
+                    "session_id": args.get("session_id") or context.get("session_id"),
+                    "prompt_role": args.get("role") or "user",
+                    "prompt": args["prompt"],
+                },
+            )
+            result = {"allowed": True, "action": "allow", "recorded": True, "hits": []}
         else:
             raise KeyError(name)
         return tool_result(result)
@@ -1475,6 +1832,40 @@ class Gateway:
             "tool_name": tool_name,
             "arguments": arguments,
         }
+        stallion_tool = runwall_stallion.assess_mcp_tool(
+            self.root,
+            self.profile,
+            server_id,
+            tool_name,
+            arguments,
+            context,
+        )
+        if stallion_tool.get("hit"):
+            hit = stallion_tool["hit"]
+            blocked = {
+                "allowed": False,
+                "action": hit["decision"],
+                "hits": [hit],
+            }
+            self.audit_gateway_event(
+                {
+                    "module": "runwall-gateway",
+                    "decision": hit["decision"],
+                    "reason": hit.get("output", f"Blocked {full_name} by Stallion policy"),
+                    "runtime": "gateway",
+                    "server_id": server_id,
+                    "tool_name": tool_name,
+                    "direction": "request",
+                    "tool_input": safe_json_dumps(arguments),
+                    "hits": [hit],
+                    **{
+                        field: context.get(field)
+                        for field in runwall_runtime.CONTEXT_FIELDS
+                        if context.get(field) is not None
+                    },
+                }
+            )
+            return tool_result(blocked, is_error=True)
         fingerprint = request_fingerprint(server_id, tool_name, arguments, self.profile, context)
         request_prompt_key = f"{fingerprint}:request"
         request_eval = runwall_policy.evaluate(
@@ -1563,6 +1954,28 @@ class Gateway:
                     },
                 }
             )
+
+        sql_decision = sql_policy_decision(server_id, tool_name, arguments, self.registry_servers()[server_id])
+        if sql_decision is not None:
+            self.audit_gateway_event(
+                {
+                    "module": "runwall-gateway",
+                    "decision": "block",
+                    "reason": first_reason(sql_decision, f"Blocked write-style SQL in {full_name}"),
+                    "runtime": "gateway",
+                    "server_id": server_id,
+                    "tool_name": tool_name,
+                    "direction": "request",
+                    "tool_input": safe_json_dumps(arguments),
+                    "hits": sql_decision["hits"],
+                    **{
+                        field: context.get(field)
+                        for field in runwall_runtime.CONTEXT_FIELDS
+                        if context.get(field) is not None
+                    },
+                }
+            )
+            return tool_result(sql_decision, is_error=True)
 
         started = time.perf_counter()
         upstream = self.get_upstream(server_id)
@@ -1724,7 +2137,10 @@ class Gateway:
         return final_result
 
     def serve_stdio(self) -> int:
-        self.start_http_server()
+        try:
+            self.start_http_server()
+        except OSError:
+            self.httpd = None
         while True:
             message = read_message(sys.stdin.buffer)
             if message is None:
@@ -1740,7 +2156,7 @@ class Gateway:
                         "result": {
                             "protocolVersion": "2024-11-05",
                             "capabilities": {"tools": {}},
-                            "serverInfo": {"name": "runwall-gateway", "version": "17.0.0"},
+                            "serverInfo": {"name": "runwall-gateway", "version": "17.1.0"},
                         },
                     },
                 )

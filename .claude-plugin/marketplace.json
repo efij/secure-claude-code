@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": "1",
   "name": "runwall",
   "metadata": {
     "description": "Runwall marketplace entry with a balanced default plugin, inline MCP gateway coverage, and a full CLI hardening path."
@@ -11,7 +11,7 @@
     {
       "name": "runwall",
       "description": "Balanced default runtime security plugin for Claude Code with shell, git, MCP, secret, exfiltration, and inline gateway guardrails.",
-      "version": "17.0.0",
+      "version": "17.1.0",
       "source": "./"
     }
   ]

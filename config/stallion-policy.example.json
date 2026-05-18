@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "policy_id": "example-managed-policy",
+  "issued_at": "2026-05-18T00:00:00+00:00",
+  "mode": "enforce",
+  "mcp": {
+    "default": "block",
+    "require_gateway": true,
+    "servers": {
+      "github-approved": {
+        "action": "allow",
+        "tools": {
+          "default": "block",
+          "allow": ["get_*", "list_*", "fetch_*", "create_pull_request"]
+        }
+      },
+      "postgres-readonly": {
+        "action": "allow",
+        "tools": {
+          "default": "block",
+          "allow": ["query", "execute_sql"]
+        }
+      }
+    }
+  },
+  "required_routes": [
+    {
+      "capability": "github.write",
+      "action": "block",
+      "required_route": {
+        "type": "mcp",
+        "server": "github-approved",
+        "tools": ["create_pull_request", "add_comment_to_issue"]
+      },
+      "block_commands": ["gh"],
+      "url_patterns": ["api.github.com"]
+    }
+  ],
+  "plugins": {
+    "default": "block",
+    "allow": ["runwall", "runwall@runwall"],
+    "deny": []
+  },
+  "skills": {
+    "default": "block",
+    "allow": ["secure-setup", "secure-status", "secure-tune"],
+    "deny": []
+  }
+}

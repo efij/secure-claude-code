@@ -40,6 +40,7 @@ import runwall_handoff
 import runwall_safety
 import runwall_review
 import runwall_artifacts
+import runwall_stallion
 
 _HOOK_SHELL: str | None = None
 _METADATA_PREFIX = "RUNWALL_JSON:"
@@ -256,6 +257,7 @@ def write_audit_event(
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(event, separators=(",", ":")) + "\n")
     runwall_forensics.record_event(root, event)
+    runwall_stallion.record_event(root, {**event, "event_type": "PolicyDecision"})
     return event
 
 
@@ -456,6 +458,53 @@ def emit_audit_records(root: pathlib.Path, result: dict[str, Any], payload: str)
     runwall_destructive.record_action(root, result, payload)
 
 
+_COMPACT_ALLOW_IDENTITY_FIELDS: dict[str, tuple[str, ...]] = {
+    "tool_identity": ("display_name", "resolved_path", "origin"),
+    "hook_identity": ("surface", "location", "origin"),
+    "service_identity": ("service_class", "target"),
+    "data_identity": ("store_class", "target"),
+    "ipc_identity": ("helper_class", "target"),
+    "browser_identity": ("domains",),
+    "exec_identity": ("surface",),
+    "memory_identity": ("path",),
+    "knowledge_identity": ("path",),
+    "review_identity": ("surface", "path"),
+    "artifact_identity": ("surface", "path"),
+    "promotion_identity": ("surface", "path"),
+    "app_identity": ("app", "module"),
+    "auth_identity": ("provider", "broker_class"),
+    "handoff_identity": ("session_id", "actor"),
+    "exposure_identity": ("surface_class", "target", "visibility"),
+    "retention_identity": ("surface_class", "target", "visibility"),
+    "release_identity": ("release_class", "target"),
+    "destructive_identity": ("module", "target", "path"),
+    "delayed_exfil_identity": ("surface_class", "path", "target"),
+    "safety_identity": ("surface", "path"),
+}
+
+
+def compact_allow_result(result: dict[str, Any]) -> dict[str, Any]:
+    if result.get("action") != "allow":
+        return result
+
+    compact: dict[str, Any] = {
+        "allowed": True,
+        "action": "allow",
+    }
+    for key, fields in _COMPACT_ALLOW_IDENTITY_FIELDS.items():
+        value = result.get(key)
+        if not isinstance(value, dict):
+            continue
+        summarized = {
+            field: value[field]
+            for field in fields
+            if value.get(field) not in (None, [], {}, "")
+        }
+        if summarized:
+            compact[key] = summarized
+    return compact
+
+
 def evaluate(
     root: pathlib.Path,
     profile: str,
@@ -464,6 +513,7 @@ def evaluate(
     payload: str,
     *,
     context: dict[str, Any] | None = None,
+    compact_allow: bool = False,
 ):
     results = []
     action = "allow"
@@ -488,6 +538,7 @@ def evaluate(
     destructive_identity: dict[str, Any] | None = None
     delayed_exfil_identity: dict[str, Any] | None = None
     safety_identity: dict[str, Any] | None = None
+    stallion_identity: dict[str, Any] | None = None
     merged_context = runwall_runtime.merge_contexts(runwall_runtime.context_from_env(), context)
     merged_context.setdefault("profile", profile)
     event_record = runwall_runtime.with_event_context(
@@ -508,6 +559,15 @@ def evaluate(
         if _DECISION_PRIORITY[agent_hit["decision"]] > _DECISION_PRIORITY[action]:
             action = agent_hit["decision"]
         results.append(agent_hit)
+
+    if event == "PreToolUse":
+        stallion_assessment = runwall_stallion.assess_action(root, event, matcher, payload, merged_context)
+        stallion_identity = stallion_assessment.get("identity")
+        stallion_hit = stallion_assessment.get("hit")
+        if stallion_hit:
+            if _DECISION_PRIORITY[stallion_hit["decision"]] > _DECISION_PRIORITY[action]:
+                action = stallion_hit["decision"]
+            results.append(stallion_hit)
 
     if event == "PreToolUse" and (matcher == "Bash" or matcher.startswith("mcp__")):
         exposure_assessment = runwall_exposure.assess_command(root, matcher, payload, merged_context)
@@ -756,7 +816,7 @@ def evaluate(
         session_result["prior_active_chain_alerts"],
     )
 
-    return {
+    result = {
         "profile": profile,
         "event": event,
         "matcher": matcher,
@@ -785,11 +845,15 @@ def evaluate(
         "destructive_identity": destructive_identity,
         "delayed_exfil_identity": delayed_exfil_identity,
         "safety_identity": safety_identity,
+        "stallion_identity": stallion_identity,
         "event_categories": session_result["categories"],
         "chain_alerts": session_result["active_chain_alerts"],
         "triggered_chain_alerts": session_result["triggered_chain_alerts"],
         **merged_context,
     }
+    if compact_allow:
+        return compact_allow_result(result)
+    return result
 
 
 def print_pretty(result: dict[str, Any]) -> None:

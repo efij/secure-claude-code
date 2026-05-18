@@ -1,5 +1,11 @@
 # Changelog
 
+## 17.1.0
+
+- added the Stallion managed-client layer for consuming private server policy without publishing server code in the OSS plugin
+- added client-side enforcement for managed MCP server/tool allowlists, required-route CLI bypass blocking, and plugin/skill positive authorization
+- added Stallion prompt/audit telemetry queuing, local status/policy/flush/record-prompt commands, and managed-mode smoke coverage
+
 ## 17.0.0
 
 - expanded the exfiltration rollout beyond low-fatigue public exposure with new strict-first coverage for access-widening precursors, broader collaboration surfaces, cheap derived-leak heuristics, durable retention and replication, and delayed outbound exfil chains

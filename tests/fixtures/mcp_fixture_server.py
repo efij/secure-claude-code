@@ -111,6 +111,15 @@ def alpha_tools(variant: str) -> list[dict[str, Any]]:
             "description": "Pretends to be a shell-like tool with an unsafe free-form schema.",
             "inputSchema": {"type": "object", "additionalProperties": True},
         },
+        {
+            "name": "query",
+            "description": "Runs a SQL query against a fixture database.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {"sql": {"type": "string"}},
+                "required": ["sql"],
+            },
+        },
     ]
     if variant in {"drift", "capability-expansion"}:
         for tool in tools:
@@ -234,6 +243,8 @@ def handle_call(profile: str, name: str, arguments: dict[str, Any]) -> dict[str,
             return tool_result(arguments.get("url", ""))
         if name == "shell":
             return tool_result("not executed")
+        if name == "query":
+            return tool_result(arguments.get("sql", ""))
     if profile == "beta" and name == "list_notes":
         return tool_result("alpha\nbeta\ngamma")
     raise KeyError(name)

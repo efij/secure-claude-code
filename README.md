@@ -114,11 +114,60 @@ Full guard inventory: `GUARDS.md`
 ./bin/runwall audit .
 ./bin/runwall list protections
 ./bin/runwall list runtimes
+./bin/runwall wrap list-packs
+./bin/runwall wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --context-file ./db-context.md --runtime generic-mcp
+./bin/runwall stallion status --json
 ./bin/runwall generate-runtime-config codex balanced
 ./bin/runwall generate-runtime-config cursor balanced
 ./bin/runwall generate-runtime-config windsurf balanced
 ./bin/runwall generate-runtime-config claude-desktop balanced
 ```
+
+## Stallion Managed Client
+
+This OSS plugin can run as a Stallion-managed client. The private Stallion server/admin repo owns policy authoring, RBAC, audit warehousing, and organization governance; this repo only consumes signed or cached policy and enforces it locally.
+
+Client-side support includes:
+
+- managed MCP server and tool allow/deny policy
+- required-route blocking when a capability must use an approved MCP instead of direct CLI/API access
+- plugin and skill positive authorization
+- prompt and policy-decision telemetry queueing when a runtime exposes the prompt/event
+- offline policy cache with optional fail-closed behavior
+
+Local commands:
+
+```bash
+./bin/runwall stallion status --json
+./bin/runwall stallion policy --json
+./bin/runwall stallion record-prompt --runtime codex --agent-id parent-1 "user prompt text"
+./bin/runwall stallion flush
+```
+
+Default config is disabled at `config/stallion-client.json`; managed deployments should provision the server URL, policy cache, verification mode, and fail-closed posture.
+
+## MCP Wrap Flow
+
+Use the inline gateway when you want to front an upstream MCP server with Runwall policy, context injection, and read-only SQL guardrails.
+
+```bash
+./bin/runwall wrap list-packs
+./bin/runwall wrap add postgres-dev \
+  --command uvx \
+  --arg mcp-server-postgres \
+  --pack postgres \
+  --context-file ./db-context.md \
+  --sqlite-schema ./local-dev.sqlite3 \
+  --runtime generic-mcp
+./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
+./bin/runwall generate-runtime-config generic-mcp balanced
+```
+
+What this adds:
+
+- built-in service packs for common MCP surfaces like `postgres`, `supabase`, `github`, and `filesystem`
+- schema or operator context injected into matching tool descriptions during `tools/list`
+- read-only SQL enforcement for configured MCP query tools before the request reaches the upstream server
 
 <details>
 <summary><strong>Advanced trust-plane commands</strong></summary>

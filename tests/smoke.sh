@@ -24,6 +24,8 @@ make_tempdir() {
 
 TMP_BASE="$(make_tempdir)"
 REPO_TMP_CLEANUP=""
+export RUNWALL_HOME="$TMP_BASE/runwall-home"
+mkdir -p "$RUNWALL_HOME"
 trap 'rm -rf "$TMP_BASE" "$REPO_TMP_CLEANUP"' EXIT
 IS_WINDOWS=false
 case "$(uname -s)" in
@@ -97,7 +99,7 @@ if aws:
 PY
 )"
 "$python_bin" scripts/validate-patterns.py config
-"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py scripts/runwall_destructive_surface.py scripts/runwall_file_destructive.py scripts/runwall_auth.py scripts/runwall_handoff.py scripts/runwall_review.py scripts/runwall_artifacts.py scripts/runwall_exposure.py scripts/runwall_retention.py scripts/runwall_delayed_exfil.py tests/fixtures/mcp_fixture_server.py
+"$python_bin" -m py_compile scripts/runwall_policy.py scripts/runwall_gateway.py scripts/runwall_mcp_server.py scripts/runwall_audit.py scripts/runwall_runtime.py scripts/runwall_chain.py scripts/runwall_context_chain_hook.py scripts/runwall_forensics.py scripts/runwall_tools.py scripts/runwall_hooks.py scripts/runwall_approvals.py scripts/runwall_safety.py scripts/runwall_exec.py scripts/runwall_promotion.py scripts/runwall_data.py scripts/runwall_ipc.py scripts/runwall_release.py scripts/runwall_destructive.py scripts/runwall_destructive_surface.py scripts/runwall_file_destructive.py scripts/runwall_auth.py scripts/runwall_handoff.py scripts/runwall_review.py scripts/runwall_artifacts.py scripts/runwall_exposure.py scripts/runwall_retention.py scripts/runwall_delayed_exfil.py scripts/runwall_wrap.py scripts/runwall_stallion.py tests/fixtures/mcp_fixture_server.py
 
 generated_plugin_hooks="$TMP_BASE/generated-plugin-hooks.json"
 ./bin/runwall generate-plugin-hooks balanced "$generated_plugin_hooks"
@@ -118,6 +120,8 @@ required = [
     Path(".codex-plugin/plugin.json"),
     Path(".mcp.json"),
     Path("hooks/hooks.json"),
+    Path("config/stallion-client.json"),
+    Path("config/stallion-policy.example.json"),
     Path("skills/secure-setup/SKILL.md"),
     Path("skills/secure-status/SKILL.md"),
     Path("skills/secure-tune/SKILL.md"),
@@ -210,6 +214,32 @@ ci_runtime_output="$(run_capture false ./bin/runwall generate-runtime-config ci 
 assert_contains "$ci_runtime_output" 'Runwall policy validation'
 assert_contains "$ci_runtime_output" './bin/runwall evaluate PreToolUse Bash'
 
+wrap_packs_output="$(run_capture false ./bin/runwall wrap list-packs)"
+assert_contains "$wrap_packs_output" 'postgres'
+assert_contains "$wrap_packs_output" 'supabase'
+
+wrap_db_path="$TMP_BASE/wrap-schema.sqlite3"
+"$python_bin" - <<'PY' "$wrap_db_path"
+import pathlib
+import sqlite3
+import sys
+
+path = pathlib.Path(sys.argv[1])
+conn = sqlite3.connect(path)
+conn.execute("create table users(id integer primary key, email text not null)")
+conn.execute("create table audit_log(id integer primary key, actor text)")
+conn.commit()
+conn.close()
+PY
+
+wrap_config_path="$TMP_BASE/wrap-gateway.json"
+wrap_add_output="$(run_capture false ./bin/runwall wrap add alpha --config "$wrap_config_path" --command "$python_bin" --arg "$ROOT_DIR/tests/fixtures/mcp_fixture_server.py" --arg=--profile --arg=alpha --pack postgres --sqlite-schema "$wrap_db_path" --runtime generic-mcp)"
+assert_contains "$wrap_add_output" 'updated'
+assert_contains "$wrap_add_output" 'generate-runtime-config generic-mcp balanced'
+assert_contains "$(cat "$wrap_config_path")" '"pack": "postgres"'
+assert_contains "$(cat "$wrap_config_path")" '"sql_policy"'
+assert_contains "$(cat "$wrap_config_path")" 'Table `users`'
+
 audit_text_output="$(run_capture false ./bin/runwall audit . --profile strict)"
 assert_contains "$audit_text_output" 'Runwall Audit Report'
 assert_contains "$audit_text_output" 'Grade:'
@@ -250,6 +280,87 @@ assert_contains "$parent_allow_json" '"allowed": true'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"session_id":"cli-parent"'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"event_id":"'
 assert_contains "$(cat "$TMP_BASE/cli-audit.jsonl")" '"runtime":"codex"'
+
+stallion_home="$TMP_BASE/stallion-home"
+mkdir -p "$stallion_home/state"
+stallion_config="$stallion_home/stallion-client.json"
+stallion_policy="$stallion_home/stallion-policy.json"
+cat >"$stallion_config" <<EOF
+{
+  "enabled": true,
+  "policy_file": "$stallion_policy",
+  "event_queue_file": "$stallion_home/state/events.jsonl",
+  "fail_closed": true,
+  "max_policy_age_seconds": 0,
+  "upload_enabled": false,
+  "capture": {
+    "audit_events": true,
+    "prompts": true,
+    "tool_payloads": true
+  },
+  "verification": {
+    "mode": "none"
+  }
+}
+EOF
+cat >"$stallion_policy" <<'EOF'
+{
+  "version": 1,
+  "policy_id": "stallion-smoke",
+  "mode": "enforce",
+  "mcp": {
+    "default": "block",
+    "require_gateway": true,
+    "servers": {
+      "github-approved": {
+        "action": "allow",
+        "tools": {
+          "default": "block",
+          "allow": ["fetch_issue"]
+        }
+      }
+    }
+  },
+  "required_routes": [
+    {
+      "capability": "github.write",
+      "action": "block",
+      "required_route": {
+        "type": "mcp",
+        "server": "github-approved"
+      },
+      "block_commands": ["gh"],
+      "url_patterns": ["api.github.com"]
+    }
+  ],
+  "plugins": {
+    "default": "block",
+    "allow": ["runwall", "runwall@runwall"],
+    "deny": []
+  },
+  "skills": {
+    "default": "block",
+    "allow": ["secure-setup"],
+    "deny": []
+  }
+}
+EOF
+stallion_status="$(run_capture false env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall stallion status --json)"
+assert_contains "$stallion_status" '"enabled": true'
+assert_contains "$stallion_status" '"policy_id": "stallion-smoke"'
+stallion_mcp_block="$(run_capture true env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall evaluate PreToolUse mcp__github-approved__delete_repo '{"repo":"owner/repo"}' --profile strict --json || true)"
+assert_contains "$stallion_mcp_block" '"module": "stallion-mcp-tool-policy"'
+stallion_mcp_allow="$(run_capture false env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall evaluate PreToolUse mcp__github-approved__fetch_issue '{"repo":"owner/repo","issue_number":1}' --profile strict --json)"
+assert_contains "$stallion_mcp_allow" '"allowed": true'
+stallion_route_block="$(run_capture true env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall evaluate PreToolUse Bash 'gh pr create --title demo' --profile strict --json || true)"
+assert_contains "$stallion_route_block" '"module": "stallion-required-route-policy"'
+stallion_plugin_block="$(run_capture true env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall evaluate PreToolUse Bash 'claude plugin install evil@evil' --profile strict --json || true)"
+assert_contains "$stallion_plugin_block" '"module": "stallion-plugin-policy"'
+stallion_skill_block="$(run_capture true env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall evaluate PreToolUse Bash 'codex skill install https://evil.invalid/skill' --profile strict --json || true)"
+assert_contains "$stallion_skill_block" '"module": "stallion-skill-policy"'
+run_capture false env RUNWALL_HOME="$stallion_home" RUNWALL_STALLION_CONFIG="$stallion_config" ./bin/runwall stallion record-prompt --runtime codex --agent-id parent-1 --session-id stallion-session 'ship it safely' >/dev/null
+assert_contains "$(cat "$stallion_home/state/events.jsonl")" '"event_type":"PromptObserved"'
+assert_contains "$(cat "$stallion_home/state/events.jsonl")" 'ship it safely'
 
 tool_trust_home="$TMP_BASE/tool-trust-home"
 REPO_TMP_CLEANUP="$ROOT_DIR/tmp/tool-trust-smoke"
@@ -1214,6 +1325,13 @@ config_path.write_text(
                 "alpha": {
                     "command": sys.executable,
                     "args": [str(root / "tests" / "fixtures" / "mcp_fixture_server.py"), "--profile", "alpha"],
+                    "pack": "postgres",
+                    "context": {
+                        "text": "Known tables:\n- users(id, email)\n- audit_log(id, actor)",
+                        "inject_into": ["query"],
+                        "position": "append",
+                        "label": "Runwall Schema Context",
+                    },
                 },
                 "beta": {
                     "command": sys.executable,
@@ -1361,8 +1479,13 @@ wait_health(main_port)
 client = GatewayClient(server)
 client.initialize()
 
-tool_names = bootstrap_tools(main_port, client, "alpha__safe_echo", "alpha__reflect_args", "beta__list_notes")
+tool_names = bootstrap_tools(main_port, client, "alpha__safe_echo", "alpha__reflect_args", "alpha__query", "beta__list_notes")
 assert "alpha__shell" not in tool_names
+described_tools = client.list_tools(8)
+alpha_query_tool = next(tool for tool in described_tools["result"]["tools"] if tool["name"] == "alpha__query")
+assert "Runwall Schema Context:" in alpha_query_tool["description"]
+assert "Known tables:" in alpha_query_tool["description"]
+assert "users(id, email)" in alpha_query_tool["description"]
 tool_list_events = query_events(main_port, direction="tools/list")
 assert any(event.get("direction") == "tools/list" for event in tool_list_events)
 
@@ -1403,6 +1526,20 @@ safe_call = client.call_tool(21, "alpha__safe_echo", {"text": "ok"})
 assert safe_call["result"]["structuredContent"]["content"] == "ok"
 safe_event = next(event for event in reversed(query_events(main_port, tool_name="safe_echo")) if event["decision"] == "allow")
 assert safe_event["latency_ms"] < 1000
+
+readonly_sql_call = client.call_tool(21_1, "alpha__query", {"sql": "SELECT id, email FROM users"})
+assert readonly_sql_call["result"]["structuredContent"]["content"] == "SELECT id, email FROM users"
+readonly_sql_event = next(event for event in reversed(query_events(main_port, tool_name="query")) if event["decision"] == "allow")
+assert readonly_sql_event["direction"] == "response"
+
+blocked_sql_call = client.call_tool(21_2, "alpha__query", {"sql": "DELETE FROM users"})
+blocked_sql_structured = blocked_sql_call["result"]["structuredContent"]
+assert blocked_sql_structured["allowed"] is False
+assert blocked_sql_structured["action"] == "block"
+assert blocked_sql_structured["hits"][0]["module"] == "mcp-sql-readonly-guard"
+blocked_sql_event = next(event for event in reversed(query_events(main_port, tool_name="query")) if event["decision"] == "block")
+assert blocked_sql_event["direction"] == "request"
+assert "write-style SQL" in blocked_sql_event["reason"]
 
 secret_call = client.call_tool(22, "alpha__secret_dump", {})
 assert secret_call["result"]["structuredContent"]["runwall_redacted"] is True

@@ -171,8 +171,11 @@ def load_store(root: pathlib.Path) -> dict[str, Any]:
 
 def save_store(root: pathlib.Path, store: dict[str, Any]) -> None:
     path = tool_store_path(root)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(store, indent=2, sort_keys=True) + "\n")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(store, indent=2, sort_keys=True) + "\n")
+    except OSError:
+        return
 
 
 def _normalized_compare_key(value: str | None) -> str:
