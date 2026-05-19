@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(filter\.[^.]+\.((clean|smudge|process)
 fi
 
 shield_audit "git-attributes-filter-guard" "block" "git attributes or config introduces command-driven filter hooks" "$INPUT"
-printf '%s\n' '[runwall] blocked git filter hook injection' >&2
+printf '%s\n' '[stallion] blocked git filter hook injection' >&2
 printf '%s\n' 'reason: the change adds smudge, clean, or process filters that execute automatically during git operations' >&2
 printf '%s\n' 'next: keep git attributes declarative and avoid command-executing filters in unreviewed repos' >&2
 exit 2

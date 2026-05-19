@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])(--context|--namespace|-
 fi
 
 shield_audit "kube-exec-prod-guard" "block" "direct Kubernetes exec against a production-like target detected" "$INPUT"
-printf '%s\n' '[runwall] blocked direct production Kubernetes exec' >&2
+printf '%s\n' '[stallion] blocked direct production Kubernetes exec' >&2
 printf '%s\n' 'reason: the command opens an exec, attach, or debug session against a production-like cluster target' >&2
 printf '%s\n' 'next: use reviewed read-only diagnostics or a human-approved break-glass workflow instead of direct agent shell access inside prod workloads' >&2
 exit 2

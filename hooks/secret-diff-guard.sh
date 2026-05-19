@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-TOKEN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/live-token-patterns.regex"
+TOKEN_FILE="${STALLION_HOME:-$HOME/.stallion}/config/live-token-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -19,7 +19,7 @@ if ! shield_match_pattern_file "$INPUT" "$TOKEN_FILE" \
 fi
 
 shield_audit "secret-diff-guard" "block" "live secret or auth-bearing config content detected in edit input" "$INPUT"
-printf '%s\n' '[runwall] blocked live secret entering the working diff' >&2
+printf '%s\n' '[stallion] blocked live secret entering the working diff' >&2
 printf '%s\n' 'reason: the edit contains a live token, connection string, or bearer credential that should not be introduced into source files' >&2
 printf '%s\n' 'next: replace it with a redacted sample or a secret reference before the change is written' >&2
 exit 2

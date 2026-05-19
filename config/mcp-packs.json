@@ -9,35 +9,35 @@
     "context": {
       "inject_into": ["query", "execute_sql", "run_sql", "run_sql_transaction"],
       "position": "append",
-      "label": "Runwall Schema Context"
+      "label": "Stallion Schema Context"
     }
   },
   "github": {
     "context": {
       "inject_into": ["search_*", "list_*", "get_*", "fetch_*"],
       "position": "append",
-      "label": "Runwall Repo Context"
+      "label": "Stallion Repo Context"
     }
   },
   "filesystem": {
     "context": {
       "inject_into": ["*"],
       "position": "append",
-      "label": "Runwall Workspace Context"
+      "label": "Stallion Workspace Context"
     }
   },
   "stripe": {
     "context": {
       "inject_into": ["*"],
       "position": "append",
-      "label": "Runwall Account Context"
+      "label": "Stallion Account Context"
     }
   },
   "linear": {
     "context": {
       "inject_into": ["*"],
       "position": "append",
-      "label": "Runwall Workspace Context"
+      "label": "Stallion Workspace Context"
     }
   },
   "supabase": {
@@ -50,7 +50,7 @@
     "context": {
       "inject_into": ["execute_sql", "run_sql", "run_sql_transaction", "query"],
       "position": "append",
-      "label": "Runwall Schema Context"
+      "label": "Stallion Schema Context"
     }
   }
 }

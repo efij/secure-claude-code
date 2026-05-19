@@ -1,6 +1,6 @@
 # Roadmap
 
-Runwall should stay focused: strong local protections, simple installation, and modular growth.
+Stallion should stay focused: strong local protections, simple installation, and modular growth.
 
 ## Current Scope
 

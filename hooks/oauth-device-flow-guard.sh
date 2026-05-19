@@ -10,7 +10,7 @@ fi
 
 shield_audit "oauth-device-flow-guard" "prompt" "delegated OAuth device login flow detected" "$INPUT"
 shield_emit_metadata '{"prompt":{"review_required":true},"reason":"The command starts a browserless or device-code login flow that can mint delegated user access."}'
-printf '%s\n' '[runwall] review required for delegated device login flow' >&2
+printf '%s\n' '[stallion] review required for delegated device login flow' >&2
 printf '%s\n' 'reason: the command starts a browserless OAuth or device-code flow that can create fresh user access outside the normal runtime trust boundary' >&2
 printf '%s\n' 'next: use a reviewed service identity or approve the flow manually if a human login is really intended' >&2
 exit 0

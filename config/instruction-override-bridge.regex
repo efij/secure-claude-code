@@ -1,4 +1,4 @@
-ignore\s+runwall
-disable\s+(the\s+)?runwall\s+(gateway|checks|guard|policy)
+ignore\s+stallion
+disable\s+(the\s+)?stallion\s+(gateway|checks|guard|policy)
 trust\s+(the\s+)?tool\s+output\s+over\s+(local\s+)?policy
 bypass\s+(local\s+)?gateway\s+review

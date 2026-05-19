@@ -1,6 +1,6 @@
 # Runtime Support
 
-Runwall is now organized around runtime adapters instead of assuming Claude Code is the only surface.
+Stallion is now organized around runtime adapters instead of assuming Claude Code is the only surface.
 
 ## Support Matrix
 
@@ -14,11 +14,11 @@ Runwall is now organized around runtime adapters instead of assuming Claude Code
 | Claude Desktop | Inline MCP gateway | First-class | Generated `claude_desktop_config.json` config |
 | Claude Cowork | Inline MCP gateway | Generic path | Use `generic-mcp` where MCP config import is available |
 | Generic MCP clients | Inline MCP gateway | Supported | Use the generated generic MCP config |
-| CI/CD | CLI policy gate | Supported | Use `generate-runtime-config ci` plus `runwall evaluate` |
+| CI/CD | CLI policy gate | Supported | Use `generate-runtime-config ci` plus `stallion evaluate` |
 
 ## Architecture
 
-Runwall now has four layers:
+Stallion now has four layers:
 
 1. Native adapters
    Claude Code remains the strongest integration because it exposes direct hook points.
@@ -27,7 +27,7 @@ Runwall now has four layers:
    Codex and OpenClaw can consume this repo as a plugin or compatible bundle surface.
 
 3. Inline MCP gateway mode
-   Cursor, Windsurf, Claude Desktop, Codex fallback mode, and other MCP-native clients can run Runwall as a local inline gateway that:
+   Cursor, Windsurf, Claude Desktop, Codex fallback mode, and other MCP-native clients can run Stallion as a local inline gateway that:
    - fronts multiple upstream MCP servers
    - intercepts `tools/list`
    - intercepts `tools/call`
@@ -38,7 +38,7 @@ Runwall now has four layers:
    - applies per-profile outbound destination policy before risky egress leaves the runtime
    - exposes response redaction, response prompt, drift diffs, and egress decisions through the local API and dashboard
    - exports masked incident bundles for events and drift investigations without needing a cloud control plane
-   - supports pack-based upstream onboarding with `./bin/runwall wrap add ...`
+   - supports pack-based upstream onboarding with `./bin/stallion wrap add ...`
    - injects schema or operator context into matching MCP tool descriptions before clients decide what to call
    - enforces read-only SQL mode for configured MCP query tools before the upstream tool executes
 
@@ -49,7 +49,7 @@ Runwall now has four layers:
    - `inspect_output`
 
 4. CLI policy evaluation
-   CI systems and local automation can call `./bin/runwall evaluate ...` to gate high-risk commands or content without a full interactive runtime.
+   CI systems and local automation can call `./bin/stallion evaluate ...` to gate high-risk commands or content without a full interactive runtime.
 
 5. Stallion managed client mode
    Managed deployments can point this OSS plugin at a private Stallion server policy cache. The server/admin plane is intentionally out of this repository; the client only verifies and consumes policy, enforces MCP/tool/plugin/skill decisions locally, blocks CLI bypasses for required MCP routes, and queues observed prompts or policy events for upload.
@@ -57,25 +57,25 @@ Runwall now has four layers:
 ## Commands
 
 ```bash
-./bin/runwall list runtimes
-./bin/runwall generate-runtime-config codex balanced
-./bin/runwall generate-runtime-config cursor balanced
-./bin/runwall generate-runtime-config windsurf balanced
-./bin/runwall generate-runtime-config claude-desktop balanced
-./bin/runwall generate-runtime-config generic-mcp balanced
-./bin/runwall generate-runtime-config ci strict
-./bin/runwall wrap list-packs
-./bin/runwall wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --runtime generic-mcp
-./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
-./bin/runwall mcp serve balanced
-./bin/runwall evaluate PreToolUse Bash "git push --force origin main" --profile strict --json
-./bin/runwall stallion status --json
-openclaw plugins install ./secure-claude-code
+./bin/stallion list runtimes
+./bin/stallion generate-runtime-config codex balanced
+./bin/stallion generate-runtime-config cursor balanced
+./bin/stallion generate-runtime-config windsurf balanced
+./bin/stallion generate-runtime-config claude-desktop balanced
+./bin/stallion generate-runtime-config generic-mcp balanced
+./bin/stallion generate-runtime-config ci strict
+./bin/stallion wrap list-packs
+./bin/stallion wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --runtime generic-mcp
+./bin/stallion gateway serve strict --config ./config/gateway.json --api-port 9470
+./bin/stallion mcp serve balanced
+./bin/stallion evaluate PreToolUse Bash "git push --force origin main" --profile strict --json
+./bin/stallion client status --json
+openclaw plugins install ./stallion
 ```
 
 ## Positioning
 
-Runwall is no longer just a Claude Code hardening repo.
+Stallion is no longer just a Claude Code hardening repo.
 
 It is:
 

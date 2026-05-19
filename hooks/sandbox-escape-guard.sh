@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-PATTERN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/sandbox-escape-patterns.regex"
+PATTERN_FILE="${STALLION_HOME:-$HOME/.stallion}/config/sandbox-escape-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
 [ -f "$PATTERN_FILE" ] || exit 0
@@ -12,7 +12,7 @@ if ! shield_match_file "$INPUT" "$PATTERN_FILE"; then
 fi
 
 shield_audit "sandbox-escape-guard" "block" "sandbox escape or host-boundary breakout pattern detected" "$INPUT"
-printf '%s\n' '[runwall] blocked sandbox escape pattern' >&2
+printf '%s\n' '[stallion] blocked sandbox escape pattern' >&2
 printf '%s\n' 'reason: the command references host mounts, namespace escape, or privileged runtime flags' >&2
 printf '%s\n' 'next: keep execution inside the sandbox boundary and avoid host-level mounts or privilege escalation flags' >&2
 exit 2

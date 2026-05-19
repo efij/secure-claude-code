@@ -31,7 +31,7 @@
 
 - added a `Human Review Surface Trust Plane` with native protections for `review-surface-review-guard`, `review-surface-drift-guard`, `review-quarantine-bypass-guard`, `pr-description-bypass-guard`, `issue-comment-approval-launder-guard`, `release-notes-mislead-guard`, `changelog-coverup-guard`, `task-doc-secret-normalize-guard`, `incident-note-bypass-guard`, `review-template-tamper-guard`, `approval-text-smuggling-guard`, `human-review-override-guard`, and `review-surface-rewrite-guard`
 - added an `Artifact / Report Trust Plane` with native protections for `artifact-source-review-guard`, `artifact-drift-guard`, `artifact-quarantine-bypass-guard`, `sarif-finding-suppression-guard`, `sbom-source-swap-guard`, `provenance-mismatch-guard`, `audit-report-secret-redaction-bypass-guard`, `incident-bundle-poison-guard`, `summary-falsification-guard`, `checksum-report-drift-guard`, `security-report-coverup-guard`, `artifact-regeneration-mismatch-guard`, and `evidence-pointer-rewrite-guard`
-- added new CLI surfaces: `runwall review` and `runwall artifacts`
+- added new CLI surfaces: `stallion review` and `stallion artifacts`
 - extended policy evaluation, pretty output, and audit emission so review and artifact identities show up beside the other trust planes
 - expanded smoke coverage for PR bypass text, task-doc secret normalization, quarantined review surfaces, SARIF suppression, secret-bearing reports, artifact quarantine, and benign review/report updates
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `15.0.0` trust-plane upgrade
@@ -40,7 +40,7 @@
 
 - added a `Session Handoff / Delegation Trust Plane` with native protections for `token-handoff-guard`, `browser-session-handoff-guard`, `child-agent-secret-bridge-guard`, `cross-runtime-session-bridge-guard`, `artifact-to-subagent-guard`, `credential-file-handoff-guard`, `session-reuse-drift-guard`, `delegation-overreach-guard`, `handoff-exfil-chain-guard`, and `broker-to-export-bridge-guard`
 - added a `Delegated Auth Trust Plane` with native protections for `refresh-token-exchange-guard`, `delegated-session-relay-guard`, `broker-export-guard`, `broker-scope-escalation-guard`, `cloud-impersonation-broker-guard`, `sts-mint-guard`, `device-flow-broker-guard`, `sso-helper-mint-guard`, `credential-helper-mint-guard`, and `broker-drift-guard`
-- added new CLI surfaces: `runwall handoff` and `runwall auth`
+- added new CLI surfaces: `stallion handoff` and `stallion auth`
 - extended policy evaluation, pretty output, and audit emission so auth and handoff identities now show up beside the other trust planes
 - expanded smoke coverage for delegated login minting, refresh-token exchange, auth-broker export, subagent handoff abuse, cross-runtime session bridges, artifact handoff, and delegated actor overreach
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `14.0.0` trust-plane upgrade
@@ -49,7 +49,7 @@
 
 - added a `Publish / Release Intent Trust Plane` with native protections for `unexpected-publish-target-guard`, `prod-promote-guard`, `registry-publish-drift-guard`, `release-manifest-target-guard`, `image-push-prod-guard`, `package-publish-prod-guard`, `binary-release-upload-guard`, `release-secret-bundle-guard`, `release-signing-bypass-guard`, and `release-channel-swap-guard`
 - added a `Destructive Intent Trust Plane` with native protections for `mass-delete-intent-guard`, `env-destroy-guard`, `secret-revoke-all-guard`, `role-remove-admin-guard`, `infra-teardown-guard`, `repo-wipe-guard`, `artifact-wipe-guard`, `state-destroy-guard`, `bulk-disable-guard`, and `blast-radius-delete-guard`
-- added new CLI surfaces: `runwall release` and `runwall destructive`
+- added new CLI surfaces: `stallion release` and `stallion destructive`
 - extended policy evaluation, pretty output, and audit emission so release and destructive identities show up beside the other trust planes
 - expanded smoke coverage for package publishes, signing bypass, release secret bundles, manifest retargeting, image pushes, binary release uploads, mass delete intent, infra teardown, state destruction, bulk destructive loops, and blast-radius delete paths
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `13.0.0` trust-plane upgrade
@@ -58,7 +58,7 @@
 
 - added a `Local Data Store Trust Plane` with native protections for `sqlite-dump-guard`, `sqlite-session-export-guard`, `redis-admin-export-guard`, `postgres-local-dump-guard`, `browser-indexeddb-export-guard`, `vector-store-export-guard`, `app-cache-db-copy-guard`, `datastore-admin-shell-guard`, `datastore-bulk-read-guard`, and `datastore-drift-guard`
 - added a `Local IPC / Helper Trust Plane` with native protections for `credential-helper-ipc-guard`, `named-pipe-admin-guard`, `local-llm-socket-guard`, `debug-helper-ipc-guard`, `ide-backend-ipc-guard`, `agent-sidecar-ipc-guard`, `ipc-first-seen-review-guard`, `unix-socket-drift-guard`, `ipc-wrapper-bridge-guard`, and `ipc-export-bridge-guard`
-- added new CLI surfaces: `runwall data` and `runwall ipc`
+- added new CLI surfaces: `stallion data` and `stallion ipc`
 - extended policy evaluation, pretty output, and audit emission so local datastore and IPC identities show up beside the other trust planes
 - expanded smoke coverage for SQLite admin access, SQLite dumps, local PostgreSQL export review, browser storage export blocking, vector-store export review, local LLM approval flow, credential-helper IPC blocking, wrapper bridges, and IPC export bridges
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `12.0.0` trust-plane upgrade
@@ -67,7 +67,7 @@
 
 - added a `Fileless / Inline Execution Trust Plane` with native protections for `inline-fetch-exec-guard`, `inline-encoded-loader-guard`, `inline-process-substitution-guard`, `inline-heredoc-dropper-guard`, `inline-eval-secret-guard`, `inline-env-payload-guard`, `inline-python-loader-guard`, `inline-node-loader-guard`, `inline-shell-persistence-guard`, and `inline-policy-bypass-guard`
 - added a `Remote Content Promotion Trust Plane` with native protections for `remote-to-memory-promotion-guard`, `remote-to-knowledge-promotion-guard`, `remote-to-hook-promotion-guard`, `remote-to-policy-promotion-guard`, `remote-to-script-promotion-guard`, `remote-to-agent-doc-promotion-guard`, `raw-host-promotion-guard`, `paste-to-trusted-surface-guard`, and `promotion-quarantine-bypass-guard`
-- added new CLI surfaces: `runwall exec` and `runwall promotion`
+- added new CLI surfaces: `stallion exec` and `stallion promotion`
 - extended policy evaluation, pretty output, and audit emission so inline-exec and promotion identities show up beside the other trust planes
 - expanded smoke coverage for inline fetch-and-exec blocking, encoded loaders, safe inline one-liners, remote content promotion into memory and policy surfaces, quarantine enforcement, and trusted-surface promotion inspection
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `11.0.0` trust-plane upgrade
@@ -75,9 +75,9 @@
 ## 10.0.0
 
 - added an `Approval Integrity Plane` so risky exceptions are no longer treated like permanent bypasses, with native protections for `approval-broad-scope-guard`, `approval-expiry-guard`, `approval-runtime-mismatch-guard`, `approval-repo-mismatch-guard`, `approval-parent-child-mismatch-guard`, `approval-scope-mismatch-guard`, `approval-drift-invalidation-guard`, `approval-destination-drift-guard`, `approval-tool-identity-drift-guard`, `approval-replay-guard`, and `approval-unbounded-lifetime-guard`
-- added `runwall approvals diff` and `runwall approvals explain`, plus richer approval health output so reviewers can see exactly why an approval is considered broad, stale, drifted, or consumed
-- added a `Safety-Control Trust Plane` with native protections for `audit-disable-guard`, `backup-disable-guard`, `rollback-tamper-guard`, `monitoring-disable-guard`, `alert-sink-rewire-guard`, `runwall-state-wipe-guard`, `forensics-bundle-delete-guard`, `incident-runbook-automation-tamper-guard`, `release-safety-check-disable-guard`, and `recovery-script-destroy-guard`
-- added `runwall safety list`, `runwall safety diff`, and `runwall safety forget` so recovery, audit, monitoring, and release-control surfaces are visible as first-class local state instead of opaque regex-only behavior
+- added `stallion approvals diff` and `stallion approvals explain`, plus richer approval health output so reviewers can see exactly why an approval is considered broad, stale, drifted, or consumed
+- added a `Safety-Control Trust Plane` with native protections for `audit-disable-guard`, `backup-disable-guard`, `rollback-tamper-guard`, `monitoring-disable-guard`, `alert-sink-rewire-guard`, `stallion-state-wipe-guard`, `forensics-bundle-delete-guard`, `incident-runbook-automation-tamper-guard`, `release-safety-check-disable-guard`, and `recovery-script-destroy-guard`
+- added `stallion safety list`, `stallion safety diff`, and `stallion safety forget` so recovery, audit, monitoring, and release-control surfaces are visible as first-class local state instead of opaque regex-only behavior
 - extended policy evaluation, pretty output, and audit emission so safety identities now show up alongside tools, hooks, services, browser sessions, memory, knowledge, and app actions
 - expanded smoke coverage for approval replay, runtime mismatch, repo mismatch, actor mismatch, expiry, destination drift, audit disable, backup sabotage, release-check tamper, and forensics deletion paths
 - updated the README, guard registry, signature deep dive, plugin metadata, gateway versioning, and release surface for the `10.0.0` trust-plane upgrade
@@ -87,27 +87,27 @@
 - added a `Memory Trust Plane` with local inventory, trust, quarantine, diff, and native guards for `memory-source-review-guard`, `memory-drift-guard`, `memory-remote-ingest-guard`, `memory-prompt-smuggling-guard`, `memory-policy-override-guard`, `memory-secret-harvest-instruction-guard`, `memory-exfil-instruction-guard`, `memory-hidden-encoding-guard`, `memory-tool-trust-override-guard`, and `memory-quarantine-bypass-guard`
 - added a `Knowledge / RAG Trust Plane` with local inventory, trust, quarantine, diff, and native guards for `knowledge-source-review-guard`, `knowledge-drift-guard`, `knowledge-remote-ingest-guard`, `knowledge-prompt-smuggling-guard`, `knowledge-policy-override-guard`, `knowledge-secret-harvest-instruction-guard`, `knowledge-exfil-instruction-guard`, `knowledge-hidden-encoding-guard`, `knowledge-rag-cache-dropper-guard`, `knowledge-tool-install-bridge-guard`, and `knowledge-quarantine-bypass-guard`
 - added a `SaaS Action Trust Plane` with recent-action inventory and native guards for `app-token-mint-guard`, `app-secret-admin-guard`, `app-role-grant-guard`, `app-prod-deploy-guard`, `app-bulk-export-guard`, `app-protection-disable-guard`, `app-destroy-action-guard`, `app-webhook-admin-guard`, `app-member-invite-guard`, and `app-admin-browser-mutation-guard`
-- added new CLI surfaces: `runwall memory`, `runwall knowledge`, and `runwall apps`
+- added new CLI surfaces: `stallion memory`, `stallion knowledge`, and `stallion apps`
 - extended policy evaluation, pretty output, audit emission, and event recording so memory, knowledge, and app identities now show up like other first-class trust planes
 - expanded smoke coverage for memory poisoning, knowledge/RAG poisoning, quarantine enforcement, SaaS token minting, secret admin, role grants, production deploy review, destructive app actions, and browser-based admin mutation
-- updated the README, guard registry, signature deep dive, and release metadata so the new trust planes read like major Runwall capabilities instead of side features
+- updated the README, guard registry, signature deep dive, and release metadata so the new trust planes read like major Stallion capabilities instead of side features
 
 ## 8.1.0
 
-- added a Sensitive Data Flow Plane with `sensitive-data-flow-guard`, `public-artifact-flow-guard`, `cross-agent-secret-flow-guard`, `clipboard-secret-flow-guard`, `secret-archive-prep-guard`, `browser-session-upload-guard`, and `cross-agent-browser-export-guard` so Runwall can carry secret and production sensitivity across multiple steps in the same session
+- added a Sensitive Data Flow Plane with `sensitive-data-flow-guard`, `public-artifact-flow-guard`, `cross-agent-secret-flow-guard`, `clipboard-secret-flow-guard`, `secret-archive-prep-guard`, `browser-session-upload-guard`, and `cross-agent-browser-export-guard` so Stallion can carry secret and production sensitivity across multiple steps in the same session
 - added a scoped Approval Plane with local approval inventory, one-shot approvals, expiry pruning, and runtime-target matching for higher-friction trust exceptions
 - added a Local Service Trust Plane with `local-admin-socket-guard`, `sensitive-local-service-guard`, `service-drift-guard`, `metadata-endpoint-service-guard`, `local-kube-admin-guard`, and `database-admin-service-guard` for Docker sockets, browser debug ports, localhost admin APIs, DBus, metadata endpoints, local databases, and kube control planes
 - added a Browser Session Defense Plane with `browser-sensitive-domain-guard`, `browser-sensitive-export-guard`, `browser-session-cookie-guard`, `browser-bulk-capture-guard`, and `browser-download-dropper-guard` for automation against authenticated high-value domains
 - added an Agent Graph Plane with local graph inventory, agent isolation, `isolated-agent-guard`, `isolated-parent-bridge-guard`, and `agent-fanout-guard` for explicit containment and cross-agent review boundaries
-- added new CLI surfaces: `runwall approvals`, `runwall services`, `runwall browser`, `runwall flow`, and `runwall agents`
+- added new CLI surfaces: `stallion approvals`, `stallion services`, `stallion browser`, `stallion flow`, and `stallion agents`
 - expanded smoke coverage for one-shot approvals, metadata and kube service blocking, database service review, browser cookie and bulk-capture export blocking, sensitive clipboard and archive-prep flow blocking, cross-agent browser-export laundering, parent isolation, and agent fanout review
-- updated the README, guard registry, and signature deep dive so the new trust planes read like first-class Runwall capabilities
+- updated the README, guard registry, and signature deep dive so the new trust planes read like first-class Stallion capabilities
 
 ## 7.1.0
 
 - expanded the Hook Trust Plane with five new built-in protections: `hook-secret-access-guard`, `hook-policy-tamper-guard`, `hook-archive-exfil-guard`, `hook-prod-breakglass-guard`, and `hook-review-bypass-guard`
 - blocked hook-bearing surfaces that harvest local secret files, cloud credentials, SSH material, registry auth, or agent auth state
-- blocked hook-bearing surfaces that tamper with Runwall, MCP, plugin, or instruction control files
+- blocked hook-bearing surfaces that tamper with Stallion, MCP, plugin, or instruction control files
 - blocked archive-and-upload exfiltration patterns hidden inside hook-bearing surfaces
 - blocked implicit production break-glass behavior such as prod `kubectl exec`, prod database shells and dumps, and destructive infra commands in hooks
 - blocked review-bypass and hook-disabling flags such as `--no-verify` and `HUSKY=0` when embedded in hook-bearing surfaces
@@ -115,13 +115,13 @@
 
 ## 7.0.0
 
-- added a Hook Trust Plane for piggyback workflow hooks so Runwall can reason about git hooks, package install scripts, plugin hook manifests, and other hook-bearing surfaces as first-class trust objects
+- added a Hook Trust Plane for piggyback workflow hooks so Stallion can reason about git hooks, package install scripts, plugin hook manifests, and other hook-bearing surfaces as first-class trust objects
 - added built-in hook protections: `hook-review-boundary-guard`, `hook-drift-guard`, `hook-origin-guard`, `hook-wrapper-escalation-guard`, `hook-fanout-network-guard`, and `hook-stealth-persistence-guard`
-- added `bin/runwall hooks list`, `bin/runwall hooks diff`, `bin/runwall hooks approve`, and `bin/runwall hooks forget` for local hook inventory, drift review, and approvals
+- added `bin/stallion hooks list`, `bin/stallion hooks diff`, `bin/stallion hooks approve`, and `bin/stallion hooks forget` for local hook inventory, drift review, and approvals
 - added local hook trust state in `state/hooks.json` and tuning in `config/hook-trust-policy.json` without introducing a database
 - exposed hook identity data in runtime evaluation and audit records so forensics can explain which surface, location, and drift state triggered a decision
 - expanded smoke coverage for first-seen review, approval flow, drift, temp-or-remote hook origins, wrapper escalation, network fanout, and stealth persistence
-- updated the README, guard registry, and signature deep dive so Hook Trust Plane behavior is documented as a native Runwall capability instead of an ad hoc collection of regexes
+- updated the README, guard registry, and signature deep dive so Hook Trust Plane behavior is documented as a native Stallion capability instead of an ad hoc collection of regexes
 
 ## 6.5.0
 
@@ -136,10 +136,10 @@
 
 ## 6.0.0
 
-- added a local Tool Trust Plane for raw CLI execution so Runwall can reason about non-MCP tools, generated CLIs, wrapper scripts, and PATH-injected helpers
+- added a local Tool Trust Plane for raw CLI execution so Stallion can reason about non-MCP tools, generated CLIs, wrapper scripts, and PATH-injected helpers
 - added executable resolution, provenance classification, and local trust state in `state/tools.json` without introducing a database
 - added high-confidence built-in protections for trusted-name shadowing, temp/download execution, first-seen unreviewed PATH tools, tool drift, and interpreter-wrapper drift
-- added `bin/runwall tools list`, `bin/runwall tools approve`, and `bin/runwall tools forget` for local trust inventory and approvals
+- added `bin/stallion tools list`, `bin/stallion tools approve`, and `bin/stallion tools forget` for local trust inventory and approvals
 - exposed tool identity data in runtime evaluation and audit records so forensics can explain which path, hash, and origin triggered the decision
 - added `config/tool-trust-policy.json` for low-maintenance policy tuning of high-trust command names and origin classes
 - expanded smoke coverage for temp exec, command shadowing, first-seen local tools, approval flow, and drift after approval
@@ -159,7 +159,7 @@
 - added `terraform-provider-source-swap-guard`
 - added `env-sample-secret-guard`
 - introduced guard `family` metadata across the full module registry without changing existing `category` behavior
-- grouped `runwall list protections` output by family so the live signature registry reads like a real engine instead of a flat list
+- grouped `stallion list protections` output by family so the live signature registry reads like a real engine instead of a flat list
 - added family-aware audit output in text, JSON, HTML, and SARIF while keeping existing category scoring stable for compatibility
 - regrouped `README.md`, `GUARDS.md`, and `SIGNATURES.md` around protection families so docs track the real runtime registry
 - expanded smoke coverage for every new guard, plus family-aware CLI and audit assertions
@@ -224,9 +224,9 @@
 
 ## 4.0.0
 
-- added `runwall audit` with scored static analysis for agent configs, hooks, MCP servers, instruction files, skills, and plugin metadata
+- added `stallion audit` with scored static analysis for agent configs, hooks, MCP servers, instruction files, skills, and plugin metadata
 - added audit outputs for `text`, `json`, `html`, and `sarif`, plus `--fail-on` for CI gating
-- added `runwall init` to create a baseline `.runwall/audit-baseline.json` and `.github/workflows/runwall-audit.yml`
+- added `stallion init` to create a baseline `.stallion/audit-baseline.json` and `.github/workflows/stallion-audit.yml`
 - added audit-to-runtime bridge metadata so findings recommend the runtime guard that maps to the issue
 - expanded smoke coverage to verify audit reporting, SARIF generation, and baseline initialization
 
@@ -261,7 +261,7 @@
 ## 3.3.0
 
 - fixed the real `windows-latest` CI failure by making hook-shell resolution deterministic in the Python policy engine instead of relying on a generic `bash` shim
-- added the inline MCP gateway with `./bin/runwall gateway serve`, multi-upstream stdio proxying, request and response inspection, and namespaced upstream tool exposure
+- added the inline MCP gateway with `./bin/stallion gateway serve`, multi-upstream stdio proxying, request and response inspection, and namespaced upstream tool exposure
 - added a built-in local API and dashboard for health, live events, pending prompts, approvals, and redaction visibility
 - upgraded the MCP runtime path from helper-only companion mode to real-time enforcement for Codex, Cursor, Windsurf, Claude Desktop, Claude Cowork, and generic MCP clients
 - added `mcp-upstream-swap-guard`
@@ -288,16 +288,16 @@
 ## 3.1.0
 
 - added a Codex bundle manifest in `.codex-plugin/plugin.json`
-- added a shared `.mcp.json` so plugin and bundle installs have a ready Runwall MCP server definition
-- updated Claude plugin metadata to the current Runwall version
+- added a shared `.mcp.json` so plugin and bundle installs have a ready Stallion MCP server definition
+- updated Claude plugin metadata to the current Stallion version
 - updated `README.md` and `RUNTIMES.md` so Claude Code, Codex, and OpenClaw plugin or bundle installs are the primary KISS paths
 
 ## 3.0.0
 
-- added multi-runtime adapter support instead of keeping Runwall Claude-only
+- added multi-runtime adapter support instead of keeping Stallion Claude-only
 - added `list runtimes`, `generate-runtime-config`, `evaluate`, and `mcp serve` CLI commands
-- added a reusable policy evaluation engine in `scripts/runwall_policy.py`
-- added a local Runwall MCP companion server in `scripts/runwall_mcp_server.py`
+- added a reusable policy evaluation engine in `scripts/stallion_policy.py`
+- added a local Stallion MCP companion server in `scripts/stallion_mcp_server.py`
 - added generated runtime templates for Codex, generic MCP clients, and CI/CD
 - documented the runtime matrix and companion-mode strategy in `README.md` and `RUNTIMES.md`
 - expanded smoke coverage to validate runtime generation, CLI policy evaluation, and MCP server handshake behavior
@@ -331,12 +331,12 @@
 
 ## 2.0.0
 
-- rebranded the product and primary CLI to `Runwall`
-- added `bin/runwall` as the primary entrypoint while keeping `bin/secure-claude-code` as a compatibility wrapper
-- moved the default install and audit home to `~/.runwall` while keeping legacy env var fallback support
-- renamed plugin, package, and release artifacts to `runwall`
+- rebranded the product and primary CLI to `Stallion`
+- added `bin/stallion` as the primary entrypoint while keeping `bin/stallion` as a compatibility wrapper
+- moved the default install and audit home to `~/.stallion` while keeping legacy env var fallback support
+- renamed plugin, package, and release artifacts to `stallion`
 - added `scripts/validate-patterns.py` and wired regex validation into smoke tests, CI, and `validate`
-- tightened release-facing docs and messaging around the Runwall runtime-security positioning
+- tightened release-facing docs and messaging around the Stallion runtime-security positioning
 
 ## 1.4.0
 
@@ -431,7 +431,7 @@
 - added a full plain-English signature deep dive in `SIGNATURES.md`
 - simplified the public install story around the bootstrap installer and main CLI entrypoint
 - expanded smoke coverage for the new guard pack set
-- promoted Runwall to `1.0.0`
+- promoted Stallion to `1.0.0`
 
 ## 0.9.0
 
@@ -472,7 +472,7 @@
 - added bootstrap installers for shell and PowerShell
 - added `doctor --fix`
 - added filtered audit log views by module, decision, and time window
-- aligned wrapper scripts around `bin/runwall`
+- aligned wrapper scripts around `bin/stallion`
 - hardened release packaging against local editor, agent, temp, and audit-state leakage
 
 ## 0.3.0
@@ -492,7 +492,7 @@
 
 ## 0.1.0
 
-- initial public release of Runwall
+- initial public release of Stallion
 - added `block-unsafe-git`
 - added `pre-push-scan`
 - added local JSONL audit logging

@@ -18,7 +18,7 @@ Use GitHub Security Advisories or the maintainer's private contact channel for i
 
 ## Scope
 
-Runwall is a local hardening layer for Claude Code. It helps reduce risk, but it does not replace:
+Stallion is a local hardening layer for Claude Code. It helps reduce risk, but it does not replace:
 
 - OS sandboxing
 - branch protection on the Git host

@@ -21,8 +21,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/runwall-*.tar.gz
-            dist/runwall-*.zip
+            dist/stallion-*.tar.gz
+            dist/stallion-*.zip
             dist/SHA256SUMS
-            dist/runwall.rb
-            dist/runwall.json
+            dist/stallion.rb
+            dist/stallion.json

@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])(--privileged|--pid=host
 fi
 
 shield_audit "container-escape-guard" "block" "container escape or host mount pattern detected" "$INPUT"
-printf '%s\n' '[runwall] blocked container escape pattern' >&2
+printf '%s\n' '[stallion] blocked container escape pattern' >&2
 printf '%s\n' 'reason: the command uses privileged container settings, host namespaces, or host sockets that create a direct escape path to the machine' >&2
 printf '%s\n' 'next: keep containers unprivileged and use reviewed runtime boundaries instead of host-level mounts or namespaces' >&2
 exit 2

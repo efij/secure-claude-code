@@ -1,15 +1,15 @@
 {
   "version": "1",
-  "name": "runwall",
+  "name": "stallion",
   "metadata": {
-    "description": "Runwall marketplace entry with a balanced default plugin, inline MCP gateway coverage, and a full CLI hardening path."
+    "description": "Stallion marketplace entry with a balanced default plugin, inline MCP gateway coverage, and a full CLI hardening path."
   },
   "owner": {
     "name": "efij"
   },
   "plugins": [
     {
-      "name": "runwall",
+      "name": "stallion",
       "description": "Balanced default runtime security plugin for Claude Code with shell, git, MCP, secret, exfiltration, and inline gateway guardrails.",
       "version": "17.1.0",
       "source": "./"

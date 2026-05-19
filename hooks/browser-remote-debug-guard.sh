@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])--remote-debugging-(port
 fi
 
 shield_audit "browser-remote-debug-guard" "block" "browser remote debugging launch detected" "$INPUT"
-printf '%s\n' '[runwall] blocked browser remote debugging launch' >&2
+printf '%s\n' '[stallion] blocked browser remote debugging launch' >&2
 printf '%s\n' 'reason: the command exposes browser devtools control and can leak live sessions, cookies, and authenticated page state' >&2
 printf '%s\n' 'next: use reviewed browser automation paths that do not expose a live user profile over remote debugging' >&2
 exit 2

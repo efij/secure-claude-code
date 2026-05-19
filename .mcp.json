@@ -1,10 +1,10 @@
 {
   "mcpServers": {
-    "runwall": {
+    "stallion": {
       "type": "stdio",
       "command": "python3",
       "args": [
-        "scripts/runwall_gateway.py",
+        "scripts/stallion_gateway.py",
         "--root",
         ".",
         "--profile",

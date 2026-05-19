@@ -4,5 +4,5 @@ AGENTS\.md
 \.claude-plugin/plugin\.json
 \.claude-plugin/marketplace\.json
 hooks/hooks\.json
-\.runwall/config/
-\.runwall/state/
+\.stallion/config/
+\.stallion/state/

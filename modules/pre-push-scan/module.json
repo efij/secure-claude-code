@@ -17,7 +17,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/pre-push-scan.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/pre-push-scan.sh \"$TOOL_INPUT\""
   },
   "family": "Secrets & Identity"
 }

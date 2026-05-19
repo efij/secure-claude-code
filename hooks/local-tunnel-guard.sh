@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(http[[:space:]]+[0-9]{2,5}|tcp[[:space
 fi
 
 shield_audit "local-tunnel-guard" "block" "local service exposure tunnel detected" "$INPUT"
-printf '%s\n' '[runwall] blocked local tunnel exposure' >&2
+printf '%s\n' '[stallion] blocked local tunnel exposure' >&2
 printf '%s\n' 'reason: the command exposes a local port or service to an external endpoint through a tunnel or reverse-forward path' >&2
 printf '%s\n' 'next: keep dev services local or use a reviewed infrastructure ingress path instead of ad hoc public tunnels' >&2
 exit 2

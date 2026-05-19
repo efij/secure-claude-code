@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
+CONFIG_HOME="${STALLION_HOME:-$HOME/.stallion}/config"
 SENSITIVE_FILE="$CONFIG_HOME/mcp-sensitive-tool-names.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
@@ -19,7 +19,7 @@ else
 fi
 
 shield_audit "mcp-tool-schema-widening-guard" "block" "A sensitive MCP tool widened to a free-form schema" "$INPUT"
-printf '%s\n' '[runwall] blocked widened MCP tool schema' >&2
+printf '%s\n' '[stallion] blocked widened MCP tool schema' >&2
 printf '%s\n' 'reason: a sensitive MCP tool now accepts broad unchecked input instead of a narrow reviewed schema' >&2
 printf '%s\n' 'next: keep risky tool schemas explicit, small, and typed so the gateway can reason about what is being requested' >&2
 exit 2

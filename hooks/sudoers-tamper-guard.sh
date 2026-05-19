@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-PATTERN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/sudoers-targets.regex"
+PATTERN_FILE="${STALLION_HOME:-$HOME/.stallion}/config/sudoers-targets.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -14,7 +14,7 @@ if ! shield_match_pattern_file "$INPUT" "$PATTERN_FILE"; then
 fi
 
 shield_audit "sudoers-tamper-guard" "block" "sudo policy tampering detected" "$INPUT"
-printf '%s\n' '[runwall] blocked sudoers tampering' >&2
+printf '%s\n' '[stallion] blocked sudoers tampering' >&2
 printf '%s\n' 'reason: the command changes sudo trust policy or password requirements' >&2
 printf '%s\n' 'next: keep privilege policy changes in manual admin workflows, not autonomous agent execution' >&2
 exit 2

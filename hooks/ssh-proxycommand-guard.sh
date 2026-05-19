@@ -9,7 +9,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(ProxyCommand|LocalCommand|PermitLocalC
 fi
 
 shield_audit "ssh-proxycommand-guard" "block" "SSH ProxyCommand or LocalCommand execution hook detected" "$INPUT"
-printf '%s\n' '[runwall] blocked SSH command-hook injection' >&2
+printf '%s\n' '[stallion] blocked SSH command-hook injection' >&2
 printf '%s\n' 'reason: the change adds ProxyCommand or LocalCommand behavior, which creates covert execution and traffic redirection paths inside SSH flows' >&2
 printf '%s\n' 'next: keep SSH config declarative and reviewed instead of adding command hooks that execute side effects or proxy chains' >&2
 exit 2

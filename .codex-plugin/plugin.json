@@ -1,17 +1,17 @@
 {
-  "name": "runwall",
-  "description": "Runtime security plugin bundle for Codex with the Runwall inline MCP gateway, policy tools, skills, and safer defaults for coding-agent workflows.",
+  "name": "stallion",
+  "description": "Runtime security plugin bundle for Codex with the Stallion inline MCP gateway, policy tools, skills, and safer defaults for coding-agent workflows.",
   "version": "17.1.0",
   "author": {
     "name": "efij"
   },
-  "homepage": "https://github.com/efij/secure-claude-code",
-  "repository": "https://github.com/efij/secure-claude-code",
+  "homepage": "https://github.com/efij/stallion",
+  "repository": "https://github.com/efij/stallion",
   "license": "MIT",
   "keywords": [
     "codex",
     "codex-plugin",
-    "runwall",
+    "stallion",
     "ai-security",
     "agent-runtime-security",
     "mcp-security",

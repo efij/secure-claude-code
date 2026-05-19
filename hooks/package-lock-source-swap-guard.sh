@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-REGISTRY_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/approved-registries.regex"
+REGISTRY_FILE="${STALLION_HOME:-$HOME/.stallion}/config/approved-registries.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -23,7 +23,7 @@ fi
 
 shield_audit "package-lock-source-swap-guard" "prompt" "package source or lockfile points at an unreviewed host" "$INPUT"
 shield_emit_metadata '{"prompt":{"review_required":true},"reason":"The package lock or source config now references an unreviewed registry or raw artifact host."}'
-printf '%s\n' '[runwall] review required for package source swap' >&2
+printf '%s\n' '[stallion] review required for package source swap' >&2
 printf '%s\n' 'reason: the change rewires package resolution to an unreviewed registry or raw artifact host, which expands supply-chain risk' >&2
 printf '%s\n' 'next: keep dependencies on reviewed registries or approve the host manually if a private source is expected' >&2
 exit 0

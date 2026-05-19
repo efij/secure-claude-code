@@ -1,6 +1,6 @@
 # Security Model
 
-Runwall is a local pre-tool and post-tool guardrail layer for Claude Code.
+Stallion is a local pre-tool and post-tool guardrail layer for Claude Code.
 
 It is designed to sit on top of normal safe setup choices such as Claude Code sandbox mode, repo protections, and secret hygiene. It does not replace them.
 
@@ -45,8 +45,8 @@ It is designed to sit on top of normal safe setup choices such as Claude Code sa
 
 Warnings and blocks are written to local JSONL audit logs by default.
 
-- path: `~/.runwall/state/audit.jsonl`
-- mode: `RUNWALL_AUDIT_MODE=alerts|all|off`
+- path: `~/.stallion/state/audit.jsonl`
+- mode: `STALLION_AUDIT_MODE=alerts|all|off`
 
 ## Known Limits
 

@@ -16,6 +16,6 @@
   "verification": {
     "mode": "none",
     "sha256": "",
-    "hmac_env": "RUNWALL_STALLION_POLICY_HMAC_KEY"
+    "hmac_env": "STALLION_STALLION_POLICY_HMAC_KEY"
   }
 }

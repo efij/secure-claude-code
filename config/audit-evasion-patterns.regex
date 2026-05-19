@@ -5,5 +5,5 @@
 ConsoleHost_history\.txt
 PSReadLine[/\\]ConsoleHost_history\.txt
 wevtutil[[:space:]]+cl
-\.runwall/state/audit\.jsonl
+\.stallion/state/audit\.jsonl
 (^|[[:space:]])journalctl[[:space:]]+--vacuum-time=0s($|[[:space:]])

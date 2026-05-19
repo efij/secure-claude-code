@@ -14,7 +14,7 @@ function Fail($Message) {
   throw $Message
 }
 
-function Install-Runwall {
+function Install-Stallion {
   param(
     [string]$Repo = "",
     [string]$Ref = "main",
@@ -35,13 +35,13 @@ function Install-Runwall {
     }
 
     if ($Version) {
-      $ArchiveUrl = "https://github.com/$Repo/releases/download/v$Version/runwall-$Version.zip"
+      $ArchiveUrl = "https://github.com/$Repo/releases/download/v$Version/stallion-$Version.zip"
     } else {
       $ArchiveUrl = "https://github.com/$Repo/archive/refs/heads/$Ref.zip"
     }
   }
 
-  $TmpBase = Join-Path ([System.IO.Path]::GetTempPath()) ("runwall-bootstrap-" + [System.Guid]::NewGuid().ToString("N"))
+  $TmpBase = Join-Path ([System.IO.Path]::GetTempPath()) ("stallion-bootstrap-" + [System.Guid]::NewGuid().ToString("N"))
   $ExtractDir = Join-Path $TmpBase "extract"
   $ArchivePath = Join-Path $TmpBase "archive.zip"
 
@@ -60,7 +60,7 @@ function Install-Runwall {
       Fail "Could not locate extracted install.ps1."
     }
 
-    Write-Host "Installing Runwall with profile $Profile"
+    Write-Host "Installing Stallion with profile $Profile"
     & $InstallScript.FullName -Profile $Profile
     return $LASTEXITCODE
   }
@@ -71,7 +71,7 @@ function Install-Runwall {
   }
 }
 
-function Install-SecureClaudeCode {
+function Install-Stallion {
   param(
     [string]$Repo = "",
     [string]$Ref = "main",
@@ -82,9 +82,9 @@ function Install-SecureClaudeCode {
     [switch]$KeepWorkdir
   )
 
-  Install-Runwall -Repo $Repo -Ref $Ref -Version $Version -Profile $Profile -ArchiveUrl $ArchiveUrl -ArchiveFile $ArchiveFile -KeepWorkdir:$KeepWorkdir
+  Install-Stallion -Repo $Repo -Ref $Ref -Version $Version -Profile $Profile -ArchiveUrl $ArchiveUrl -ArchiveFile $ArchiveFile -KeepWorkdir:$KeepWorkdir
 }
 
 if ($PSCommandPath) {
-  exit (Install-Runwall -Repo $Repo -Ref $Ref -Version $Version -Profile $Profile -ArchiveUrl $ArchiveUrl -ArchiveFile $ArchiveFile -KeepWorkdir:$KeepWorkdir)
+  exit (Install-Stallion -Repo $Repo -Ref $Ref -Version $Version -Profile $Profile -ArchiveUrl $ArchiveUrl -ArchiveFile $ArchiveFile -KeepWorkdir:$KeepWorkdir)
 }

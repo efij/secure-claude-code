@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/abuse-chain-defense.sh \"$TOOL_INPUT\""
   },
   "family": "MCP, Plugins & Skills"
 }

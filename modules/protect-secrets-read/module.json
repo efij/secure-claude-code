@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "Read|Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/protect-secrets-read.sh \"$TOOL_INPUT\""
   },
   "family": "Secrets & Identity"
 }

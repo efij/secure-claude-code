@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/browser-remote-debug-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/browser-remote-debug-guard.sh \"$TOOL_INPUT\""
   },
   "family": "Secrets & Identity"
 }

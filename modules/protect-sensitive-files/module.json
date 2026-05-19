@@ -16,7 +16,7 @@
     "event": "PostToolUse",
     "matcher": "Write|Edit|MultiEdit",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/protect-sensitive-files.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/protect-sensitive-files.sh \"$TOOL_INPUT\""
   },
   "family": "Quality & Workflow"
 }

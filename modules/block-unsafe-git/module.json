@@ -17,7 +17,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/block-unsafe-git.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/block-unsafe-git.sh \"$TOOL_INPUT\""
   },
   "family": "Git & Source Control"
 }

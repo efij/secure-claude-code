@@ -1,16 +1,16 @@
 ---
-description: Inspect the current Secure Claude Code posture, enabled protections, and recent audit events.
+description: Inspect the current Stallion posture, enabled protections, and recent audit events.
 disable-model-invocation: true
 ---
 
-Use this skill when the user wants to see whether Secure Claude Code is active and what it is doing.
+Use this skill when the user wants to see whether Stallion is active and what it is doing.
 
 - Check posture:
-  - `./bin/secure-claude-code doctor`
-  - `./bin/secure-claude-code validate`
+  - `./bin/stallion doctor`
+  - `./bin/stallion validate`
 - Review protections:
-  - `./bin/secure-claude-code list protections`
+  - `./bin/stallion list protections`
 - Review recent blocks and warnings:
-  - `./bin/secure-claude-code logs 20`
+  - `./bin/stallion logs 20`
 
 Summarize the active profile, installed protections, and whether recent warnings or blocks were recorded.

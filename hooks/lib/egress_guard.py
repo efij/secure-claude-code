@@ -13,21 +13,21 @@ from typing import Any
 URL_RE = re.compile(r"https?://[^\s\"'<>]+", re.IGNORECASE)
 
 
-def runwall_home() -> pathlib.Path:
+def stallion_home() -> pathlib.Path:
     return pathlib.Path(
         os.environ.get(
-            "RUNWALL_HOME",
-            os.environ.get("SECURE_CLAUDE_CODE_HOME", os.path.expanduser("~/.runwall")),
+            "STALLION_HOME",
+            os.environ.get("STALLION_HOME", os.path.expanduser("~/.stallion")),
         )
     )
 
 
 def current_profile() -> str:
-    return os.environ.get("RUNWALL_PROFILE", "balanced")
+    return os.environ.get("STALLION_PROFILE", "balanced")
 
 
 def load_policy() -> dict[str, Any]:
-    path = runwall_home() / "config" / "egress-policy.json"
+    path = stallion_home() / "config" / "egress-policy.json"
     if not path.exists():
         return {"profiles": {}}
     return json.loads(path.read_text(encoding="utf-8"))
@@ -126,8 +126,8 @@ def emit(decision: str, reason: str, url: str, classes: list[str], exit_code: in
         "egress": {"url": url[:240], "classes": classes},
         "evidence": [{"type": "destination", "value": url[:200]}],
     }
-    print(f"RUNWALL_JSON:{json.dumps(payload, separators=(',', ':'))}")
-    prefix = "[runwall] review required for outbound destination" if decision == "prompt" else "[runwall] blocked outbound destination"
+    print(f"STALLION_JSON:{json.dumps(payload, separators=(',', ':'))}")
+    prefix = "[stallion] review required for outbound destination" if decision == "prompt" else "[stallion] blocked outbound destination"
     print(prefix, file=sys.stderr)
     print(f"reason: {reason}", file=sys.stderr)
     return exit_code

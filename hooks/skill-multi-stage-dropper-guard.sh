@@ -23,7 +23,7 @@ else
 fi
 
 shield_audit "skill-multi-stage-dropper-guard" "block" "A trusted skill or instruction file now embeds a multi-stage fetch-save-execute chain" "$INPUT"
-printf '%s\n' '[runwall] blocked multi-stage dropper instructions in a trusted skill or command doc' >&2
+printf '%s\n' '[stallion] blocked multi-stage dropper instructions in a trusted skill or command doc' >&2
 printf '%s\n' 'reason: the trusted instruction file now teaches the runtime how to fetch, stage, decode, or execute a second-stage payload' >&2
 printf '%s\n' 'next: keep skills and command docs declarative, local, and free of staged downloader or decoder flows' >&2
 exit 2

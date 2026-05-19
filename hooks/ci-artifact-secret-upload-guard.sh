@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(\.env|\.npmrc|\.pypirc|\.aws|\.ssh|id_
 fi
 
 shield_audit "ci-artifact-secret-upload-guard" "block" "secret-bearing file is being uploaded as a CI artifact" "$INPUT"
-printf '%s\n' '[runwall] blocked secret-bearing CI artifact upload' >&2
+printf '%s\n' '[stallion] blocked secret-bearing CI artifact upload' >&2
 printf '%s\n' 'reason: the artifact path includes environment, key, or credential material that should not be uploaded to CI storage' >&2
 printf '%s\n' 'next: keep artifact uploads limited to reviewed build outputs and exclude secret-bearing files' >&2
 exit 2

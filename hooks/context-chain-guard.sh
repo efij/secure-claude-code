@@ -6,4 +6,4 @@ MATCHER="${2:-}"
 INPUT="${3:-}"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 
-shield_python "$(dirname "${BASH_SOURCE[0]}")/../scripts/runwall_context_chain_hook.py" "$EVENT" "$MATCHER" "$INPUT"
+shield_python "$(dirname "${BASH_SOURCE[0]}")/../scripts/stallion_context_chain_hook.py" "$EVENT" "$MATCHER" "$INPUT"

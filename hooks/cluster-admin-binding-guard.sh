@@ -9,7 +9,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(ClusterRoleBinding|cluster-admin|roleR
 fi
 
 shield_audit "cluster-admin-binding-guard" "block" "cluster-admin RBAC grant detected" "$INPUT"
-printf '%s\n' '[runwall] blocked cluster-admin binding change' >&2
+printf '%s\n' '[stallion] blocked cluster-admin binding change' >&2
 printf '%s\n' 'reason: the change creates or applies a cluster-admin style RBAC grant, which gives broad privileged access to the cluster' >&2
 printf '%s\n' 'next: use the narrowest reviewed role possible instead of introducing cluster-wide admin rights' >&2
 exit 2

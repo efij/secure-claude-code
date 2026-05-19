@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION="${2:-$(cat "$ROOT_DIR/VERSION")}"
 REPO="${1:-}"
 DIST_DIR="$ROOT_DIR/dist"
-STAGE_DIR="$DIST_DIR/runwall-$VERSION"
+STAGE_DIR="$DIST_DIR/stallion-$VERSION"
 PYTHON_BIN="${PYTHON_BIN:-}"
 
 [ -n "$REPO" ] || {
@@ -45,13 +45,13 @@ rsync -a \
 
 (
   cd "$DIST_DIR"
-  tar -czf "runwall-$VERSION.tar.gz" "runwall-$VERSION"
-  rm -f "runwall-$VERSION.zip"
-  zip -qr "runwall-$VERSION.zip" "runwall-$VERSION"
+  tar -czf "stallion-$VERSION.tar.gz" "stallion-$VERSION"
+  rm -f "stallion-$VERSION.zip"
+  zip -qr "stallion-$VERSION.zip" "stallion-$VERSION"
 )
 
-SHA256_TGZ="$(shasum -a 256 "$DIST_DIR/runwall-$VERSION.tar.gz" | awk '{print $1}')"
-SHA256_ZIP="$(shasum -a 256 "$DIST_DIR/runwall-$VERSION.zip" | awk '{print $1}')"
+SHA256_TGZ="$(shasum -a 256 "$DIST_DIR/stallion-$VERSION.tar.gz" | awk '{print $1}')"
+SHA256_ZIP="$(shasum -a 256 "$DIST_DIR/stallion-$VERSION.zip" | awk '{print $1}')"
 
 "$PYTHON_BIN" - "$ROOT_DIR" "$REPO" "$VERSION" "$SHA256_TGZ" "$SHA256_ZIP" <<'PY'
 from pathlib import Path
@@ -72,12 +72,12 @@ replacements = {
 
 targets = [
     (
-        root / "packaging" / "homebrew" / "runwall.rb.tmpl",
-        root / "dist" / "runwall.rb",
+        root / "packaging" / "homebrew" / "stallion.rb.tmpl",
+        root / "dist" / "stallion.rb",
     ),
     (
-        root / "packaging" / "scoop" / "runwall.json.tmpl",
-        root / "dist" / "runwall.json",
+        root / "packaging" / "scoop" / "stallion.json.tmpl",
+        root / "dist" / "stallion.json",
     ),
 ]
 
@@ -89,8 +89,8 @@ for src, dest in targets:
 PY
 
 cat >"$DIST_DIR/SHA256SUMS" <<EOF
-$SHA256_TGZ  runwall-$VERSION.tar.gz
-$SHA256_ZIP  runwall-$VERSION.zip
+$SHA256_TGZ  stallion-$VERSION.tar.gz
+$SHA256_ZIP  stallion-$VERSION.zip
 EOF
 
 printf 'release assets created in %s\n' "$DIST_DIR"

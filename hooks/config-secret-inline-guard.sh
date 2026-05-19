@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-TOKEN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/live-token-patterns.regex"
+TOKEN_FILE="${STALLION_HOME:-$HOME/.stallion}/config/live-token-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -18,7 +18,7 @@ if ! shield_match_pattern_file "$INPUT" "$TOKEN_FILE" && ! printf '%s\n' "$INPUT
 fi
 
 shield_audit "config-secret-inline-guard" "block" "live secret material is being written into config or workflow files" "$INPUT"
-printf '%s\n' '[runwall] blocked live secret in config or workflow file' >&2
+printf '%s\n' '[stallion] blocked live secret in config or workflow file' >&2
 printf '%s\n' 'reason: the edit targets a deployment, workflow, or application config file and contains a live token or private key pattern' >&2
 printf '%s\n' 'next: use a reviewed secret reference, env injection path, or a clearly redacted sample instead of inlining the secret' >&2
 exit 2

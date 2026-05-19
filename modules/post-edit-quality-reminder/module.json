@@ -16,7 +16,7 @@
     "event": "PostToolUse",
     "matcher": "Write|Edit|MultiEdit",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/post-edit-quality-reminder.sh \"$TOOL_INPUT\"",
+    "command": "bash ~/.stallion/hooks/post-edit-quality-reminder.sh \"$TOOL_INPUT\"",
     "async": true
   },
   "family": "Quality & Workflow"

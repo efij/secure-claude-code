@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-shield_audit_mode="${RUNWALL_AUDIT_MODE:-${SECURE_CLAUDE_CODE_AUDIT_MODE:-alerts}}"
-shield_audit_file="${RUNWALL_AUDIT_FILE:-${SECURE_CLAUDE_CODE_AUDIT_FILE:-${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/state/audit.jsonl}}"
+shield_audit_mode="${STALLION_AUDIT_MODE:-alerts}"
+shield_audit_file="${STALLION_AUDIT_FILE:-${STALLION_HOME:-$HOME/.stallion}/state/audit.jsonl}"
 shield_python_bin=""
 
 shield_python() {
@@ -59,10 +59,10 @@ tool_input = sys.argv[5][:4000]
 
 shield_home = pathlib.Path(
     os.environ.get(
-        "RUNWALL_HOME",
+        "STALLION_HOME",
         os.environ.get(
-            "SECURE_CLAUDE_CODE_HOME",
-            os.path.expanduser("~/.runwall"),
+            "STALLION_HOME",
+            os.path.expanduser("~/.stallion"),
         ),
     )
 )
@@ -70,7 +70,7 @@ profile_file = shield_home / "state" / "profile.txt"
 profile = profile_file.read_text().strip() if profile_file.exists() else "unknown"
 
 event = {
-    "event_id": os.environ.get("RUNWALL_EVENT_ID") or uuid.uuid4().hex,
+    "event_id": os.environ.get("STALLION_EVENT_ID") or uuid.uuid4().hex,
     "ts": datetime.now(timezone.utc).isoformat(),
     "module": module,
     "decision": decision,
@@ -82,21 +82,21 @@ event = {
     "tool_input": tool_input,
 }
 
-runtime = os.environ.get("RUNWALL_RUNTIME")
+runtime = os.environ.get("STALLION_RUNTIME")
 if runtime:
     event["runtime"] = runtime
 
 for env_name, field in (
-    ("RUNWALL_AGENT_ID", "agent_id"),
-    ("RUNWALL_SUBAGENT_ID", "subagent_id"),
-    ("RUNWALL_PARENT_AGENT_ID", "parent_agent_id"),
-    ("RUNWALL_SESSION_ID", "session_id"),
+    ("STALLION_AGENT_ID", "agent_id"),
+    ("STALLION_SUBAGENT_ID", "subagent_id"),
+    ("STALLION_PARENT_AGENT_ID", "parent_agent_id"),
+    ("STALLION_SESSION_ID", "session_id"),
 ):
     value = os.environ.get(env_name)
     if value:
         event[field] = value
 
-background = os.environ.get("RUNWALL_BACKGROUND")
+background = os.environ.get("STALLION_BACKGROUND")
 if isinstance(background, str):
     lowered = background.strip().lower()
     if lowered in {"1", "true", "yes", "on"}:
@@ -112,14 +112,14 @@ PY
 shield_emit_metadata() {
   local json_payload="${1:-}"
   [ -n "$json_payload" ] || return 0
-  printf 'RUNWALL_JSON:%s\n' "$json_payload"
+  printf 'STALLION_JSON:%s\n' "$json_payload"
 }
 
 shield_prepare_input_file() {
   local input="${1:-}"
   local temp_file
 
-  temp_file="$(mktemp "${TMPDIR:-/tmp}/runwall-input.XXXXXX")" || return 1
+  temp_file="$(mktemp "${TMPDIR:-/tmp}/stallion-input.XXXXXX")" || return 1
   printf '%s\n' "$input" >"$temp_file"
   printf '%s\n' "$temp_file"
 }

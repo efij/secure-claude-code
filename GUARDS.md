@@ -1,6 +1,6 @@
 # Guard Registry
 
-Runwall is organized like a local YARA-style signature engine:
+Stallion is organized like a local YARA-style signature engine:
 
 - one guard pack equals one focused signature set
 - profiles enable groups of packs without changing code
@@ -33,7 +33,7 @@ These protections are implemented directly in the Hook Trust Plane instead of as
 - `hook-drift-guard`: prompts when a previously observed or approved hook-bearing surface changes its body
 - `hook-origin-guard`: blocks hook bodies that jump to temp, download, cache, or remote execution sources
 - `hook-secret-access-guard`: blocks hook-bearing surfaces that read local secret files, cloud credentials, SSH material, or agent auth state
-- `hook-policy-tamper-guard`: blocks hook-bearing surfaces that target Runwall, MCP, plugin, or instruction control files
+- `hook-policy-tamper-guard`: blocks hook-bearing surfaces that target Stallion, MCP, plugin, or instruction control files
 - `hook-archive-exfil-guard`: blocks hook-bearing surfaces that compress local data and immediately upload or transfer it
 - `hook-prod-breakglass-guard`: blocks hook-bearing surfaces that hide production shells, dumps, port-forwards, or destructive infra actions
 - `hook-review-bypass-guard`: blocks hook-bearing surfaces that carry `--no-verify`, hook-disabling flags, or review-bypass language
@@ -43,7 +43,7 @@ These protections are implemented directly in the Hook Trust Plane instead of as
 
 ## Built-In Flow, Approval, Service, Browser, and Agent Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `sensitive-data-flow-guard`: blocks outbound transfers and publishes after the same session already touched sensitive data
 - `public-exposure-surface-guard`: blocks direct or session-derived sensitive data from being sent to public or externally shared surfaces such as gists, public repos, public channels, and public object storage
@@ -76,7 +76,7 @@ These protections are implemented directly in native Runwall trust planes instea
 
 ## Built-In Handoff and Delegated-Auth Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `token-handoff-guard`: blocks one actor from reusing delegated-auth flows that another actor already initiated in the same session
 - `browser-session-handoff-guard`: blocks export or mutation after another actor already touched a sensitive authenticated browser surface
@@ -101,13 +101,13 @@ These protections are implemented directly in native Runwall trust planes instea
 
 ## Built-In Memory, Knowledge, and App Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `memory-source-review-guard`: prompts before a new persistent memory surface becomes trusted
 - `memory-drift-guard`: prompts when a trusted memory source changes
 - `memory-remote-ingest-guard`: blocks remote or pasted external content from being written directly into persistent memory
 - `memory-prompt-smuggling-guard`: blocks override or system-priority prompt language in memory
-- `memory-policy-override-guard`: blocks memory content that tells the runtime to ignore Runwall or local policy
+- `memory-policy-override-guard`: blocks memory content that tells the runtime to ignore Stallion or local policy
 - `memory-secret-harvest-instruction-guard`: blocks memory instructions that tell the runtime to collect local or cloud secrets
 - `memory-exfil-instruction-guard`: blocks memory instructions that stage upload, webhook, or publish behavior
 - `memory-hidden-encoding-guard`: blocks encoded or hidden instruction bodies in memory surfaces
@@ -117,7 +117,7 @@ These protections are implemented directly in native Runwall trust planes instea
 - `knowledge-drift-guard`: prompts when a trusted knowledge source changes
 - `knowledge-remote-ingest-guard`: blocks remote or pasted external content from being written directly into trusted knowledge sources
 - `knowledge-prompt-smuggling-guard`: blocks override and instruction-smuggling content inside vaults and RAG sources
-- `knowledge-policy-override-guard`: blocks knowledge sources that attempt to weaken Runwall or local policy
+- `knowledge-policy-override-guard`: blocks knowledge sources that attempt to weaken Stallion or local policy
 - `knowledge-secret-harvest-instruction-guard`: blocks knowledge sources that instruct the runtime to collect secrets
 - `knowledge-exfil-instruction-guard`: blocks knowledge sources that instruct outbound upload or publish behavior
 - `knowledge-hidden-encoding-guard`: blocks encoded or hidden instruction bodies in trusted knowledge
@@ -160,7 +160,7 @@ These protections are implemented directly in the Safety-Control Trust Plane ins
 - `rollback-tamper-guard`: blocks edits and commands that neuter rollback or restore paths
 - `monitoring-disable-guard`: blocks disabling monitoring, telemetry, or alerting surfaces
 - `alert-sink-rewire-guard`: prompts before rewiring alert or escalation destinations
-- `runwall-state-wipe-guard`: blocks deletion or truncation of Runwall audit and state files
+- `stallion-state-wipe-guard`: blocks deletion or truncation of Stallion audit and state files
 - `forensics-bundle-delete-guard`: blocks deletion of incident, evidence, provenance, SARIF, or forensics artifacts
 - `incident-runbook-automation-tamper-guard`: prompts when incident-response or escalation guidance is weakened
 - `release-safety-check-disable-guard`: blocks disabling SBOM, provenance, attestation, signing, or release verification steps
@@ -168,7 +168,7 @@ These protections are implemented directly in the Safety-Control Trust Plane ins
 
 ## Built-In Fileless and Promotion Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `inline-fetch-exec-guard`: blocks remote fetch-and-execute chains hidden inside inline shell or interpreter execution
 - `inline-encoded-loader-guard`: blocks encoded loader and decode-and-run behavior inside inline shells, Python, Node, and PowerShell
@@ -179,11 +179,11 @@ These protections are implemented directly in native Runwall trust planes instea
 - `inline-python-loader-guard`: blocks risky `python -c` loader behavior with fetch, exec, secret, or outbound primitives
 - `inline-node-loader-guard`: blocks risky `node -e` loader behavior with fetch, exec, secret, or outbound primitives
 - `inline-shell-persistence-guard`: blocks inline execution that edits login, scheduler, or persistence surfaces
-- `inline-policy-bypass-guard`: blocks inline execution that tries to disable Runwall or step around local review boundaries
+- `inline-policy-bypass-guard`: blocks inline execution that tries to disable Stallion or step around local review boundaries
 
 ## Built-In Release and Destructive-Intent Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `unexpected-publish-target-guard`: prompts before a publish or release path points at an unreviewed registry, raw host, or artifact target
 - `prod-promote-guard`: prompts before package or release flows promote directly into production-like channels
@@ -233,7 +233,7 @@ These protections are implemented directly in native Runwall trust planes instea
 
 ## Built-In Review and Artifact Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `review-surface-review-guard`: prompts before a new PR, changelog, task-signoff, or incident-review surface becomes trusted
 - `review-surface-drift-guard`: prompts when a previously trusted human review surface changes
@@ -246,7 +246,7 @@ These protections are implemented directly in native Runwall trust planes instea
 - `incident-note-bypass-guard`: blocks incident or postmortem surfaces that try to skip escalation, paging, or post-incident review
 - `review-template-tamper-guard`: prompts when PR or signoff templates remove required checklist or reviewer structure
 - `approval-text-smuggling-guard`: blocks approval-token or signoff-smuggling text inside human review surfaces
-- `human-review-override-guard`: blocks language telling humans to override local policy or ignore Runwall outcomes
+- `human-review-override-guard`: blocks language telling humans to override local policy or ignore Stallion outcomes
 - `review-surface-rewrite-guard`: blocks rewrites that redirect reviewers to raw, pasted, or mutable external approval links
 - `artifact-source-review-guard`: prompts before a new generated report or evidence bundle becomes trusted
 - `artifact-drift-guard`: prompts when a previously trusted artifact or report changes
@@ -264,7 +264,7 @@ These protections are implemented directly in native Runwall trust planes instea
 
 ## Built-In Data Store and IPC Guards
 
-These protections are implemented directly in native Runwall trust planes instead of standalone hook modules:
+These protections are implemented directly in native Stallion trust planes instead of standalone hook modules:
 
 - `sqlite-dump-guard`: blocks full SQLite dumps from local database files
 - `sqlite-session-export-guard`: blocks copy or archive of session-bearing SQLite stores such as cookies, login data, and local auth state
@@ -351,7 +351,7 @@ Guards that keep MCP servers, tools, plugins, skills, and instruction files from
 
 - `abuse-chain-defense`: Blocks remote-instruction writes, rule-override language in control files, and secret-plus-transfer command chains.
 - `indirect-prompt-injection-guard`: Warns on hidden instructions, jailbreak text, encoded payloads, and smuggled prompt-injection content found in tool output.
-- `instruction-override-bridge-guard`: Blocks trusted instruction files that tell the runtime to bypass Runwall or trust tool output over local policy.
+- `instruction-override-bridge-guard`: Blocks trusted instruction files that tell the runtime to bypass Stallion or trust tool output over local policy.
 - `instruction-source-dropper-guard`: Blocks remote content from being written directly into AGENTS, CLAUDE, skills, or Claude command files.
 - `mcp-binary-dropper-guard`: Redacts upstream MCP responses that look like executable, archive, or second-stage payload material.
 - `mcp-bulk-read-exfil-guard`: Prompts for review when an MCP tool call bundles multiple secret-like read targets into one request.
@@ -367,14 +367,14 @@ Guards that keep MCP servers, tools, plugins, skills, and instruction files from
 - `mcp-response-suspicious-url-guard`: Prompts for review when upstream MCP responses contain risky outbound URLs such as paste sites, webhooks, raw gists, or private endpoints.
 - `mcp-secret-env-guard`: Warns when high-value secret environment variables are forwarded into MCP server definitions.
 - `mcp-server-command-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains inside MCP server definitions.
-- `mcp-tool-impersonation-guard`: Blocks upstream MCP tools that spoof trusted Runwall or control-plane tool names.
+- `mcp-tool-impersonation-guard`: Blocks upstream MCP tools that spoof trusted Stallion or control-plane tool names.
 - `mcp-tool-schema-widening-guard`: Blocks sensitive MCP tools that suddenly widen into free-form schemas.
 - `mcp-upstream-swap-guard`: Blocks inline gateway upstream entries that switch to remote, sideloaded, or scratch-path server sources.
 - `plugin-exec-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains embedded in plugin hook and command definitions.
 - `plugin-hook-origin-guard`: Blocks plugin hook commands that execute code from temp, download, scratch, or other paths outside the plugin trust boundary.
 - `plugin-manifest-guard`: Blocks risky plugin and extension sources being added through manifest files.
 - `plugin-surface-expansion-guard`: Blocks plugins that widen their hook surface through sensitive lifecycle command hooks or broad shell-plus-mutation coverage.
-- `plugin-trust-boundary-tamper-guard`: Blocks plugins that try to weaken Claude, MCP, plugin, or Runwall control files after install.
+- `plugin-trust-boundary-tamper-guard`: Blocks plugins that try to weaken Claude, MCP, plugin, or Stallion control files after install.
 - `plugin-update-source-swap-guard`: Blocks plugin update metadata that swaps reviewed sources to risky remote or scratch locations.
 - `sideloaded-extension-guard`: Blocks sideloaded local plugin and extension installs from temp, download, archive, or unpacked paths outside reviewed sources.
 - `skill-exec-chain-guard`: Blocks dangerous download-and-execute or inline interpreter chains embedded in skill and Claude command files.
@@ -424,12 +424,12 @@ Guards that make production, cluster, database, and infrastructure actions much 
 
 Guards that catch persistence, trust downgrades, log wiping, symlink hijacks, and other attempts to weaken the local security boundary first.
 
-- `audit-evasion-guard`: Blocks shell history, event log, and Runwall audit trail clearing behavior.
+- `audit-evasion-guard`: Blocks shell history, event log, and Stallion audit trail clearing behavior.
 - `config-tamper-guard`: Blocks edits that weaken Claude, MCP, or CI control files with bypass or wildcard-permission patterns.
 - `credential-helper-downgrade-guard`: Blocks auth-helper changes that fall back to plaintext credential stores or disabled secure keychains.
 - `hosts-file-tamper-guard`: Blocks local hosts-file remaps for high-trust infrastructure domains.
 - `local-ca-trust-guard`: Prompts when the runtime tries to add new root or trust-anchor certificates to the machine.
-- `log-poisoning-guard`: Blocks secret leaks and forged audit artifacts from being written into logs, reports, SARIF, or Runwall evidence files.
+- `log-poisoning-guard`: Blocks secret leaks and forged audit artifacts from being written into logs, reports, SARIF, or Stallion evidence files.
 - `sandbox-escape-guard`: Blocks host-mount, namespace, and privileged-runtime patterns associated with sandbox escape attempts.
 - `sandbox-policy-tamper-guard`: Blocks changes that weaken Docker, compose, and devcontainer isolation with privileged flags or host-linked options.
 - `scheduled-task-persistence-guard`: Blocks recurring OS task, service, and launch-item registration that can be used for persistence.

@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])(--context|--namespace|-
 fi
 
 shield_audit "kubectl-port-forward-prod-guard" "block" "port-forward against a production-like Kubernetes target detected" "$INPUT"
-printf '%s\n' '[runwall] blocked production Kubernetes port-forward' >&2
+printf '%s\n' '[stallion] blocked production Kubernetes port-forward' >&2
 printf '%s\n' 'reason: the command opens local access into a production-like cluster target, which bypasses normal service boundaries' >&2
 printf '%s\n' 'next: use reviewed diagnostics or a human-approved access path instead of direct port-forwarding into prod workloads' >&2
 exit 2

@@ -1,17 +1,17 @@
-# Runwall
+# Stallion
 
 Runtime security guardrails for Claude Code, Codex, and MCP-based coding setups.
 
-Runwall sits between the agent and risky actions so you can:
+Stallion sits between the agent and risky actions so you can:
 
 - block obvious bad shell, git, MCP, and exfiltration flows
 - scan a repo or runtime setup before enabling it
 - keep a practical security baseline without turning normal coding into sludge
 
 <p align="left">
-  <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/efij/secure-claude-code/ci.yml?branch=main&label=smoke">
-  <img alt="Release" src="https://img.shields.io/github/v/release/efij/secure-claude-code">
-  <img alt="License" src="https://img.shields.io/github/license/efij/secure-claude-code">
+  <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/efij/stallion/ci.yml?branch=main&label=smoke">
+  <img alt="Release" src="https://img.shields.io/github/v/release/efij/stallion">
+  <img alt="License" src="https://img.shields.io/github/license/efij/stallion">
 </p>
 
 ## Why Use It
@@ -26,7 +26,7 @@ Coding agents can:
 
 That is useful, but it is also enough to leak data or damage a machine fast.
 
-Runwall helps reduce that risk with:
+Stallion helps reduce that risk with:
 
 - preflight checks before risky actions run
 - output inspection after tools return untrusted content
@@ -38,14 +38,14 @@ Runwall helps reduce that risk with:
 ### Claude Code
 
 ```bash
-claude plugin marketplace add efij/secure-claude-code
-claude plugin install runwall@runwall
+claude plugin marketplace add efij/stallion
+claude plugin install stallion@stallion
 claude plugin list
 ```
 
 Expected result:
 
-- `runwall@runwall`
+- `stallion@stallion`
 - `Status: enabled`
 
 ### Codex
@@ -55,16 +55,16 @@ If your Codex supports local bundle install, install this repo as a plugin bundl
 Fallback:
 
 ```bash
-./bin/runwall generate-runtime-config codex balanced
+./bin/stallion generate-runtime-config codex balanced
 ```
 
 ### Local CLI Install
 
 ```bash
-git clone https://github.com/efij/secure-claude-code.git
-cd secure-claude-code
-./bin/runwall install balanced
-./bin/runwall doctor
+git clone https://github.com/efij/stallion.git
+cd stallion
+./bin/stallion install balanced
+./bin/stallion doctor
 ```
 
 ## Profiles
@@ -109,18 +109,18 @@ Full guard inventory: `GUARDS.md`
 ## Common Commands
 
 ```bash
-./bin/runwall install balanced
-./bin/runwall doctor
-./bin/runwall audit .
-./bin/runwall list protections
-./bin/runwall list runtimes
-./bin/runwall wrap list-packs
-./bin/runwall wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --context-file ./db-context.md --runtime generic-mcp
-./bin/runwall stallion status --json
-./bin/runwall generate-runtime-config codex balanced
-./bin/runwall generate-runtime-config cursor balanced
-./bin/runwall generate-runtime-config windsurf balanced
-./bin/runwall generate-runtime-config claude-desktop balanced
+./bin/stallion install balanced
+./bin/stallion doctor
+./bin/stallion audit .
+./bin/stallion list protections
+./bin/stallion list runtimes
+./bin/stallion wrap list-packs
+./bin/stallion wrap add postgres-dev --command uvx --arg mcp-server-postgres --pack postgres --context-file ./db-context.md --runtime generic-mcp
+./bin/stallion client status --json
+./bin/stallion generate-runtime-config codex balanced
+./bin/stallion generate-runtime-config cursor balanced
+./bin/stallion generate-runtime-config windsurf balanced
+./bin/stallion generate-runtime-config claude-desktop balanced
 ```
 
 ## Stallion Managed Client
@@ -138,29 +138,29 @@ Client-side support includes:
 Local commands:
 
 ```bash
-./bin/runwall stallion status --json
-./bin/runwall stallion policy --json
-./bin/runwall stallion record-prompt --runtime codex --agent-id parent-1 "user prompt text"
-./bin/runwall stallion flush
+./bin/stallion client status --json
+./bin/stallion client policy --json
+./bin/stallion client record-prompt --runtime codex --agent-id parent-1 "user prompt text"
+./bin/stallion client flush
 ```
 
 Default config is disabled at `config/stallion-client.json`; managed deployments should provision the server URL, policy cache, verification mode, and fail-closed posture.
 
 ## MCP Wrap Flow
 
-Use the inline gateway when you want to front an upstream MCP server with Runwall policy, context injection, and read-only SQL guardrails.
+Use the inline gateway when you want to front an upstream MCP server with Stallion policy, context injection, and read-only SQL guardrails.
 
 ```bash
-./bin/runwall wrap list-packs
-./bin/runwall wrap add postgres-dev \
+./bin/stallion wrap list-packs
+./bin/stallion wrap add postgres-dev \
   --command uvx \
   --arg mcp-server-postgres \
   --pack postgres \
   --context-file ./db-context.md \
   --sqlite-schema ./local-dev.sqlite3 \
   --runtime generic-mcp
-./bin/runwall gateway serve strict --config ./config/gateway.json --api-port 9470
-./bin/runwall generate-runtime-config generic-mcp balanced
+./bin/stallion gateway serve strict --config ./config/gateway.json --api-port 9470
+./bin/stallion generate-runtime-config generic-mcp balanced
 ```
 
 What this adds:
@@ -173,27 +173,27 @@ What this adds:
 <summary><strong>Advanced trust-plane commands</strong></summary>
 
 ```bash
-./bin/runwall tools list --json
-./bin/runwall tools approve <name-or-path>
-./bin/runwall hooks list --json
-./bin/runwall hooks diff <path-or-key>
-./bin/runwall approvals list --json
-./bin/runwall services list --json
-./bin/runwall data list --json
-./bin/runwall ipc list --json
-./bin/runwall browser sessions --json
-./bin/runwall flow list --json
-./bin/runwall agents graph --json
-./bin/runwall memory list --json
-./bin/runwall knowledge list --json
-./bin/runwall review list --json
-./bin/runwall artifacts list --json
-./bin/runwall release list --json
-./bin/runwall destructive list --json
-./bin/runwall handoff graph --json
-./bin/runwall auth list --json
-./bin/runwall apps list --json
-./bin/runwall safety list --json
+./bin/stallion tools list --json
+./bin/stallion tools approve <name-or-path>
+./bin/stallion hooks list --json
+./bin/stallion hooks diff <path-or-key>
+./bin/stallion approvals list --json
+./bin/stallion services list --json
+./bin/stallion data list --json
+./bin/stallion ipc list --json
+./bin/stallion browser sessions --json
+./bin/stallion flow list --json
+./bin/stallion agents graph --json
+./bin/stallion memory list --json
+./bin/stallion knowledge list --json
+./bin/stallion review list --json
+./bin/stallion artifacts list --json
+./bin/stallion release list --json
+./bin/stallion destructive list --json
+./bin/stallion handoff graph --json
+./bin/stallion auth list --json
+./bin/stallion apps list --json
+./bin/stallion safety list --json
 ```
 </details>
 
@@ -216,9 +216,9 @@ More detail: `RUNTIMES.md`
 If you want to inspect before enabling:
 
 ```bash
-./bin/runwall audit .
-./bin/runwall audit . --format html --output runwall-audit.html
-./bin/runwall audit . --format sarif --output runwall-audit.sarif
+./bin/stallion audit .
+./bin/stallion audit . --format html --output stallion-audit.html
+./bin/stallion audit . --format sarif --output stallion-audit.sarif
 ```
 
 ## Troubleshooting
@@ -228,10 +228,10 @@ If you want to inspect before enabling:
 Run:
 
 ```bash
-claude plugin uninstall runwall@runwall
-claude plugin marketplace remove runwall
-claude plugin marketplace add efij/secure-claude-code
-claude plugin install runwall@runwall
+claude plugin uninstall stallion@stallion
+claude plugin marketplace remove stallion
+claude plugin marketplace add efij/stallion
+claude plugin install stallion@stallion
 claude plugin list
 ```
 
@@ -243,9 +243,9 @@ If GitHub still serves an older broken marketplace state, install from a local c
 
 ```bash
 cd ..
-git clone https://github.com/efij/secure-claude-code.git
-claude plugin marketplace add ./secure-claude-code
-claude plugin install runwall@runwall
+git clone https://github.com/efij/stallion.git
+claude plugin marketplace add ./stallion
+claude plugin install stallion@stallion
 ```
 
 ### CI is failing
@@ -260,8 +260,8 @@ If you only want the quick sanity path:
 
 ```bash
 bash -n bin/shield install.sh update.sh uninstall.sh hooks/lib/patterns.sh tests/smoke.sh
-python3 -m py_compile scripts/runwall_tools.py
-./bin/runwall generate-plugin-hooks balanced /tmp/runwall-hooks.json
+python3 -m py_compile scripts/stallion_tools.py
+./bin/stallion generate-plugin-hooks balanced /tmp/stallion-hooks.json
 claude plugin validate .
 ```
 
@@ -273,13 +273,13 @@ claude plugin validate .
 ### macOS / Linux bootstrap
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.sh | bash -s -- --repo efij/secure-claude-code --ref main --profile balanced
+curl -fsSL https://raw.githubusercontent.com/efij/stallion/main/scripts/bootstrap.sh | bash -s -- --repo efij/stallion --ref main --profile balanced
 ```
 
 ### Windows bootstrap
 
 ```powershell
-irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/bootstrap.ps1 | iex; Install-Runwall -Repo "efij/secure-claude-code" -Ref "main" -Profile "balanced"
+irm https://raw.githubusercontent.com/efij/stallion/main/scripts/bootstrap.ps1 | iex; Install-Stallion -Repo "efij/stallion" -Ref "main" -Profile "balanced"
 ```
 
 ### Thin compatibility wrappers
@@ -288,7 +288,7 @@ irm https://raw.githubusercontent.com/efij/secure-claude-code/main/scripts/boots
 - `update.sh`
 - `uninstall.sh`
 
-They forward to `./bin/runwall`.
+They forward to `./bin/stallion`.
 </details>
 
 ## Project Docs

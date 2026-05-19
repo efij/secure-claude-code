@@ -10,7 +10,7 @@ fi
 
 shield_audit "local-ca-trust-guard" "prompt" "local CA trust store modification detected" "$INPUT"
 shield_emit_metadata '{"prompt":{"review_required":true},"reason":"The command adds a certificate to a local or system trust store."}'
-printf '%s\n' '[runwall] review required for CA trust store change' >&2
+printf '%s\n' '[stallion] review required for CA trust store change' >&2
 printf '%s\n' 'reason: the command modifies a root or trust-anchor store, which can silently expand what the machine treats as trusted TLS or code-signing material' >&2
 printf '%s\n' 'next: only approve reviewed certificates and prefer scoped trust where possible instead of changing the machine-wide root store' >&2
 exit 0

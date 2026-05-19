@@ -1,5 +1,5 @@
 {
-  "description": "Runwall balanced hook pack for Claude Code.",
+  "description": "Stallion balanced hook pack for Claude Code.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/block-unsafe-git.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/block-unsafe-git.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-push-scan.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-push-scan.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Read\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Read\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -43,7 +43,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -52,7 +52,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Write\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -61,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Bash\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse Bash\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -70,7 +70,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse mcp__generic\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PreToolUse mcp__generic\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -79,7 +79,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-secrets-read.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-secrets-read.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -88,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-session-secret-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/agent-session-secret-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -97,7 +97,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/abuse-chain-defense.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/abuse-chain-defense.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -106,7 +106,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/instruction-source-dropper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/instruction-source-dropper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -115,7 +115,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-permission-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-permission-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -124,7 +124,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-upstream-swap-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-upstream-swap-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -133,7 +133,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-tool-impersonation-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-tool-impersonation-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -142,7 +142,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-tool-schema-widening-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-tool-schema-widening-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -151,7 +151,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-parameter-smuggling-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-parameter-smuggling-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -160,7 +160,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-bulk-read-exfil-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-bulk-read-exfil-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -169,7 +169,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-private-network-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-private-network-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -178,7 +178,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-destination-class-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-destination-class-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -187,7 +187,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-policy-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-egress-policy-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -196,7 +196,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-server-command-chain-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-server-command-chain-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -205,7 +205,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-secret-env-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-secret-env-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -214,7 +214,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-install-source-allowlist.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-install-source-allowlist.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -223,7 +223,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-install-source-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-install-source-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -232,7 +232,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-multi-stage-dropper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-multi-stage-dropper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -241,7 +241,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sideloaded-extension-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sideloaded-extension-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -250,7 +250,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tool-origin-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tool-origin-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -259,7 +259,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tool-capability-escalation-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tool-capability-escalation-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -268,7 +268,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-exec-chain-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-exec-chain-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -277,7 +277,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-trust-boundary-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/skill-trust-boundary-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -286,7 +286,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/instruction-override-bridge-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/instruction-override-bridge-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -295,7 +295,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-manifest-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-manifest-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -304,7 +304,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-update-source-swap-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-update-source-swap-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -313,7 +313,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-hook-origin-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-hook-origin-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -322,7 +322,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-exec-chain-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-exec-chain-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -331,7 +331,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-surface-expansion-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-surface-expansion-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -340,7 +340,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-trust-boundary-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/plugin-trust-boundary-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -349,7 +349,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/workspace-boundary-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/workspace-boundary-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -358,7 +358,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/trusted-config-symlink-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/trusted-config-symlink-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -367,7 +367,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-escape-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-escape-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -376,7 +376,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-policy-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sandbox-policy-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -385,7 +385,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/audit-evasion-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/audit-evasion-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -394,7 +394,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-metadata-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-metadata-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -403,7 +403,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dns-exfiltration-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dns-exfiltration-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -412,7 +412,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-webhook-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-webhook-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -421,7 +421,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/network-exfiltration.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/network-exfiltration.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -430,7 +430,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/archive-and-upload-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/archive-and-upload-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -439,7 +439,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-tunnel-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-tunnel-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -448,7 +448,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tunnel-beacon-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/tunnel-beacon-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -457,7 +457,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/remote-script-dropper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/remote-script-dropper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -466,7 +466,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/credential-export-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/credential-export-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -475,7 +475,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/clipboard-exfiltration-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/clipboard-exfiltration-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -484,7 +484,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-cookie-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-cookie-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -493,7 +493,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-profile-export-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-profile-export-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -502,7 +502,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-remote-debug-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/browser-remote-debug-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -511,7 +511,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/oauth-device-flow-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/oauth-device-flow-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -520,7 +520,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-credential-assume-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-credential-assume-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -529,7 +529,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/secret-manager-abuse-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/secret-manager-abuse-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -538,7 +538,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/container-socket-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/container-socket-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -547,7 +547,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/container-escape-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/container-escape-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -556,7 +556,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/docker-build-secret-leak-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/docker-build-secret-leak-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -565,7 +565,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/secret-diff-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/secret-diff-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -574,7 +574,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/env-sample-secret-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/env-sample-secret-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -583,7 +583,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-secret-inline-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-secret-inline-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -592,7 +592,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-secret-inline-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-secret-inline-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -601,7 +601,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-manager-auth-inline-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-manager-auth-inline-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -610,7 +610,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/credential-helper-downgrade-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/credential-helper-downgrade-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -619,7 +619,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-poisoning-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-poisoning-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -628,7 +628,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-poisoning-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-poisoning-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -637,7 +637,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/config-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -646,7 +646,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-hook-persistence-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-hook-persistence-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -655,7 +655,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-attributes-filter-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-attributes-filter-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -664,7 +664,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-remote-rewire-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-remote-rewire-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -673,7 +673,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-submodule-source-swap-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-submodule-source-swap-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -682,7 +682,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-secret-release-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-secret-release-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -691,7 +691,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-self-hosted-runner-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-self-hosted-runner-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -700,7 +700,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-artifact-secret-upload-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ci-artifact-secret-upload-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -709,7 +709,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dependency-script-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dependency-script-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -718,7 +718,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-lock-source-swap-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-lock-source-swap-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -727,7 +727,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/terraform-provider-source-swap-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/terraform-provider-source-swap-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -736,7 +736,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dangerous-migration-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/dangerous-migration-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -745,7 +745,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/terraform-destroy-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/terraform-destroy-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -754,7 +754,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-ca-trust-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/local-ca-trust-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -763,7 +763,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-target-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-target-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -772,7 +772,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kubectl-port-forward-prod-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kubectl-port-forward-prod-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -781,7 +781,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kube-exec-prod-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kube-exec-prod-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -790,7 +790,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cluster-admin-binding-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cluster-admin-binding-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -799,7 +799,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-db-shell-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-db-shell-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -808,7 +808,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-db-dump-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/prod-db-dump-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -817,7 +817,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kube-secret-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/kube-secret-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -826,7 +826,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/devcontainer-trust-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/devcontainer-trust-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -835,7 +835,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/signed-commit-bypass-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/signed-commit-bypass-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -844,7 +844,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-history-rewrite-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-history-rewrite-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -853,7 +853,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/artifact-poisoning-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/artifact-poisoning-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -862,7 +862,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/release-key-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/release-key-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -871,7 +871,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/registry-target-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/registry-target-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -880,7 +880,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/unexpected-registry-login-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/unexpected-registry-login-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -889,7 +889,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/public-artifact-secret-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/public-artifact-secret-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -898,7 +898,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/block-test-deletion.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/block-test-deletion.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -907,7 +907,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/test-fixture-secret-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/test-fixture-secret-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -916,7 +916,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/token-paste-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/token-paste-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -925,7 +925,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/repo-mass-harvest-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/repo-mass-harvest-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -934,7 +934,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/binary-payload-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/binary-payload-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -943,7 +943,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-agent-abuse-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-agent-abuse-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -952,7 +952,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-config-include-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-config-include-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -961,7 +961,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-proxycommand-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-proxycommand-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -970,7 +970,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-trust-downgrade-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-trust-downgrade-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -979,7 +979,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-authorized-keys-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/ssh-authorized-keys-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -988,7 +988,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/shell-profile-persistence-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/shell-profile-persistence-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -997,7 +997,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scheduled-task-persistence-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scheduled-task-persistence-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1006,7 +1006,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/hosts-file-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/hosts-file-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1015,7 +1015,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sudoers-tamper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/sudoers-tamper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1024,7 +1024,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-credential-store-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/git-credential-store-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1033,7 +1033,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/netrc-credential-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/netrc-credential-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1042,7 +1042,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/registry-credential-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/registry-credential-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1051,7 +1051,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-key-creation-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/cloud-key-creation-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1060,7 +1060,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/token-broker-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/token-broker-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1069,7 +1069,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/production-shell-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/production-shell-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1078,7 +1078,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/desktop-credential-store-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/desktop-credential-store-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1087,7 +1087,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mass-delete-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mass-delete-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1096,7 +1096,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-publish-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/package-publish-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       }
@@ -1107,7 +1107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Read\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Read\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1116,7 +1116,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse WebFetch\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse WebFetch\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1125,7 +1125,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Bash\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Bash\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1134,7 +1134,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Grep\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Grep\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1143,7 +1143,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Glob\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Glob\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1152,7 +1152,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Task\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse Task\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1161,7 +1161,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp__generic\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp__generic\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1170,7 +1170,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp_generic\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/context-chain-guard.sh PostToolUse mcp_generic\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1179,7 +1179,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/indirect-prompt-injection-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/indirect-prompt-injection-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1188,7 +1188,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-secret-leak-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-secret-leak-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1197,7 +1197,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-prompt-smuggling-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-prompt-smuggling-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1206,7 +1206,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-binary-dropper-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-binary-dropper-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1215,7 +1215,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-suspicious-url-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-suspicious-url-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1224,7 +1224,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-shell-snippet-guard.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/mcp-response-shell-snippet-guard.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1233,7 +1233,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-sensitive-files.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-sensitive-files.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1242,7 +1242,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-tests.sh\" \"$TOOL_INPUT\""
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-tests.sh\" \"$TOOL_INPUT\""
           }
         ]
       },
@@ -1251,7 +1251,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "RUNWALL_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/post-edit-quality-reminder.sh\" \"$TOOL_INPUT\"",
+            "command": "STALLION_HOME=\"${CLAUDE_PLUGIN_ROOT}\" bash \"${CLAUDE_PLUGIN_ROOT}/hooks/post-edit-quality-reminder.sh\" \"$TOOL_INPUT\"",
             "async": true
           }
         ]

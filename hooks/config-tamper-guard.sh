@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-CONFIG_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config"
+CONFIG_HOME="${STALLION_HOME:-$HOME/.stallion}/config"
 CONTROL_FILE="$CONFIG_HOME/security-control-files.regex"
 TAMPER_FILE="$CONFIG_HOME/tamper-phrases.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
@@ -23,7 +23,7 @@ if ! shield_match_file "$INPUT" "$TAMPER_FILE"; then
 fi
 
 shield_audit "config-tamper-guard" "block" "security control files are being weakened or broadly opened" "$INPUT"
-printf '%s\n' '[runwall] blocked security-control tampering' >&2
+printf '%s\n' '[stallion] blocked security-control tampering' >&2
 printf '%s\n' 'reason: the edit targets a control file and includes patterns that commonly weaken hooks, permissions, or review boundaries' >&2
 printf '%s\n' 'next: make the smallest reviewed change possible and avoid wildcard permissions, hook removal, or bypass-oriented text' >&2
 exit 2

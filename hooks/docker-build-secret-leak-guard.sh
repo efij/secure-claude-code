@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(--build-arg[=[:space:]][^[:space:]]*(T
 fi
 
 shield_audit "docker-build-secret-leak-guard" "block" "secret-bearing build input detected" "$INPUT"
-printf '%s\n' '[runwall] blocked secret-bearing container build input' >&2
+printf '%s\n' '[stallion] blocked secret-bearing container build input' >&2
 printf '%s\n' 'reason: the build command passes live secret material through build args or mounts secret files directly into the build context' >&2
 printf '%s\n' 'next: switch to a reviewed secret mount flow or a redacted sample instead of embedding live credentials in the build invocation' >&2
 exit 2

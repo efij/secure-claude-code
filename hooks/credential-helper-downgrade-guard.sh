@@ -9,7 +9,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(credential\.helper[[:space:]]+store|(^
 fi
 
 shield_audit "credential-helper-downgrade-guard" "block" "credential helper downgraded to plaintext or insecure storage" "$INPUT"
-printf '%s\n' '[runwall] blocked credential helper downgrade' >&2
+printf '%s\n' '[stallion] blocked credential helper downgrade' >&2
 printf '%s\n' 'reason: the change disables a secure helper or falls back to plaintext credential storage' >&2
 printf '%s\n' 'next: keep auth in reviewed keychains or broker-backed helpers instead of file-based or disabled secure storage' >&2
 exit 2

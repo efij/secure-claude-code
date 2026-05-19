@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])(--host|-h|--uri|--datab
 fi
 
 shield_audit "prod-db-shell-guard" "block" "direct production database shell access detected" "$INPUT"
-printf '%s\n' '[runwall] blocked direct production database shell access' >&2
+printf '%s\n' '[stallion] blocked direct production database shell access' >&2
 printf '%s\n' 'reason: the command opens an interactive database client against what looks like a production or customer-data target' >&2
 printf '%s\n' 'next: use reviewed read-only access paths or a human-approved break-glass workflow instead of direct agent shell access' >&2
 exit 2

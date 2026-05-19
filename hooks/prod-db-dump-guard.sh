@@ -13,7 +13,7 @@ if ! printf '%s\n' "$INPUT" | grep -Eqi '(^|[[:space:]])(--host|-h|--uri|--db|--
 fi
 
 shield_audit "prod-db-dump-guard" "block" "production-like database dump or export detected" "$INPUT"
-printf '%s\n' '[runwall] blocked production database dump' >&2
+printf '%s\n' '[stallion] blocked production database dump' >&2
 printf '%s\n' 'reason: the command attempts to dump or export a production-like data store, which can expose large amounts of customer or live data' >&2
 printf '%s\n' 'next: use reviewed backup procedures or approved redacted snapshots instead of direct agent-driven dumps' >&2
 exit 2

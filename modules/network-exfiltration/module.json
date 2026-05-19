@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/network-exfiltration.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/network-exfiltration.sh \"$TOOL_INPUT\""
   },
   "family": "Runtime, Network & Egress"
 }

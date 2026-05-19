@@ -2,10 +2,10 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-INSTALL_HOME="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}"
+INSTALL_HOME="${STALLION_HOME:-$HOME/.stallion}"
 CLAUDE_HOME="${CLAUDE_HOME:-$HOME/.claude}"
-HOOK_COMMAND_PREFIX='~/.runwall/hooks/'
-AUDIT_FILE="${RUNWALL_AUDIT_FILE:-${SECURE_CLAUDE_CODE_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}}"
+HOOK_COMMAND_PREFIX='~/.stallion/hooks/'
+AUDIT_FILE="${STALLION_AUDIT_FILE:-$INSTALL_HOME/state/audit.jsonl}"
 PYTHON_BIN=""
 
 info() {
@@ -114,7 +114,7 @@ for module_id in module_ids:
         }
         if "command" in hook_payload:
             hook_payload["command"] = hook_payload["command"].replace(
-                "~/.runwall", render_home
+                "~/.stallion", render_home
             )
         entry = {
             "matcher": hook["matcher"],
@@ -173,18 +173,18 @@ for module_id in module_ids:
         }
         command = hook_payload.get("command")
         if command:
-            if command.startswith("bash ~/.runwall/"):
+            if command.startswith("bash ~/.stallion/"):
                 script_path, _, remainder = command.partition(' "$')
                 script_path = script_path.replace(
-                    "bash ~/.runwall/", '${CLAUDE_PLUGIN_ROOT}/'
+                    "bash ~/.stallion/", '${CLAUDE_PLUGIN_ROOT}/'
                 )
                 hook_payload["command"] = (
-                    'RUNWALL_HOME="${CLAUDE_PLUGIN_ROOT}" '
+                    'STALLION_HOME="${CLAUDE_PLUGIN_ROOT}" '
                     f'bash "{script_path}" "$' + remainder
                 )
             else:
                 hook_payload["command"] = (
-                    'RUNWALL_HOME="${CLAUDE_PLUGIN_ROOT}" ' + command
+                    'STALLION_HOME="${CLAUDE_PLUGIN_ROOT}" ' + command
                 )
 
         entry = {
@@ -194,7 +194,7 @@ for module_id in module_ids:
         hooks.setdefault(event, []).append(entry)
 
 payload = {
-    "description": "Runwall balanced hook pack for Claude Code.",
+    "description": "Stallion balanced hook pack for Claude Code.",
     "hooks": hooks,
 }
 
@@ -352,7 +352,7 @@ install_profile() {
   printf '%s\n' "$profile" >"$INSTALL_HOME/state/profile.txt"
 
   info ""
-  info "Runwall installed."
+  info "Stallion installed."
   info "Profile: $profile"
   info "Protections: $(read_profile_modules "$profile" | wc -l | tr -d ' ') signatures enabled"
   info "Install home: $INSTALL_HOME"
@@ -391,7 +391,7 @@ validate_install() {
   }
 
   info ""
-  info "Runwall validation"
+  info "Stallion validation"
   info "Profile: $profile"
   info ""
 
@@ -598,7 +598,7 @@ PY
   else
     info "  no active profile found"
     info ""
-    info "Repair with: bin/runwall doctor --fix balanced"
+    info "Repair with: bin/stallion doctor --fix balanced"
   fi
 }
 
@@ -647,9 +647,9 @@ list_runtimes() {
 Runtimes:
   - claude-code    native hook adapter with direct pre/post tool enforcement
   - codex          plugin bundle plus generated inline gateway fallback config and AGENTS.md snippet
-  - cursor         generated mcp.json for Cursor with Runwall inline gateway
-  - windsurf       generated mcp_config.json for Windsurf with Runwall inline gateway
-  - claude-desktop generated claude_desktop_config.json for Claude Desktop with Runwall inline gateway
+  - cursor         generated mcp.json for Cursor with Stallion inline gateway
+  - windsurf       generated mcp_config.json for Windsurf with Stallion inline gateway
+  - claude-desktop generated claude_desktop_config.json for Claude Desktop with Stallion inline gateway
   - generic-mcp    generic MCP inline gateway mode for other MCP clients
   - ci             CI/CD snippet plus CLI policy evaluation
 
@@ -663,13 +663,13 @@ tools_cmd() {
   shift || true
   case "$subcommand" in
     list)
-      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" list "$@"
+      run_python "$ROOT_DIR/scripts/stallion_tools.py" --root "$ROOT_DIR" list "$@"
       ;;
     approve)
-      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" approve "$@"
+      run_python "$ROOT_DIR/scripts/stallion_tools.py" --root "$ROOT_DIR" approve "$@"
       ;;
     forget)
-      run_python "$ROOT_DIR/scripts/runwall_tools.py" --root "$ROOT_DIR" forget "$@"
+      run_python "$ROOT_DIR/scripts/stallion_tools.py" --root "$ROOT_DIR" forget "$@"
       ;;
     *)
       fail "unknown tools subcommand: $subcommand"
@@ -682,7 +682,7 @@ exec_cmd() {
   shift || true
   case "$subcommand" in
     list|explain|policy)
-      run_python "$ROOT_DIR/scripts/runwall_exec.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_exec.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown exec subcommand: $subcommand"
@@ -695,16 +695,16 @@ hooks_cmd() {
   shift || true
   case "$subcommand" in
     list)
-      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" list "$@"
+      run_python "$ROOT_DIR/scripts/stallion_hooks.py" --root "$ROOT_DIR" list "$@"
       ;;
     approve)
-      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" approve "$@"
+      run_python "$ROOT_DIR/scripts/stallion_hooks.py" --root "$ROOT_DIR" approve "$@"
       ;;
     forget)
-      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" forget "$@"
+      run_python "$ROOT_DIR/scripts/stallion_hooks.py" --root "$ROOT_DIR" forget "$@"
       ;;
     diff)
-      run_python "$ROOT_DIR/scripts/runwall_hooks.py" --root "$ROOT_DIR" diff "$@"
+      run_python "$ROOT_DIR/scripts/stallion_hooks.py" --root "$ROOT_DIR" diff "$@"
       ;;
     *)
       fail "unknown hooks subcommand: $subcommand"
@@ -717,7 +717,7 @@ promotion_cmd() {
   shift || true
   case "$subcommand" in
     list|trust|quarantine|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_promotion.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_promotion.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown promotion subcommand: $subcommand"
@@ -730,10 +730,10 @@ approvals_cmd() {
   shift || true
   case "$subcommand" in
     list|prune|diff|explain)
-      run_python "$ROOT_DIR/scripts/runwall_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     create|revoke)
-      run_python "$ROOT_DIR/scripts/runwall_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_approvals.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown approvals subcommand: $subcommand"
@@ -746,7 +746,7 @@ safety_cmd() {
   shift || true
   case "$subcommand" in
     list|diff|forget)
-      run_python "$ROOT_DIR/scripts/runwall_safety.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_safety.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown safety subcommand: $subcommand"
@@ -759,7 +759,7 @@ services_cmd() {
   shift || true
   case "$subcommand" in
     list|approve|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_services.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_services.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown services subcommand: $subcommand"
@@ -772,7 +772,7 @@ data_cmd() {
   shift || true
   case "$subcommand" in
     list|approve|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_data.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_data.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown data subcommand: $subcommand"
@@ -785,7 +785,7 @@ release_cmd() {
   shift || true
   case "$subcommand" in
     list|approve|forget|diff|policy)
-      run_python "$ROOT_DIR/scripts/runwall_release.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_release.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown release subcommand: $subcommand"
@@ -798,7 +798,7 @@ ipc_cmd() {
   shift || true
   case "$subcommand" in
     list|approve|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_ipc.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_ipc.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown ipc subcommand: $subcommand"
@@ -811,7 +811,7 @@ destructive_cmd() {
   shift || true
   case "$subcommand" in
     list|explain|policy)
-      run_python "$ROOT_DIR/scripts/runwall_destructive.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_destructive.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown destructive subcommand: $subcommand"
@@ -824,7 +824,7 @@ handoff_cmd() {
   shift || true
   case "$subcommand" in
     graph|explain|policy)
-      run_python "$ROOT_DIR/scripts/runwall_handoff.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_handoff.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown handoff subcommand: $subcommand"
@@ -837,7 +837,7 @@ auth_cmd() {
   shift || true
   case "$subcommand" in
     list|explain|policy|approve|forget)
-      run_python "$ROOT_DIR/scripts/runwall_auth.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_auth.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown auth subcommand: $subcommand"
@@ -850,7 +850,7 @@ browser_cmd() {
   shift || true
   case "$subcommand" in
     sessions|allow|revoke|policy)
-      run_python "$ROOT_DIR/scripts/runwall_browser.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_browser.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown browser subcommand: $subcommand"
@@ -863,7 +863,7 @@ flow_cmd() {
   shift || true
   case "$subcommand" in
     list|explain|clear)
-      run_python "$ROOT_DIR/scripts/runwall_flow.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_flow.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown flow subcommand: $subcommand"
@@ -876,7 +876,7 @@ agents_cmd() {
   shift || true
   case "$subcommand" in
     graph|explain|isolate|unisolate)
-      run_python "$ROOT_DIR/scripts/runwall_agents.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_agents.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown agents subcommand: $subcommand"
@@ -889,7 +889,7 @@ memory_cmd() {
   shift || true
   case "$subcommand" in
     list|trust|quarantine|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_memory.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_memory.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown memory subcommand: $subcommand"
@@ -902,7 +902,7 @@ knowledge_cmd() {
   shift || true
   case "$subcommand" in
     list|trust|quarantine|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_knowledge.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_knowledge.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown knowledge subcommand: $subcommand"
@@ -915,7 +915,7 @@ review_cmd() {
   shift || true
   case "$subcommand" in
     list|trust|quarantine|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_review.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_review.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown review subcommand: $subcommand"
@@ -928,7 +928,7 @@ artifacts_cmd() {
   shift || true
   case "$subcommand" in
     list|trust|quarantine|forget|diff)
-      run_python "$ROOT_DIR/scripts/runwall_artifacts.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_artifacts.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown artifacts subcommand: $subcommand"
@@ -941,7 +941,7 @@ apps_cmd() {
   shift || true
   case "$subcommand" in
     list|explain|policy)
-      run_python "$ROOT_DIR/scripts/runwall_apps.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_apps.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
       fail "unknown apps subcommand: $subcommand"
@@ -949,21 +949,21 @@ apps_cmd() {
   esac
 }
 
-stallion_cmd() {
+client_cmd() {
   local subcommand="${1:-status}"
   shift || true
   case "$subcommand" in
     status|policy|flush|record-prompt)
-      run_python "$ROOT_DIR/scripts/runwall_stallion.py" --root "$ROOT_DIR" "$subcommand" "$@"
+      run_python "$ROOT_DIR/scripts/stallion_client.py" --root "$ROOT_DIR" "$subcommand" "$@"
       ;;
     *)
-      fail "unknown stallion subcommand: $subcommand"
+      fail "unknown client subcommand: $subcommand"
       ;;
   esac
 }
 
 wrap_cmd() {
-  run_python "$ROOT_DIR/scripts/runwall_wrap.py" --root "$ROOT_DIR" "$@"
+  run_python "$ROOT_DIR/scripts/stallion_wrap.py" --root "$ROOT_DIR" "$@"
 }
 
 generate_runtime_config() {
@@ -1138,7 +1138,7 @@ evaluate_policy_cmd() {
   assert_profile_exists "$profile"
   require_python
   local args=(
-    "$ROOT_DIR/scripts/runwall_policy.py"
+    "$ROOT_DIR/scripts/stallion_policy.py"
     --root "$ROOT_DIR"
     --profile "$profile"
     --event "$event"
@@ -1190,7 +1190,7 @@ export_incident_cmd() {
 
   require_python
   local args=(
-    "$ROOT_DIR/scripts/runwall_forensics.py"
+    "$ROOT_DIR/scripts/stallion_forensics.py"
     export
     --root "$ROOT_DIR"
     "$selector"
@@ -1204,7 +1204,7 @@ mcp_serve() {
   local profile="${1:-balanced}"
   assert_profile_exists "$profile"
   require_python
-  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_gateway.py" --root "$ROOT_DIR" --profile "$profile" --config "$ROOT_DIR/config/gateway.json"
+  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/stallion_gateway.py" --root "$ROOT_DIR" --profile "$profile" --config "$ROOT_DIR/config/gateway.json"
 }
 
 gateway_serve() {
@@ -1242,7 +1242,7 @@ gateway_serve() {
 
   assert_profile_exists "$profile"
   require_python
-  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/runwall_gateway.py" \
+  exec "$PYTHON_BIN" "$ROOT_DIR/scripts/stallion_gateway.py" \
     --root "$ROOT_DIR" \
     --profile "$profile" \
     --config "$config" \
@@ -1352,11 +1352,11 @@ uninstall_install() {
   remove_settings_entries "$CLAUDE_HOME/settings.json"
 
   if [ "$keep_home" = "true" ]; then
-    info "Runwall hooks removed from settings."
+    info "Stallion hooks removed from settings."
     info "Install home kept at $INSTALL_HOME"
   else
     rm -rf "$INSTALL_HOME"
-    info "Runwall hooks removed from settings."
+    info "Stallion hooks removed from settings."
     info "Install home removed: $INSTALL_HOME"
   fi
 }
@@ -1364,117 +1364,117 @@ uninstall_install() {
 usage() {
   cat <<'EOF'
 Usage:
-  bin/runwall install [profile]
-  bin/runwall update [profile]
-  bin/runwall uninstall [--keep-home]
-  bin/runwall init [path] [--profile name] [--force]
-  bin/runwall audit [path] [--profile name] [--format text|json|html|sarif] [--output path] [--fail-on severity]
-  bin/runwall validate
-  bin/runwall doctor [--fix] [profile]
-  bin/runwall logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
-  bin/runwall list profiles
-  bin/runwall list modules
-  bin/runwall list protections
-  bin/runwall list runtimes
-  bin/runwall tools list [--json]
-  bin/runwall tools approve <name-or-path>
-  bin/runwall tools forget <name-or-path>
-  bin/runwall exec list [--json]
-  bin/runwall exec explain <event-id-or-module>
-  bin/runwall exec policy [--json]
-  bin/runwall hooks list [--json]
-  bin/runwall hooks approve <path-or-key>
-  bin/runwall hooks forget <path-or-key>
-  bin/runwall hooks diff <path-or-key>
-  bin/runwall promotion list [--json]
-  bin/runwall promotion trust <path>
-  bin/runwall promotion quarantine <path>
-  bin/runwall promotion forget <path>
-  bin/runwall promotion diff <path>
-  bin/runwall approvals list [--json]
-  bin/runwall approvals create --kind K --target T --value V [--runtime name] [--agent-id id] [--once] [--ttl-hours H]
-  bin/runwall approvals revoke <id-or-value>
-  bin/runwall approvals prune
-  bin/runwall approvals diff <id-or-value>
-  bin/runwall approvals explain <id-or-value>
-  bin/runwall services list [--json]
-  bin/runwall services approve <target>
-  bin/runwall services forget <target>
-  bin/runwall services diff <target>
-  bin/runwall data list [--json]
-  bin/runwall data approve <target>
-  bin/runwall data forget <target>
-  bin/runwall data diff <target>
-  bin/runwall release list [--json]
-  bin/runwall release approve <target> [--once]
-  bin/runwall release forget <target>
-  bin/runwall release diff <target>
-  bin/runwall release policy [--json]
-  bin/runwall ipc list [--json]
-  bin/runwall ipc approve <target>
-  bin/runwall ipc forget <target>
-  bin/runwall ipc diff <target>
-  bin/runwall destructive list [--json]
-  bin/runwall destructive explain <event-id>
-  bin/runwall destructive policy [--json]
-  bin/runwall handoff graph [--json]
-  bin/runwall handoff explain <session-id>
-  bin/runwall handoff policy [--json]
-  bin/runwall auth list [--json]
-  bin/runwall auth explain <event-id-or-provider:class>
-  bin/runwall auth approve <provider:class> [--once] [--runtime name] [--agent-id id] [--ttl-hours H]
-  bin/runwall auth forget <provider-or-provider:class>
-  bin/runwall auth policy [--json]
-  bin/runwall safety list [--json]
-  bin/runwall safety diff <path-or-surface>
-  bin/runwall safety forget <path-or-surface>
-  bin/runwall browser sessions [--json]
-  bin/runwall browser allow <domain>
-  bin/runwall browser revoke <domain>
-  bin/runwall browser policy [--json]
-  bin/runwall flow list [--json]
-  bin/runwall flow explain <session-id>
-  bin/runwall flow clear [session-id]
-  bin/runwall agents graph [--json]
-  bin/runwall agents explain <session-id>
-  bin/runwall agents isolate <agent-id>
-  bin/runwall agents unisolate <agent-id>
-  bin/runwall memory list [--json]
-  bin/runwall memory trust <path>
-  bin/runwall memory quarantine <path>
-  bin/runwall memory forget <path>
-  bin/runwall memory diff <path>
-  bin/runwall knowledge list [--json]
-  bin/runwall knowledge trust <path>
-  bin/runwall knowledge quarantine <path>
-  bin/runwall knowledge forget <path>
-  bin/runwall knowledge diff <path>
-  bin/runwall review list [--json]
-  bin/runwall review trust <path>
-  bin/runwall review quarantine <path>
-  bin/runwall review forget <path>
-  bin/runwall review diff <path>
-  bin/runwall artifacts list [--json]
-  bin/runwall artifacts trust <path>
-  bin/runwall artifacts quarantine <path>
-  bin/runwall artifacts forget <path>
-  bin/runwall artifacts diff <path>
-  bin/runwall apps list [--json]
-  bin/runwall apps explain <event-id>
-  bin/runwall apps policy [--json]
-  bin/runwall stallion status [--json]
-  bin/runwall stallion policy [--json]
-  bin/runwall stallion flush [--limit N]
-  bin/runwall stallion record-prompt [--runtime name] [--agent-id id] [--session-id id] [--role role] <prompt>
-  bin/runwall wrap list-packs [--json]
-  bin/runwall wrap add <server-id> --command <cmd> [--arg value]... [--env KEY=VALUE]...
-  bin/runwall generate-config [profile] [output]
-  bin/runwall generate-plugin-hooks [profile] [output]
-  bin/runwall generate-runtime-config <runtime> [profile] [output]
-  bin/runwall evaluate <event> <matcher> <input> [--profile name] [--json]
-  bin/runwall export-incident <selector> [--output path] [--format zip|json]
-  bin/runwall mcp serve [profile]
-  bin/runwall gateway serve [profile] [--config path] [--api-port port]
+  bin/stallion install [profile]
+  bin/stallion update [profile]
+  bin/stallion uninstall [--keep-home]
+  bin/stallion init [path] [--profile name] [--force]
+  bin/stallion audit [path] [--profile name] [--format text|json|html|sarif] [--output path] [--fail-on severity]
+  bin/stallion validate
+  bin/stallion doctor [--fix] [profile]
+  bin/stallion logs [count] [--json] [--module id] [--decision kind] [--since-hours N]
+  bin/stallion list profiles
+  bin/stallion list modules
+  bin/stallion list protections
+  bin/stallion list runtimes
+  bin/stallion tools list [--json]
+  bin/stallion tools approve <name-or-path>
+  bin/stallion tools forget <name-or-path>
+  bin/stallion exec list [--json]
+  bin/stallion exec explain <event-id-or-module>
+  bin/stallion exec policy [--json]
+  bin/stallion hooks list [--json]
+  bin/stallion hooks approve <path-or-key>
+  bin/stallion hooks forget <path-or-key>
+  bin/stallion hooks diff <path-or-key>
+  bin/stallion promotion list [--json]
+  bin/stallion promotion trust <path>
+  bin/stallion promotion quarantine <path>
+  bin/stallion promotion forget <path>
+  bin/stallion promotion diff <path>
+  bin/stallion approvals list [--json]
+  bin/stallion approvals create --kind K --target T --value V [--runtime name] [--agent-id id] [--once] [--ttl-hours H]
+  bin/stallion approvals revoke <id-or-value>
+  bin/stallion approvals prune
+  bin/stallion approvals diff <id-or-value>
+  bin/stallion approvals explain <id-or-value>
+  bin/stallion services list [--json]
+  bin/stallion services approve <target>
+  bin/stallion services forget <target>
+  bin/stallion services diff <target>
+  bin/stallion data list [--json]
+  bin/stallion data approve <target>
+  bin/stallion data forget <target>
+  bin/stallion data diff <target>
+  bin/stallion release list [--json]
+  bin/stallion release approve <target> [--once]
+  bin/stallion release forget <target>
+  bin/stallion release diff <target>
+  bin/stallion release policy [--json]
+  bin/stallion ipc list [--json]
+  bin/stallion ipc approve <target>
+  bin/stallion ipc forget <target>
+  bin/stallion ipc diff <target>
+  bin/stallion destructive list [--json]
+  bin/stallion destructive explain <event-id>
+  bin/stallion destructive policy [--json]
+  bin/stallion handoff graph [--json]
+  bin/stallion handoff explain <session-id>
+  bin/stallion handoff policy [--json]
+  bin/stallion auth list [--json]
+  bin/stallion auth explain <event-id-or-provider:class>
+  bin/stallion auth approve <provider:class> [--once] [--runtime name] [--agent-id id] [--ttl-hours H]
+  bin/stallion auth forget <provider-or-provider:class>
+  bin/stallion auth policy [--json]
+  bin/stallion safety list [--json]
+  bin/stallion safety diff <path-or-surface>
+  bin/stallion safety forget <path-or-surface>
+  bin/stallion browser sessions [--json]
+  bin/stallion browser allow <domain>
+  bin/stallion browser revoke <domain>
+  bin/stallion browser policy [--json]
+  bin/stallion flow list [--json]
+  bin/stallion flow explain <session-id>
+  bin/stallion flow clear [session-id]
+  bin/stallion agents graph [--json]
+  bin/stallion agents explain <session-id>
+  bin/stallion agents isolate <agent-id>
+  bin/stallion agents unisolate <agent-id>
+  bin/stallion memory list [--json]
+  bin/stallion memory trust <path>
+  bin/stallion memory quarantine <path>
+  bin/stallion memory forget <path>
+  bin/stallion memory diff <path>
+  bin/stallion knowledge list [--json]
+  bin/stallion knowledge trust <path>
+  bin/stallion knowledge quarantine <path>
+  bin/stallion knowledge forget <path>
+  bin/stallion knowledge diff <path>
+  bin/stallion review list [--json]
+  bin/stallion review trust <path>
+  bin/stallion review quarantine <path>
+  bin/stallion review forget <path>
+  bin/stallion review diff <path>
+  bin/stallion artifacts list [--json]
+  bin/stallion artifacts trust <path>
+  bin/stallion artifacts quarantine <path>
+  bin/stallion artifacts forget <path>
+  bin/stallion artifacts diff <path>
+  bin/stallion apps list [--json]
+  bin/stallion apps explain <event-id>
+  bin/stallion apps policy [--json]
+  bin/stallion client status [--json]
+  bin/stallion client policy [--json]
+  bin/stallion client flush [--limit N]
+  bin/stallion client record-prompt [--runtime name] [--agent-id id] [--session-id id] [--role role] <prompt>
+  bin/stallion wrap list-packs [--json]
+  bin/stallion wrap add <server-id> --command <cmd> [--arg value]... [--env KEY=VALUE]...
+  bin/stallion generate-config [profile] [output]
+  bin/stallion generate-plugin-hooks [profile] [output]
+  bin/stallion generate-runtime-config <runtime> [profile] [output]
+  bin/stallion evaluate <event> <matcher> <input> [--profile name] [--json]
+  bin/stallion export-incident <selector> [--output path] [--format zip|json]
+  bin/stallion mcp serve [profile]
+  bin/stallion gateway serve [profile] [--config path] [--api-port port]
 
 Profiles:
   minimal   Tight baseline for solo hacking
@@ -1506,14 +1506,14 @@ init_baseline_cmd() {
   done
 
   if [ "$force" = "true" ]; then
-    run_python "$ROOT_DIR/scripts/runwall_audit.py" init "$path" --profile "$profile" --force
+    run_python "$ROOT_DIR/scripts/stallion_audit.py" init "$path" --profile "$profile" --force
   else
-    run_python "$ROOT_DIR/scripts/runwall_audit.py" init "$path" --profile "$profile"
+    run_python "$ROOT_DIR/scripts/stallion_audit.py" init "$path" --profile "$profile"
   fi
 }
 
 audit_cmd() {
-  run_python "$ROOT_DIR/scripts/runwall_audit.py" audit "$@"
+  run_python "$ROOT_DIR/scripts/stallion_audit.py" audit "$@"
 }
 
 command="${1:-help}"
@@ -1689,9 +1689,9 @@ case "$command" in
     shift
     apps_cmd "$@"
     ;;
-  stallion)
+  client)
     shift
-    stallion_cmd "$@"
+    client_cmd "$@"
     ;;
   help|-h|--help|"")
     usage

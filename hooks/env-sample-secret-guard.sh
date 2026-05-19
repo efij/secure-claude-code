@@ -2,7 +2,7 @@
 set -euo pipefail
 
 INPUT="${1:-}"
-TOKEN_FILE="${RUNWALL_HOME:-${SECURE_CLAUDE_CODE_HOME:-$HOME/.runwall}}/config/live-token-patterns.regex"
+TOKEN_FILE="${STALLION_HOME:-$HOME/.stallion}/config/live-token-patterns.regex"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/audit.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/lib/patterns.sh"
 trap 'shield_cleanup_pattern_files' EXIT
@@ -19,7 +19,7 @@ if ! shield_match_pattern_file "$INPUT" "$TOKEN_FILE" \
 fi
 
 shield_audit "env-sample-secret-guard" "block" "real secret material is being written into sample or demo content" "$INPUT"
-printf '%s\n' '[runwall] blocked real secret in sample content' >&2
+printf '%s\n' '[stallion] blocked real secret in sample content' >&2
 printf '%s\n' 'reason: the example or sample file contains a live token or connection string instead of a fake or redacted placeholder' >&2
 printf '%s\n' 'next: replace it with a clearly fake value or a documented secret reference pattern' >&2
 exit 2

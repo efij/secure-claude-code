@@ -21,11 +21,11 @@ SHELL_PATTERNS = [
 ]
 
 
-def runwall_home() -> pathlib.Path:
+def stallion_home() -> pathlib.Path:
     return pathlib.Path(
         os.environ.get(
-            "RUNWALL_HOME",
-            os.environ.get("SECURE_CLAUDE_CODE_HOME", os.path.expanduser("~/.runwall")),
+            "STALLION_HOME",
+            os.environ.get("STALLION_HOME", os.path.expanduser("~/.stallion")),
         )
     )
 
@@ -92,11 +92,11 @@ def emit(decision: str, reason: str, label: str, evidence: str, exit_code: int) 
         "reason": reason,
         "evidence": [{"type": label, "value": evidence[:200]}],
     }
-    print(f"RUNWALL_JSON:{json.dumps(payload, separators=(',', ':'))}")
+    print(f"STALLION_JSON:{json.dumps(payload, separators=(',', ':'))}")
     if decision == "prompt":
-        print("[runwall] review required for suspicious MCP response URL", file=sys.stderr)
+        print("[stallion] review required for suspicious MCP response URL", file=sys.stderr)
     else:
-        print("[runwall] blocked risky MCP response shell snippet", file=sys.stderr)
+        print("[stallion] blocked risky MCP response shell snippet", file=sys.stderr)
     print(f"reason: {reason}", file=sys.stderr)
     return exit_code
 

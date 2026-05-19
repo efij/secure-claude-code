@@ -1,6 +1,6 @@
 # Contributing
 
-Runwall is designed around small, reviewable protection packs instead of a single growing script.
+Stallion is designed around small, reviewable protection packs instead of a single growing script.
 
 ## Contribution Principles
 
@@ -46,7 +46,7 @@ Runwall is designed around small, reviewable protection packs instead of a singl
     "event": "PostToolUse",
     "matcher": "Write|Edit|MultiEdit",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/protect-tests.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/protect-tests.sh \"$TOOL_INPUT\""
   }
 }
 ```
@@ -56,8 +56,8 @@ Runwall is designed around small, reviewable protection packs instead of a singl
 Run before opening a PR:
 
 ```bash
-bash -n bin/shield bin/runwall install.sh uninstall.sh update.sh scripts/*.sh hooks/*.sh
-./bin/runwall list protections
-./bin/runwall generate-config balanced
+bash -n bin/shield bin/stallion install.sh uninstall.sh update.sh scripts/*.sh hooks/*.sh
+./bin/stallion list protections
+./bin/stallion generate-config balanced
 bash tests/smoke.sh
 ```

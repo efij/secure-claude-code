@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "GatewayRegistry",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/mcp-upstream-swap-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/mcp-upstream-swap-guard.sh \"$TOOL_INPUT\""
   },
   "family": "MCP, Plugins & Skills"
 }

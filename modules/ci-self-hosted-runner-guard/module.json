@@ -16,7 +16,7 @@
     "event": "PreToolUse",
     "matcher": "Bash",
     "type": "command",
-    "command": "bash ~/.runwall/hooks/ci-self-hosted-runner-guard.sh \"$TOOL_INPUT\""
+    "command": "bash ~/.stallion/hooks/ci-self-hosted-runner-guard.sh \"$TOOL_INPUT\""
   },
   "family": "Supply Chain & Dependencies"
 }

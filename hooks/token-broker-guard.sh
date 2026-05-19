@@ -10,7 +10,7 @@ fi
 
 shield_audit "token-broker-guard" "prompt" "live token broker or delegated session minting flow detected" "$INPUT"
 shield_emit_metadata '{"prompt":{"review_required":true},"reason":"The command requests a live access token or delegated session through a broker or auth helper."}'
-printf '%s\n' '[runwall] review required for live token minting' >&2
+printf '%s\n' '[stallion] review required for live token minting' >&2
 printf '%s\n' 'reason: the command requests a fresh token or delegated session outside the current runtime trust boundary' >&2
 printf '%s\n' 'next: prefer reviewed service identities or approve token issuance only when a human explicitly intends it' >&2
 exit 0

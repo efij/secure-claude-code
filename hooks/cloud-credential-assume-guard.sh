@@ -10,7 +10,7 @@ fi
 
 shield_audit "cloud-credential-assume-guard" "prompt" "cloud role assumption or service-account impersonation detected" "$INPUT"
 shield_emit_metadata '{"prompt":{"review_required":true},"reason":"The command attempts to assume a cloud role or impersonate a service identity for fresh credentials."}'
-printf '%s\n' '[runwall] review required for cloud credential assumption' >&2
+printf '%s\n' '[stallion] review required for cloud credential assumption' >&2
 printf '%s\n' 'reason: the command tries to assume a cloud role or impersonate a service account, which expands live cloud access in the current session' >&2
 printf '%s\n' 'next: keep runtime access scoped to reviewed identities and approve impersonation only when it is explicitly required' >&2
 exit 0

@@ -17,13 +17,13 @@
       "event": "PreToolUse",
       "matcher": "Bash",
       "type": "command",
-      "command": "bash ~/.runwall/hooks/block-test-deletion.sh \"$TOOL_INPUT\""
+      "command": "bash ~/.stallion/hooks/block-test-deletion.sh \"$TOOL_INPUT\""
     },
     {
       "event": "PostToolUse",
       "matcher": "Write|Edit|MultiEdit",
       "type": "command",
-      "command": "bash ~/.runwall/hooks/protect-tests.sh \"$TOOL_INPUT\""
+      "command": "bash ~/.stallion/hooks/protect-tests.sh \"$TOOL_INPUT\""
     }
   ],
   "family": "Quality & Workflow"
